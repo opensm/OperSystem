@@ -70,6 +70,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'KubernetesManagerWeb.wsgi.application'
 
+AUTH_USER_MODEL = 'Rbac.UserInfo'
+
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 

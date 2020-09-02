@@ -16,7 +16,7 @@ class Permission(models.Model):
     }
     title = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
     parent = models.ForeignKey(
-        'self', verbose_name='父级菜单', null=True, blank=True, related_name='children', on_delete=False
+        'self', verbose_name='父级菜单', null=True, blank=True, related_name='children', on_delete=models.DO_NOTHING
     )
     code = models.CharField(verbose_name="读写情况", choices=code_choice, default="select", max_length=50)
     url = models.CharField(verbose_name='URL', max_length=255)
@@ -46,13 +46,14 @@ class UserInfo(AbstractBaseUser, PermissionsMixin):
         verbose_name='角色',
         blank=True,
     )
+    email = models.EmailField(verbose_name="邮箱地址", unique=True)
     is_active = models.BooleanField(verbose_name="有效", default=True)
     is_staff = models.BooleanField(verbose_name="员工", default=True)
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
     update_date = models.DateTimeField(verbose_name='更新日期', auto_now_add=True)
 
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['username', 'mobile', 'department', 'is_active', 'is_superuser']
+    REQUIRED_FIELDS = ['mobile', 'department', 'is_active', 'is_superuser', 'roles']
 
     class Meta:
         verbose_name_plural = _("User")

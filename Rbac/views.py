@@ -27,7 +27,8 @@ class AuthView(APIView):
                 expiration_time = datetime.datetime.now() + datetime.timedelta(minutes=60)
                 defaults = {
                     "token": token,
-                    "expiration_time": expiration_time
+                    "expiration_time": expiration_time,
+                    "update_time": datetime.datetime.now()
                 }
                 UserToken.objects.update_or_create(username=user_obj, defaults=defaults)
                 res = {

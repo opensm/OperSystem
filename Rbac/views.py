@@ -22,7 +22,7 @@ class AuthView(APIView):
             user_obj = auth.authenticate(username=username, password=password)
             if user_obj:
                 # 为登录用户创建token
-                md5 = hashlib.md5("{0}{1}{2}".format(username, time.time(), SECRET_KEY))
+                md5 = hashlib.md5("{0}{1}{2}".format(username, time.time(), SECRET_KEY).encode("utf8"))
                 token = md5.hexdigest()
                 # 保存(存在就更新不存在就创建，并设置过期时间为5分钟)
                 expiration_time = datetime.datetime.now() + datetime.timedelta(minutes=60)

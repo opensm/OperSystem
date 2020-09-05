@@ -7,6 +7,7 @@ import datetime, time
 from django.contrib import auth
 from django.http import JsonResponse
 from django.core import serializers
+from serializers import RoleSerializer
 
 
 class AuthView(APIView):
@@ -59,11 +60,10 @@ class AuthView(APIView):
         return JsonResponse(request.data)
 
 
-class RoleView(APIView):
-
+class RolesView(APIView):
     def get(self, request):
         try:
-            data = serializers.serialize('json',Role.objects.all())
+            data = serializers.serialize('json', Role.objects.all())
             # data = Role.objects.all()
             res = {
                 "data": data,
@@ -79,10 +79,35 @@ class RoleView(APIView):
             return JsonResponse(res)
 
     def post(self, request):
+        res = RoleSerializer(data=request.data)
+        if not res.is_valid():
+            res = {
+                "data": "null",
+                "meta": {"msg": "传入参数错误:{0}".format(res.errors), "status": 300}
+            }
+            return JsonResponse(res)
+        else:
+            res.save()
+            data = {
+                "data": res.data,
+                "meta": {"msg": "角色数据保存成功", "status": 200}
+            }
+            return JsonResponse(data)
+
+
+class RoleView(APIView):
+
+    def get(self, request):
+        """
+        :param request:
+        :return:
+        """
+        return JsonResponse({"data": "get"})
+
+    def post(self, request):
         return JsonResponse({"data": "post"})
 
     def put(self, request):
-
         return JsonResponse({"data": "put"})
 
     def delete(self, request):

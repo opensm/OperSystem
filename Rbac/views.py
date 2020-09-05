@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from Rbac.models import *
 import hashlib
 import datetime
+from django.contrib import auth
 from django.http import JsonResponse
 
 
@@ -18,7 +19,7 @@ class AuthView(APIView):
         try:
             username = request.data["username"]
             password = request.data["password"]
-            user_obj = UserInfo.objects.filter(username=username, password=password).first()
+            user_obj = auth.authenticate(username=username, password=password)
             if user_obj:
                 # 为登录用户创建token
                 token = hashlib.md5(username)

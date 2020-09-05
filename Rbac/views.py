@@ -2,7 +2,7 @@
 from rest_framework.views import APIView
 from Rbac.models import *
 import hashlib
-import datetime
+import datetime, time
 from django.contrib import auth
 from django.http import JsonResponse
 
@@ -21,7 +21,7 @@ class AuthView(APIView):
             user_obj = auth.authenticate(username=username, password=password)
             if user_obj:
                 # 为登录用户创建token
-                md5 = hashlib.md5(username.encode("utf8"))
+                md5 = hashlib.md5("{0}{1}".format(username, str(time.time())))
                 token = md5.hexdigest()
                 # 保存(存在就更新不存在就创建，并设置过期时间为5分钟)
                 expiration_time = datetime.datetime.now() + datetime.timedelta(minutes=60)

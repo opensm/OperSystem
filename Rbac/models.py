@@ -55,9 +55,10 @@ class UserInfo(AbstractBaseUser, PermissionsMixin):
     update_date = models.DateTimeField(verbose_name='更新日期', auto_now_add=True)
 
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['mobile', 'department', 'is_active', 'is_superuser', 'roles']
+    REQUIRED_FIELDS = ['mobile', 'is_active', 'is_superuser', 'email']
 
     objects = UserManager()
+
     class Meta:
         verbose_name_plural = _("User")
 

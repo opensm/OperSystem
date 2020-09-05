@@ -65,8 +65,9 @@ class RolesView(APIView):
         try:
             data = serializers.serialize('json', Role.objects.all())
             # data = Role.objects.all()
+            ret = RoleSerializer(instance=data, many=True)
             res = {
-                "data": data,
+                "data": ret.data,
                 "meta": {"msg": "获取角色成功", "status": 200}
             }
             return JsonResponse(res)

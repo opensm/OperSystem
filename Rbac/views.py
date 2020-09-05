@@ -6,6 +6,7 @@ import hashlib
 import datetime, time
 from django.contrib import auth
 from django.http import JsonResponse
+from django.core import serializers
 
 
 class AuthView(APIView):
@@ -62,7 +63,8 @@ class RoleView(APIView):
 
     def get(self, request):
         try:
-            data = Role.objects.all()
+            data = serializers.serialize('json',Role.objects.all())
+            # data = Role.objects.all()
             res = {
                 "data": data,
                 "meta": {"msg": "获取角色成功", "status": 200}

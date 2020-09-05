@@ -30,7 +30,7 @@ class AuthView(APIView):
                     "token": token,
                     "expiration_time": expiration_time
                 }
-                UserToken.objects.update_or_create(user=user_obj, defaults=defaults)
+                UserToken.objects.update_or_create(username=user_obj, defaults=defaults)
                 return JsonResponse({"code": 200, "token": token})
             else:
                 return JsonResponse({"code": 401, "error": "用户名或密码错误"})

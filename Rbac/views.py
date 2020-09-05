@@ -29,7 +29,7 @@ class AuthView(APIView):
                 defaults = {
                     "token": token,
                     "expiration_time": expiration_time,
-                    "update_time": datetime.datetime.now()
+                    "update_date": datetime.datetime.now()
                 }
                 UserToken.objects.update_or_create(username=user_obj, defaults=defaults)
                 res = {

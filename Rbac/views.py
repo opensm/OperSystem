@@ -72,6 +72,7 @@ class RoleView(APIView):
         return JsonResponse({"data": "post"})
 
     def put(self, request):
+
         return JsonResponse({"data": "put"})
 
     def delete(self, request):

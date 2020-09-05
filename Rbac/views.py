@@ -83,7 +83,7 @@ class RolesView(APIView):
         if not res.is_valid():
             res = {
                 "data": "null",
-                "meta": {"msg": "传入参数错误:{0}".format(res.errors), "status": 300}
+                "meta": {"msg": "传入参数错误:{0}".format(res.errors), "status": 500}
             }
             return JsonResponse(res)
         else:

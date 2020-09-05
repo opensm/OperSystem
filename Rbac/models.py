@@ -32,6 +32,7 @@ class Permission(models.Model):
 class Role(models.Model):
     name = models.CharField(verbose_name='角色', max_length=32, blank=True, null=True)
     code = models.CharField(verbose_name='编码', max_length=32, blank=True, null=True)
+    desc = models.TextField(verbose_name="角色描述", blank=True)
     permissions = models.ManyToManyField(
         Permission,
         verbose_name='permissions',

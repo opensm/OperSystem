@@ -51,3 +51,18 @@ class AuthView(APIView):
     def get(self, request):
         print(request.data)
         return JsonResponse(request.data)
+
+
+class RoleView(APIView):
+
+    def get(self, request):
+        pass
+
+    def post(self, request):
+        pass
+
+    def put(self, request):
+        pass
+
+    def delete(self, request):
+        pass

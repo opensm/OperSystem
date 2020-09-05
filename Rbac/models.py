@@ -29,7 +29,7 @@ class Permission(models.Model):
 
 
 class Role(models.Model):
-    name = models.CharField(verbose_name='名称', max_length=32, blank=True, null=True)
+    name = models.CharField(verbose_name='角色', max_length=32, blank=True, null=True)
     code = models.CharField(verbose_name='编码', max_length=32, blank=True, null=True)
     permissions = models.ManyToManyField(
         Permission,
@@ -61,3 +61,13 @@ class UserInfo(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
+
+
+class UserToken(models.Model):
+    username = models.OneToOneField(to='UserInfo', on_delete=models.DO_NOTHING, verbose_name="用户")
+    token = models.CharField(max_length=60)
+    update_date = models.DateTimeField(verbose_name='更新日期', auto_now_add=True)
+
+    class Meta:
+        db_table = 'user_token'
+        verbose_name = verbose_name_plural = '用户token表'

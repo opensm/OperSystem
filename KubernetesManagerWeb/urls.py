@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """KubernetesManagerWeb URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -13,14 +14,12 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url,include
+from django.conf.urls import url, include
 from django.contrib import admin
 from django.views.generic import TemplateView
 
-
-
 urlpatterns = [
     url('admin/', admin.site.urls),
-    #url('api/', include(urls)),  # vue前端获取数据的url
+    # url('api/', include(urls)),  # vue前端获取数据的url
     url('^$', TemplateView.as_view(template_name="index.html")),
 ]

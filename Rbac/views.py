@@ -9,7 +9,6 @@ from django.http import JsonResponse
 
 class AuthView(APIView):
     def post(self, request):
-        res = dict()
         if 'username' not in request.data or 'password' not in request.data:
             res = {
                 "data": "null",
@@ -22,7 +21,8 @@ class AuthView(APIView):
             user_obj = auth.authenticate(username=username, password=password)
             if user_obj:
                 # 为登录用户创建token
-                token = hashlib.md5(username)
+                md5 = hashlib.md5(username)
+                token = md5.hexdigest()
                 # 保存(存在就更新不存在就创建，并设置过期时间为5分钟)
                 expiration_time = datetime.datetime.now() + datetime.timedelta(minutes=60)
                 defaults = {

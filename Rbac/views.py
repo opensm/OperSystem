@@ -61,12 +61,20 @@ class AuthView(APIView):
 class RoleView(APIView):
 
     def get(self, request):
-        data = Role.objects.all()
-        res = {
-            "data": data,
-            "meta": {"msg": "获取角色成功", "status": 200}
-        }
-        return JsonResponse(res)
+        try:
+            data = Role.objects.all()
+            res = {
+                "data": data,
+                "meta": {"msg": "获取角色成功", "status": 200}
+            }
+            return JsonResponse(res)
+        except Exception as error:
+            res = {
+                "data": "null",
+                "token": "null",
+                "meta": {"msg": "内部错误:{0}".format(error), "status": 500}
+            }
+            return JsonResponse(res)
 
     def post(self, request):
         return JsonResponse({"data": "post"})

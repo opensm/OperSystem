@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from rest_framework.views import APIView
 from Rbac.models import *
+from KubernetesManagerWeb.settings import SECRET_KEY
 import hashlib
 import datetime, time
 from django.contrib import auth
@@ -21,7 +22,7 @@ class AuthView(APIView):
             user_obj = auth.authenticate(username=username, password=password)
             if user_obj:
                 # 为登录用户创建token
-                md5 = hashlib.md5("{0}{1}".format(username, str(time.time())))
+                md5 = hashlib.md5("{0}{1}{2}".format(username, time.time(), SECRET_KEY))
                 token = md5.hexdigest()
                 # 保存(存在就更新不存在就创建，并设置过期时间为5分钟)
                 expiration_time = datetime.datetime.now() + datetime.timedelta(minutes=60)

@@ -56,13 +56,13 @@ class AuthView(APIView):
 class RoleView(APIView):
 
     def get(self, request):
-        pass
+        return JsonResponse({"data": "get"})
 
     def post(self, request):
-        pass
+        return JsonResponse({"data": "post"})
 
     def put(self, request):
-        pass
+        return JsonResponse({"data": "put"})
 
     def delete(self, request):
-        pass
+        return JsonResponse({"data": "delete"})

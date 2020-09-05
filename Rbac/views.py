@@ -5,7 +5,13 @@ from django.http import JsonResponse
 
 class AuthView(APIView):
     def post(self, request):
-        print(request.data)
+        res = dict()
+        if 'username' not in request.data or 'password' not in request.data:
+            res = {
+                "data": "null",
+                "meta": {"msg": "请求格式异常", "status": 401}
+            }
+            return JsonResponse(res)
         return JsonResponse(request.data)
 
     def get(self, request):

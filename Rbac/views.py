@@ -46,7 +46,12 @@ class AuthView(APIView):
                 }
                 return JsonResponse(res)
         except Exception as e:
-            return JsonResponse({"code": 500, "error": "内部错误:{0}".format(e)})
+            res = {
+                "data": "null",
+                "token": "null",
+                "meta": {"msg": "内部错误:{0}".format(e), "status": 500}
+            }
+            return JsonResponse(res)
 
     def get(self, request):
         print(request.data)
@@ -56,6 +61,11 @@ class AuthView(APIView):
 class RoleView(APIView):
 
     def get(self, request):
+        res = Role.objects.all()
+        res = {
+            "data": res,
+            "meta": {"msg": "获取角色成功", "status": 200}
+        }
         return JsonResponse({"data": "get"})
 
     def post(self, request):

@@ -5,5 +5,5 @@ app_name = 'rbac'
 
 urlpatterns = [
     # 用户登录
-    path('login', AuthView.as_view(), name='login'),
+    path('/login', AuthView.as_view(), name='login'),
 ]

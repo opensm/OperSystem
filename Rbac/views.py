@@ -63,8 +63,7 @@ class AuthView(APIView):
 class RolesView(APIView):
     def get(self, request):
         try:
-            data = serializers.serialize('json', Role.objects.all())
-            # data = Role.objects.all()
+            data = Role.objects.all()
             ret = RoleSerializer(instance=data, many=True)
             res = {
                 "data": ret.data,

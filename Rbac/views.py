@@ -25,18 +25,26 @@ class AuthView(APIView):
                 token = hashlib.md5(username)
                 # 保存(存在就更新不存在就创建，并设置过期时间为5分钟)
                 expiration_time = datetime.datetime.now() + datetime.timedelta(minutes=60)
-                print(expiration_time, type(expiration_time))
                 defaults = {
                     "token": token,
                     "expiration_time": expiration_time
                 }
                 UserToken.objects.update_or_create(username=user_obj, defaults=defaults)
-                return JsonResponse({"code": 200, "token": token})
+                res = {
+                    "data": "null",
+                    "token": token,
+                    "meta": {"msg": "登录成功", "status": 200}
+                }
+                return JsonResponse(res)
             else:
-                return JsonResponse({"code": 401, "error": "用户名或密码错误"})
+                res = {
+                    "data": "null",
+                    "token": "null",
+                    "meta": {"msg": "请求格式异常", "status": 401}
+                }
+                return JsonResponse(res)
         except Exception as e:
-            print(e)
-            return JsonResponse({"code": 500, "error": "用户名或密码错误"})
+            return JsonResponse({"code": 500, "error": "内部错误:{0}".format(e)})
 
     def get(self, request):
         print(request.data)

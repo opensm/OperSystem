@@ -22,6 +22,6 @@ from Rbac.views import AuthView
 urlpatterns = [
     url('admin/', admin.site.urls),
     # url('api/', include(urls)),  # vue前端获取数据的url
-    url('^$', TemplateView.as_view(template_name="index.html")),
+    # url('^$', TemplateView.as_view(template_name="index.html")),
     url(r'^api/v1/auth/$', AuthView.as_view()),
 ]

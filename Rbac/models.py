@@ -12,7 +12,7 @@ class Permission(models.Model):
         'self', verbose_name='父级菜单', null=True, blank=True, related_name='children', on_delete=models.DO_NOTHING
     )
     path = models.CharField(verbose_name='URL', max_length=255, null=False, blank=False)
-    level = models.IntegerField(verbose_name="权限等级", default=0, null=False, blank=False)
+    level = models.IntegerField(verbose_name="权限等级", null=False, blank=False)
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
     def __str__(self):

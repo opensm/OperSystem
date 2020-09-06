@@ -135,8 +135,9 @@ class RoleView(APIView):
             return JsonResponse(res)
         else:
             data = ret.update(instance=query, validated_data=ret.validated_data)
+            print(data)
             res = {
-                "data": data,
+                "data": data.data,
                 "meta": {"msg": "修改角色信息成功", "status": 200}
             }
         return JsonResponse(res)

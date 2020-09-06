@@ -105,6 +105,7 @@ class RoleView(APIView):
         """
         print(roleId)
         ret = RoleSerializer(Role.objects.filter(id=roleId))
+        print(Role.objects.filter(id=roleId))
         data = {
             "data": ret.data,
             "meta": {"msg": "查看角色信息成功", "status": 200}

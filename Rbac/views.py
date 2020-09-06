@@ -6,7 +6,7 @@ import hashlib
 import datetime, time
 from django.contrib import auth
 from django.http import JsonResponse
-from serializers import RoleSerializer, PermissionSerializer
+from Rbac.serializers import RoleSerializer, PermissionSerializer
 
 
 class AuthView(APIView):
@@ -53,10 +53,6 @@ class AuthView(APIView):
                 "meta": {"msg": "内部错误:{0}".format(e), "status": 500}
             }
             return JsonResponse(res)
-
-    def get(self, request):
-        print(request.data)
-        return JsonResponse(request.data)
 
 
 class RolesView(APIView):

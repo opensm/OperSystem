@@ -7,16 +7,16 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class Permission(models.Model):
-    title = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
+    authName = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
     parent = models.ForeignKey(
         'self', verbose_name='父级菜单', null=True, blank=True, related_name='children', on_delete=models.DO_NOTHING
     )
-    url = models.CharField(verbose_name='URL', max_length=255)
-    is_menu = models.BooleanField(verbose_name='是否是菜单')
+    path = models.CharField(verbose_name='URL', max_length=255)
+    level = models.IntegerField(verbose_name="权限等级")
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
     def __str__(self):
-        return self.title
+        return self.authName
 
 
 class Role(models.Model):

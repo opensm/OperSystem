@@ -222,7 +222,7 @@ class PermissionView(APIView):
         :param permissionId:
         :return: 修改角色信息
         """
-        if not Permission.objects.get(id=permissionId).exists():
+        if not Permission.objects.filter(id=permissionId).exists():
             res = {
                 "data": "null",
                 "meta": {"msg": "权限信息不存在", "status": 500}

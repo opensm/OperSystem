@@ -142,9 +142,22 @@ class RoleView(APIView):
             }
         return JsonResponse(res)
 
-    def delete(self, request):
+    def delete(self, request, roleId):
         """
         :param request:
+        :param roleId:
         :return: 删除角色
         """
-        return JsonResponse({"data": "delete"})
+        try:
+            Role.objects.get(id=roleId).delete()
+            res = {
+                "data": request.data,
+                "meta": {"msg": "删除信息成功！", "status": 200}
+            }
+            return JsonResponse(res)
+        except Exception as error:
+            res = {
+                "data": "null",
+                "meta": {"msg": "删除角色失败:{0}".format(error), "status": 500}
+            }
+            return JsonResponse(res)

@@ -97,18 +97,51 @@ class RolesView(APIView):
 
 class RoleView(APIView):
 
-    def get(self, request):
+    def get(self, request, roleId):
         """
         :param request:
-        :return:
+        :param roleId:
+        :return: 查看具体角色信息
         """
-        return JsonResponse({"data": "get"})
+        ret = RoleSerializer(Role.objects.filter(pk=roleId))
+        data = {
+            "data": ret.data,
+            "meta": {"msg": "查看角色信息成功", "status": 200}
+        }
+        return JsonResponse(data)
 
     def post(self, request):
+        """
+        :param request:
+        :return:修改角色权限分配
+        """
         return JsonResponse({"data": "post"})
 
-    def put(self, request):
-        return JsonResponse({"data": "put"})
+    def put(self, request, roleId):
+        """
+        :param request:
+        :param roleId:
+        :return: 修改角色信息
+        """
+        query = Role.objects.filter(pk=roleId)
+        ret = RoleSerializer(instance=query, data=request.data)
+        if not ret.is_valid():
+            res = {
+                "data": "null",
+                "meta": {"msg": "传入参数错误:{0}".format(ret.errors), "status": 500}
+            }
+            return JsonResponse(res)
+        else:
+            data = ret.update(instance=query, validated_data=ret.validated_data)
+            res = {
+                "data": data,
+                "meta": {"msg": "修改角色信息成功", "status": 200}
+            }
+        return JsonResponse(res)
 
     def delete(self, request):
+        """
+        :param request:
+        :return: 删除角色
+        """
         return JsonResponse({"data": "delete"})

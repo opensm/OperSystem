@@ -222,6 +222,12 @@ class PermissionView(APIView):
         :param permissionId:
         :return: 修改角色信息
         """
+        if not Permission.objects.get(id=permissionId).exists():
+            res = {
+                "data": "null",
+                "meta": {"msg": "权限信息不存在", "status": 500}
+            }
+            return JsonResponse(res)
         query = Permission.objects.filter(pk=permissionId).first()
         ret = PermissionSerializer(instance=query, data=request.data)
         if not ret.is_valid():

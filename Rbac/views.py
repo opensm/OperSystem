@@ -238,8 +238,7 @@ class PermissionView(APIView):
             }
             return JsonResponse(res)
         else:
-            data = ret.update(instance=query, validated_data=ret.validated_data)
-            result = serializers.serialize('json', data)
+            ret.update(instance=query, validated_data=ret.validated_data)
             res = {
                 "data": ret.data,
                 "meta": {"msg": "修改角色信息成功", "status": 200}

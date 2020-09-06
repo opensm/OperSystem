@@ -104,7 +104,7 @@ class RoleView(APIView):
         :return: 查看具体角色信息
         """
         print(roleId)
-        ret = RoleSerializer(instance=Role.objects.filter(id=roleId))
+        ret = RoleSerializer(Role.objects.filter(id=roleId).first())
         # print(Role.objects.filter(id=roleId))
         data = {
             "data": ret.data,

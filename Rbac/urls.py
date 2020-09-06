@@ -1,5 +1,5 @@
 from django.urls import path
-from Rbac.views import AuthView, RoleView, RolesView, PermissionsView
+from Rbac.views import AuthView, RoleView, RolesView, PermissionsView, PermissionView
 
 app_name = 'rbac'
 
@@ -9,5 +9,6 @@ urlpatterns = [
     # 查询角色
     path('roles', RolesView.as_view(), name='roles'),
     path('role/<int:roleId>', RoleView.as_view(), name='role'),
-    path('permissions', PermissionsView.as_view(), name='permissions')
+    path('permissions', PermissionsView.as_view(), name='permissions'),
+    path('permission/<int:permissionId>', PermissionView.as_view(), name='permission'),
 ]

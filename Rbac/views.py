@@ -198,3 +198,63 @@ class PermissionsView(APIView):
                 "meta": {"msg": "权限数据保存成功", "status": 200}
             }
             return JsonResponse(data)
+
+
+class PermissionView(APIView):
+
+    def get(self, request, permissionId):
+        """
+        :param request:
+        :param permissionId:
+        :return: 查看具体角色信息
+        """
+        ret = PermissionSerializer(Permission.objects.filter(id=permissionId).first())
+        # print(Role.objects.filter(id=roleId))
+        data = {
+            "data": ret.data,
+            "meta": {"msg": "查看角色信息成功", "status": 200}
+        }
+        return JsonResponse(data)
+
+    def put(self, request, permissionId):
+        """
+        :param request:
+        :param permissionId:
+        :return: 修改角色信息
+        """
+        query = Permission.objects.filter(pk=permissionId).first()
+        ret = PermissionSerializer(instance=query, data=request.data)
+        if not ret.is_valid():
+            res = {
+                "data": "null",
+                "meta": {"msg": "传入参数错误:{0}".format(ret.errors), "status": 500}
+            }
+            return JsonResponse(res)
+        else:
+            data = ret.update(instance=query, validated_data=ret.validated_data)
+            # result = serializers.serialize('json', data)
+            res = {
+                "data": request.data,
+                "meta": {"msg": "修改角色信息成功", "status": 200}
+            }
+        return JsonResponse(res)
+
+    def delete(self, request, permissionId):
+        """
+        :param request:
+        :param permissionId:
+        :return: 删除角色
+        """
+        try:
+            Permission.objects.get(id=permissionId).delete()
+            res = {
+                "data": request.data,
+                "meta": {"msg": "删除权限成功！", "status": 200}
+            }
+            return JsonResponse(res)
+        except Exception as error:
+            res = {
+                "data": "null",
+                "meta": {"msg": "删除权限失败:{0}".format(error), "status": 500}
+            }
+            return JsonResponse(res)

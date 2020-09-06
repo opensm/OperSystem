@@ -125,7 +125,7 @@ class RoleView(APIView):
         :param roleId:
         :return: 修改角色信息
         """
-        query = Role.objects.filter(pk=roleId)
+        query = Role.objects.filter(pk=roleId).first()
         ret = RoleSerializer(instance=query, data=request.data)
         if not ret.is_valid():
             res = {

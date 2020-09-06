@@ -104,8 +104,8 @@ class RoleView(APIView):
         :return: 查看具体角色信息
         """
         print(roleId)
-        ret = RoleSerializer(Role.objects.filter(id=roleId))
-        print(Role.objects.filter(id=roleId))
+        ret = RoleSerializer(instance=Role.objects.filter(id=roleId))
+        # print(Role.objects.filter(id=roleId))
         data = {
             "data": ret.data,
             "meta": {"msg": "查看角色信息成功", "status": 200}

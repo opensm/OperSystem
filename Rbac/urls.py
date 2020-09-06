@@ -8,5 +8,5 @@ urlpatterns = [
     path('auth/login', AuthView.as_view(), name='login'),
     # 查询角色
     path('roles', RolesView.as_view(), name='roles'),
-    path('role/<int:roleId>', RoleView(), name='role')
+    path('role/<int:roleId>', RoleView.as_view(), name='role')
 ]

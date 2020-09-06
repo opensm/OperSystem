@@ -232,10 +232,9 @@ class PermissionView(APIView):
             return JsonResponse(res)
         else:
             data = ret.update(instance=query, validated_data=ret.validated_data)
-            print(data)
             # result = serializers.serialize('json', data)
             res = {
-                "data": request.data,
+                "data": ret.data,
                 "meta": {"msg": "修改角色信息成功", "status": 200}
             }
         return JsonResponse(res)

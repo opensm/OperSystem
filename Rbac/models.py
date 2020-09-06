@@ -6,21 +6,11 @@ from django.contrib.auth.models import PermissionsMixin
 from django.utils.translation import ugettext_lazy as _
 
 
-# Create your models here.
-
-
 class Permission(models.Model):
-    code_choice = {
-        ("insert", "添加"),
-        ("delete", "删除"),
-        ("select", "查看"),
-        ("update", "修改")
-    }
     title = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
     parent = models.ForeignKey(
         'self', verbose_name='父级菜单', null=True, blank=True, related_name='children', on_delete=models.DO_NOTHING
     )
-    code = models.CharField(verbose_name="读写情况", choices=code_choice, default="select", max_length=50)
     url = models.CharField(verbose_name='URL', max_length=255)
     is_menu = models.BooleanField(verbose_name='是否是菜单')
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)

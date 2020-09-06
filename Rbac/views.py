@@ -6,8 +6,7 @@ import hashlib
 import datetime, time
 from django.contrib import auth
 from django.http import JsonResponse
-from django.core import serializers
-from serializers import RoleSerializer
+from serializers import RoleSerializer, PermissionSerializer
 
 
 class AuthView(APIView):
@@ -103,7 +102,6 @@ class RoleView(APIView):
         :param roleId:
         :return: 查看具体角色信息
         """
-        print(roleId)
         ret = RoleSerializer(Role.objects.filter(id=roleId).first())
         # print(Role.objects.filter(id=roleId))
         data = {
@@ -161,3 +159,46 @@ class RoleView(APIView):
                 "meta": {"msg": "删除角色失败:{0}".format(error), "status": 500}
             }
             return JsonResponse(res)
+
+
+class PermissionsView(APIView):
+    def get(self, request):
+        """
+        :param request:
+        :return:
+        """
+        try:
+            data = Permission.objects.all()
+            ret = PermissionSerializer(instance=data, many=True)
+            res = {
+                "data": ret.data,
+                "meta": {"msg": "获取权限数据成功", "status": 200}
+            }
+            return JsonResponse(res)
+        except Exception as error:
+            res = {
+                "data": "null",
+                "token": "null",
+                "meta": {"msg": "内部错误:{0}".format(error), "status": 500}
+            }
+            return JsonResponse(res)
+
+    def post(self, request):
+        """
+        :param request:
+        :return:
+        """
+        res = PermissionSerializer(data=request.data)
+        if not res.is_valid():
+            res = {
+                "data": "null",
+                "meta": {"msg": "传入参数错误:{0}".format(res.errors), "status": 500}
+            }
+            return JsonResponse(res)
+        else:
+            res.save()
+            data = {
+                "data": res.data,
+                "meta": {"msg": "权限数据保存成功", "status": 200}
+            }
+            return JsonResponse(data)

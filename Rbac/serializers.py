@@ -1,7 +1,7 @@
 from rest_framework.serializers import Serializer, ModelSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from Rbac.models import Role, Permission
+from Rbac.models import Role, Permission, UserInfo
 
 
 class RoleSerializer(ModelSerializer):
@@ -16,3 +16,9 @@ class PermissionSerializer(ModelSerializer):
         model = Permission  # 指定需要序列化的模型表
         # fields = ("__all__")
         exclude = ('create_date',)
+
+
+class UserInfoSerializer(ModelSerializer):
+    class Meta:
+        model = UserInfo
+        exclude = ('roles', 'create_date', 'update_date')

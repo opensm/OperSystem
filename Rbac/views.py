@@ -251,6 +251,12 @@ class PermissionView(APIView):
         :param permissionId:
         :return: 删除角色
         """
+        if not Permission.objects.filter(id=permissionId).exists():
+            res = {
+                "data": "null",
+                "meta": {"msg": "权限信息不存在", "status": 500}
+            }
+            return JsonResponse(res)
         try:
             Permission.objects.get(id=permissionId).delete()
             res = {

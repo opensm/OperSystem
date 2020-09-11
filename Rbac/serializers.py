@@ -38,7 +38,6 @@ class SignInSerializer(serializers.Serializer):
         :param validated_data:
         :return:
         """
-        print(validated_data)
         user_obj = auth.authenticate(**validated_data)
         try:
             if user_obj:

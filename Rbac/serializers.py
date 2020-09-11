@@ -1,6 +1,5 @@
 from rest_framework.serializers import Serializer, ModelSerializer
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 from django.contrib import auth
 from Rbac.models import Role, Permission, UserInfo, UserToken
 import hashlib

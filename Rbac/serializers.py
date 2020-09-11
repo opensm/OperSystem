@@ -55,14 +55,14 @@ class SignInSerializer(serializers.Serializer):
                 res = {
                     "data": "null",
                     "token": token,
-                    "meta": {"msg": "登录成功", "status": 200}
+                    "meta": {"msg": "登录成功！", "status": 200}
                 }
                 return res
             else:
                 res = {
                     "data": "null",
                     "token": "null",
-                    "meta": {"msg": "登录成功", "status": 401}
+                    "meta": {"msg": "登录失败！", "status": 401}
                 }
             return res
 

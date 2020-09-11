@@ -1,7 +1,12 @@
 from rest_framework.serializers import Serializer, ModelSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from Rbac.models import Role, Permission, UserInfo
+from django.contrib import auth
+from Rbac.models import Role, Permission, UserInfo, UserToken
+import hashlib
+import datetime
+import time
+from KubernetesManagerWeb.settings import SECRET_KEY
 
 
 class RoleSerializer(ModelSerializer):
@@ -28,10 +33,43 @@ class SignInSerializer(serializers.Serializer):
     username = serializers.CharField(allow_blank=False, allow_null=False)
     password = serializers.CharField(allow_null=False, allow_blank=False)
 
-    def create(self, validated_data):
+    def login(self, validated_data):
         """
         :param validated_data:
         :return:
         """
-        print(validated_data)
-        return UserInfo(**validated_data)
+        user_obj = auth.authenticate(**validated_data)
+        try:
+            if user_obj:
+                md5 = hashlib.md5(
+                    "{0}{1}{2}".format(validated_data['username'], time.time(), SECRET_KEY).encode("utf8"))
+                token = md5.hexdigest()
+                # 保存(存在就更新不存在就创建，并设置过期时间为5分钟)
+                expiration_time = datetime.datetime.now() + datetime.timedelta(minutes=60)
+                defaults = {
+                    "token": token,
+                    "expiration_time": expiration_time,
+                    "update_date": datetime.datetime.now()
+                }
+                UserToken.objects.update_or_create(username=user_obj, defaults=defaults)
+                res = {
+                    "data": "null",
+                    "token": token,
+                    "meta": {"msg": "登录成功", "status": 200}
+                }
+                return res
+            else:
+                res = {
+                    "data": "null",
+                    "token": "null",
+                    "meta": {"msg": "登录成功", "status": 401}
+                }
+            return res
+
+        except Exception as error:
+            res = {
+                "data": "null",
+                "token": "null",
+                "meta": {"msg": "内部错误:{0}".format(error), "status": 500}
+            }
+            return res

@@ -33,7 +33,7 @@ class SignInSerializer(serializers.Serializer):
     username = serializers.CharField(allow_blank=False, allow_null=False)
     password = serializers.CharField(allow_null=False, allow_blank=False)
 
-    def login(self, validated_data):
+    def login(self, **validated_data):
         """
         :param validated_data:
         :return:

@@ -20,7 +20,10 @@ class AuthView(APIView):
             }
             return JsonResponse(res)
         print(request.data)
-        return JsonResponse(signin.login(**request.data))
+        return JsonResponse(signin.login(
+            usename=request.data['username'],
+            password=request.data['password']
+        ))
         # signin.save()
         # try:
         #     username = request.data["username"]

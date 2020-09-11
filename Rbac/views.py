@@ -12,7 +12,7 @@ from Rbac.serializers import RoleSerializer, PermissionSerializer, SignInSeriali
 
 class AuthView(APIView):
     def post(self, request):
-        signin = SignInSerializer()
+        signin = SignInSerializer(data=request.data)
         if not signin.is_valid():
             res = {
                 "data": "null",

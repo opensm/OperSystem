@@ -64,5 +64,5 @@ class UserToken(models.Model):
     expiration_time = models.DateTimeField(verbose_name='失效时间', auto_now_add=True)
 
     class Meta:
-        db_table = 'user_token'
+        # db_table = 'user_token'
         verbose_name = verbose_name_plural = '用户token表'

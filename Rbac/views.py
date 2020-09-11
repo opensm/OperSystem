@@ -19,6 +19,7 @@ class AuthView(APIView):
                 "meta": {"msg": "请求格式异常sign", "status": 401}
             }
             return JsonResponse(res)
+        print(request.data)
         return JsonResponse(signin.login(**request.data))
         # signin.save()
         # try:

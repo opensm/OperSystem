@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
 from rest_framework.views import APIView
 from Rbac.models import *
-from KubernetesManagerWeb.settings import SECRET_KEY
-import hashlib
-import datetime
-import time
-from django.contrib import auth
 from django.http import JsonResponse
 from Rbac.serializers import RoleSerializer, PermissionSerializer, SignInSerializer
 

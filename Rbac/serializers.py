@@ -34,4 +34,4 @@ class SignInSerializer(serializers.Serializer):
         :return:
         """
         print(validated_data)
-        return None
+        return UserInfo(**validated_data)

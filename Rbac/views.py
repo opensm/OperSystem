@@ -3,15 +3,23 @@ from rest_framework.views import APIView
 from Rbac.models import *
 from KubernetesManagerWeb.settings import SECRET_KEY
 import hashlib
-import datetime, time
+import datetime
+import time
 from django.contrib import auth
 from django.http import JsonResponse
-from django.core import serializers
-from Rbac.serializers import RoleSerializer, PermissionSerializer
+from Rbac.serializers import RoleSerializer, PermissionSerializer, SignInSerializer
 
 
 class AuthView(APIView):
     def post(self, request):
+        signin = SignInSerializer()
+        if not signin.is_valid():
+            res = {
+                "data": "null",
+                "meta": {"msg": "请求格式异常sign", "status": 401}
+            }
+            return JsonResponse(res)
+        signin.login(**request.data)
         if 'username' not in request.data or 'password' not in request.data:
             res = {
                 "data": "null",

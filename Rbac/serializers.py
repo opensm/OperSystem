@@ -22,3 +22,15 @@ class UserInfoSerializer(ModelSerializer):
     class Meta:
         model = UserInfo
         exclude = ('roles', 'create_date', 'update_date')
+
+
+class SignInSerializer(serializers.Serializer):
+    username = serializers.CharField(allow_blank=False, allow_null=False)
+    password = serializers.CharField(allow_null=False, allow_blank=False)
+
+    def login(self, **kwargs):
+        """
+        :param kwargs:
+        :return:
+        """
+        print(kwargs)

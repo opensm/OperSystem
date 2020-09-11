@@ -19,13 +19,7 @@ class AuthView(APIView):
                 "meta": {"msg": "请求格式异常sign", "status": 401}
             }
             return JsonResponse(res)
-        signin.login(**request.data)
-        if 'username' not in request.data or 'password' not in request.data:
-            res = {
-                "data": "null",
-                "meta": {"msg": "请求格式异常", "status": 401}
-            }
-            return JsonResponse(res)
+        signin.save()
         try:
             username = request.data["username"]
             password = request.data["password"]

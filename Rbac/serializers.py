@@ -28,9 +28,10 @@ class SignInSerializer(serializers.Serializer):
     username = serializers.CharField(allow_blank=False, allow_null=False)
     password = serializers.CharField(allow_null=False, allow_blank=False)
 
-    def login(self, **kwargs):
+    def create(self, validated_data):
         """
-        :param kwargs:
+        :param validated_data:
         :return:
         """
-        print(kwargs)
+        print(validated_data)
+        return None

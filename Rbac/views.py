@@ -19,48 +19,10 @@ class AuthView(APIView):
                 "meta": {"msg": "请求格式异常sign", "status": 401}
             }
             return JsonResponse(res)
-        print(request.data)
         return JsonResponse(signin.login(
             username=request.data['username'],
             password=request.data['password']
         ))
-        # signin.save()
-        # try:
-        #     username = request.data["username"]
-        #     password = request.data["password"]
-        #     user_obj = auth.authenticate(username=username, password=password)
-        #     if user_obj:
-        #         # 为登录用户创建token
-        #         md5 = hashlib.md5("{0}{1}{2}".format(username, time.time(), SECRET_KEY).encode("utf8"))
-        #         token = md5.hexdigest()
-        #         # 保存(存在就更新不存在就创建，并设置过期时间为5分钟)
-        #         expiration_time = datetime.datetime.now() + datetime.timedelta(minutes=60)
-        #         defaults = {
-        #             "token": token,
-        #             "expiration_time": expiration_time,
-        #             "update_date": datetime.datetime.now()
-        #         }
-        #         UserToken.objects.update_or_create(username=user_obj, defaults=defaults)
-        #         res = {
-        #             "data": "null",
-        #             "token": token,
-        #             "meta": {"msg": "登录成功", "status": 200}
-        #         }
-        #         return JsonResponse(res)
-        #     else:
-        #         res = {
-        #             "data": "null",
-        #             "token": "null",
-        #             "meta": {"msg": "请求格式异常", "status": 401}
-        #         }
-        #         return JsonResponse(res)
-        # except Exception as e:
-        #     res = {
-        #         "data": "null",
-        #         "token": "null",
-        #         "meta": {"msg": "内部错误:{0}".format(e), "status": 500}
-        #     }
-        #     return JsonResponse(res)
 
 
 class RolesView(APIView):

@@ -63,7 +63,7 @@ class SignInSerializer(serializers.Serializer):
                 res = {
                     "data": "null",
                     "token": "null",
-                    "meta": {"msg": "登录失败！", "status": 401}
+                    "meta": {"msg": "登录失败,用户不存在，或者验证失败！", "status": 401}
                 }
             return res
 

@@ -1,4 +1,4 @@
-from rest_framework.serializers import Serializer, ModelSerializer
+from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
 from django.contrib import auth
 from Rbac.models import Role, Permission, UserInfo, UserToken

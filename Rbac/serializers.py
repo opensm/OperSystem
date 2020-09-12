@@ -25,7 +25,7 @@ class PermissionSerializer(ModelSerializer):
 class UserInfoSerializer(ModelSerializer):
     class Meta:
         model = UserInfo
-        exclude = ('roles', 'create_date', 'update_date')
+        # exclude = ('roles', 'create_date', 'update_date')
 
 
 class SignInSerializer(serializers.Serializer):

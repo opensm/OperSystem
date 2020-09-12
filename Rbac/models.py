@@ -38,12 +38,13 @@ class UserInfo(AbstractBaseUser, PermissionsMixin):
         Role,
         verbose_name='角色',
         blank=True,
+        null=True
     )
     email = models.EmailField(verbose_name="邮箱地址", unique=True)
     is_active = models.BooleanField(verbose_name="有效", default=True)
     is_staff = models.BooleanField(verbose_name="员工", default=True)
-    create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
-    update_date = models.DateTimeField(verbose_name='更新日期', auto_now_add=True)
+    create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True, null=True)
+    update_date = models.DateTimeField(verbose_name='更新日期', auto_now_add=True, null=True)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['mobile', 'is_active', 'is_superuser', 'email']

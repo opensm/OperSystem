@@ -26,6 +26,7 @@ class UserInfoSerializer(ModelSerializer):
     class Meta:
         model = UserInfo
         # exclude = ('roles', 'create_date', 'update_date')
+        fields = '__all__'
 
 
 class SignInSerializer(serializers.Serializer):

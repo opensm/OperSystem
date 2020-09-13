@@ -6,7 +6,8 @@ from Rbac.serializers import \
     RoleSerializer, \
     PermissionSerializer, \
     SignInSerializer, \
-    UserInfoSerializer
+    UserInfoSerializer, \
+    ResetPasswordSerializer
 
 
 class AuthView(APIView):
@@ -342,3 +343,39 @@ class UserView(APIView):
                 "meta": {"msg": "删除角色失败:{0}".format(error), "status": 500}
             }
             return JsonResponse(res)
+
+
+class ResetPassWordView(APIView):
+
+    def put(self, request, userId):
+        """
+        :param request:
+        :param userId:
+        :return:
+        """
+        query = UserInfo.objects.filter(id=userId).first()
+        reset_ser = ResetPasswordSerializer(user=query, data=request.data)
+        if not reset_ser.is_valid():
+            res = {
+                "data": "null",
+                "meta": {"msg": "传入参数错误:{0}".format(reset_ser.errors), "status": 500}
+            }
+            return res
+        reset_ser.reset_password(**request.data)
+        res = {
+            "data": [],
+            "meta": {"msg": "修改密码成功:{0}".format(userId), "status": 200}
+        }
+        return res
+
+    def get(self, request, userId):
+        """
+        :param request:
+        :param userId:
+        :return:
+        """
+        res = {
+            "data": userId,
+            "meta": {"msg": "修改用户信息成功", "status": 200}
+        }
+        return res

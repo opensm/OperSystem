@@ -1,5 +1,12 @@
 from django.urls import path
-from Rbac.views import AuthView, RoleView, RolesView, PermissionsView, PermissionView, UserView, UsersView
+from Rbac.views import AuthView, \
+    RoleView, \
+    RolesView, \
+    PermissionsView, \
+    PermissionView, \
+    UserView, \
+    UsersView, \
+    ResetPassWordView
 
 app_name = 'rbac'
 
@@ -15,4 +22,5 @@ urlpatterns = [
     # 用户管理
     path('users', UsersView.as_view(), name='users'),
     path('user/<int:userId>', UserView.as_view(), name='user'),
+    path('resetpass/<int:userId>', ResetPassWordView.as_view(), name='password'),
 ]

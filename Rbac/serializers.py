@@ -78,17 +78,24 @@ class SignInSerializer(serializers.Serializer):
             return res
 
 
-class ResetPasswordSerializer(ModelSerializer):
+class ResetPasswordSerializer(serializers.Serializer):
     OldPassword = serializers.CharField(allow_blank=False, allow_null=False)
+    NewPassword = serializers.CharField(allow_blank=False, allow_null=False)
 
-    class Meta:
-        model = UserInfo
-        fields = ('password',)
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
 
-    def update(self, instance, validated_data):
+    def reset_password(self, **validated_data):
         """
-        :param instance:
         :param validated_data:
         :return:
         """
-        password_validation.password_changed(password=validated_data['OldPassword'])
+        password_validation.validate_password(
+            user=self.user,
+            password=validated_data['OldPassword']
+        )
+        password_validation.password_changed(
+            user=self.user,
+            password=validated_data['NewPassword']
+        )

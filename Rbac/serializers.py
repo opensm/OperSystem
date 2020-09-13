@@ -3,6 +3,7 @@ from abc import ABC
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
 from django.contrib import auth
+from django.contrib.auth import password_validation
 from Rbac.models import Role, Permission, UserInfo, UserToken
 import hashlib
 import datetime
@@ -75,3 +76,19 @@ class SignInSerializer(serializers.Serializer):
                 "meta": {"msg": "内部错误:{0}".format(error), "status": 500}
             }
             return res
+
+
+class ResetPasswordSerializer(ModelSerializer):
+    OldPassword = serializers.CharField(allow_blank=False, allow_null=False)
+
+    class Meta:
+        model = UserInfo
+        fields = ('password',)
+
+    def update(self, instance, validated_data):
+        """
+        :param instance:
+        :param validated_data:
+        :return:
+        """
+        password_validation.password_changed(password=validated_data['OldPassword'])

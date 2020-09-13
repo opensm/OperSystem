@@ -37,8 +37,7 @@ class UserInfo(AbstractBaseUser, PermissionsMixin):
     roles = models.ManyToManyField(
         Role,
         verbose_name='角色',
-        blank=True,
-        null=True
+        blank=True
     )
     email = models.EmailField(verbose_name="邮箱地址", unique=True)
     is_active = models.BooleanField(verbose_name="有效", default=True)

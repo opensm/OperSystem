@@ -319,7 +319,7 @@ class UserView(APIView):
             # result = serializers.serialize('json', data)
             res = {
                 "data": ret.data,
-                "meta": {"msg": "修改角色信息成功", "status": 200}
+                "meta": {"msg": "修改用户信息成功", "status": 200}
             }
         return JsonResponse(res)
 
@@ -327,7 +327,7 @@ class UserView(APIView):
         """
         :param request:
         :param userId:
-        :return: 删除角色
+        :return: 删除用户
         """
         try:
             UserInfo.objects.get(id=userId).delete()

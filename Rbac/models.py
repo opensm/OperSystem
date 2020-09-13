@@ -33,7 +33,7 @@ class Role(models.Model):
 class UserInfo(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(verbose_name='用户名', max_length=50, null=False, unique=True)
     name = models.CharField(verbose_name="姓名", max_length=50, default='')
-    mobile = models.CharField(verbose_name="手机", max_length=11, null=False,default="186000000000")
+    mobile = models.CharField(verbose_name="手机", max_length=11, null=False, default="186000000000")
     roles = models.ManyToManyField(
         Role,
         verbose_name='角色',

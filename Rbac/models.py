@@ -39,7 +39,7 @@ class UserInfo(AbstractBaseUser, PermissionsMixin):
         verbose_name='角色',
         blank=True
     )
-    email = models.EmailField(verbose_name="邮箱地址", unique=True)
+    email = models.EmailField(verbose_name="邮箱地址", unique=True, null=True)
     is_active = models.BooleanField(verbose_name="有效", default=True)
     is_staff = models.BooleanField(verbose_name="员工", default=True)
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True, null=True)

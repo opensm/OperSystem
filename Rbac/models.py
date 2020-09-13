@@ -33,13 +33,13 @@ class Role(models.Model):
 class UserInfo(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(verbose_name='用户名', max_length=50, null=False, unique=True)
     name = models.CharField(verbose_name="姓名", max_length=50, default='')
-    mobile = models.CharField(verbose_name="手机", max_length=11, blank=True, null=True)
+    mobile = models.CharField(verbose_name="手机", max_length=11, null=False)
     roles = models.ManyToManyField(
         Role,
         verbose_name='角色',
         blank=True
     )
-    email = models.EmailField(verbose_name="邮箱地址", unique=True, null=True)
+    email = models.EmailField(verbose_name="邮箱地址", unique=True, null=False)
     is_active = models.BooleanField(verbose_name="有效", default=True)
     is_staff = models.BooleanField(verbose_name="员工", default=True)
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True, null=True)

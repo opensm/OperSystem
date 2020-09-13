@@ -1,3 +1,5 @@
+from abc import ABC
+
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
 from django.contrib import auth
@@ -25,11 +27,11 @@ class PermissionSerializer(ModelSerializer):
 class UserInfoSerializer(ModelSerializer):
     class Meta:
         model = UserInfo
-        # exclude = ('roles', 'create_date', 'update_date')
-        fields = '__all__'
+        exclude = ('password')
+        # fields = '__all__'
 
 
-class SignInSerializer(serializers.Serializer):
+class SignInSerializer(serializers.Serializer, ABC):
     username = serializers.CharField(allow_blank=False, allow_null=False)
     password = serializers.CharField(allow_null=False, allow_blank=False)
 

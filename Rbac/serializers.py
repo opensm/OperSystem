@@ -27,11 +27,11 @@ class PermissionSerializer(ModelSerializer):
 class UserInfoSerializer(ModelSerializer):
     class Meta:
         model = UserInfo
-        exclude = ('password')
+        exclude = ('password',)
         # fields = '__all__'
 
 
-class SignInSerializer(serializers.Serializer, ABC):
+class SignInSerializer(serializers.Serializer):
     username = serializers.CharField(allow_blank=False, allow_null=False)
     password = serializers.CharField(allow_null=False, allow_blank=False)
 

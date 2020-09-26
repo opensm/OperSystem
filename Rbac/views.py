@@ -19,8 +19,11 @@ class AuthView(APIView):
         signin = SignInSerializer(data=request.data)
         if not signin.is_valid():
             error_message = ""
-            for value in signin.errors.values():
-                error_message = "{0};{1}".format(error_message, ",".join(value))
+            for key, value in signin.errors.items():
+                if key == "non_field_errors":
+                    error_message = "{0};{1}".format(error_message, ",".join(value))
+                else:
+                    error_message = "{0}{1}：{2}".format(error_message, key, ",".join(value))
             res = {
                 "data": "null",
                 "meta": {"msg": error_message.lstrip(';'), "status": 401}

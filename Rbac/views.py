@@ -353,29 +353,44 @@ class ResetPassWordView(APIView):
         :param userId:
         :return:
         """
-        query = UserInfo.objects.filter(id=userId).first()
+        query = UserInfo.objects.get(id=userId)
         reset_ser = ResetPasswordSerializer(user=query, data=request.data)
         if not reset_ser.is_valid():
             res = {
                 "data": "null",
-                "meta": {"msg": "传入参数错误:{0}".format(reset_ser.errors), "status": 500}
+                "meta": {"msg": "修改失败{0}".format(reset_ser.errors), "status": 500}
             }
-            return res
-        reset_ser.reset_password(**request.data)
-        res = {
-            "data": [],
-            "meta": {"msg": "修改密码成功:{0}".format(userId), "status": 200}
-        }
-        return res
+            return JsonResponse(res)
+        else:
+            res = {
+                "data": [],
+                "meta": {"msg": "修改密码成功,用户ID为：{0}".format(userId), "status": 200}
+            }
+        return JsonResponse(res)
 
-    def get(self, request, userId):
-        """
-        :param request:
-        :param userId:
-        :return:
-        """
-        res = {
-            "data": userId,
-            "meta": {"msg": "修改用户信息成功", "status": 200}
-        }
-        return res
+    # if not reset_ser.reset_password(**request.data):
+    #     res = {
+    #         "data": "null",
+    #         "meta": {"msg": "旧密码校验失败:{0}".format(reset_ser.errors), "status": 200}
+    #     }
+    #     return JsonResponse(res)
+    # else:
+    #
+    #     res = {
+    #         "data": [],
+    #         "meta": {"msg": "修改密码成功:{0}".format(userId), "status": 200}
+    #     }
+    #     return JsonResponse(res)
+
+
+def get(self, request, userId):
+    """
+    :param request:
+    :param userId:
+    :return:
+    """
+    res = {
+        "data": userId,
+        "meta": {"msg": "修改用户信息成功", "status": 200}
+    }
+    return JsonResponse(res)

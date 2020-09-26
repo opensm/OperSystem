@@ -79,23 +79,26 @@ class SignInSerializer(serializers.Serializer):
 
 
 class ResetPasswordSerializer(serializers.Serializer):
-    OldPassword = serializers.CharField(allow_blank=False, allow_null=False)
-    NewPassword = serializers.CharField(allow_blank=False, allow_null=False)
+    oldPassword = serializers.CharField(allow_blank=False, allow_null=False)
+    newPassword = serializers.CharField(allow_blank=False, allow_null=False)
 
     def __init__(self, user, *args, **kwargs):
         self.user = user
         super().__init__(*args, **kwargs)
 
-    def reset_password(self, **validated_data):
+    def validate_oldPassword(self, attrs):
+        status = auth.authenticate(username=self.user.username, password=attrs)
+        if not status:
+            raise serializers.ValidationError(detail="密码校验失败！", code="invalid")
+
+    def validate_newPassword(self, attrs):
         """
-        :param validated_data:
+        :param attrs:
         :return:
         """
-        password_validation.validate_password(
-            user=self.user,
-            password=validated_data['OldPassword']
-        )
-        password_validation.password_changed(
-            user=self.user,
-            password=validated_data['NewPassword']
-        )
+        password_validation.validate_password(password=attrs, user=self.user)
+
+    def validate(self, attrs):
+        new_password = attrs['newPassword']
+        self.user.set_password(new_password)
+        self.user.save()

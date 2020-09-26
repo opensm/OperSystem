@@ -52,7 +52,7 @@ MIDDLEWARE = [
 
 CORS_ORIGIN_ALLOW_ALL = True
 ROOT_URLCONF = 'KubernetesManagerWeb.urls'
-
+NON_FIELD_ERRORS_KEY = "field_error"
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

@@ -36,46 +36,15 @@ class SignInSerializer(serializers.Serializer):
     username = serializers.CharField(allow_blank=False, allow_null=False)
     password = serializers.CharField(allow_null=False, allow_blank=False)
 
-    def login(self, **validated_data):
+    def validate(self, attrs):
         """
-        :param validated_data:
+        :param attrs:
         :return:
         """
-        user_obj = auth.authenticate(**validated_data)
-        try:
-            if user_obj:
-                md5 = hashlib.md5(
-                    "{0}{1}{2}".format(validated_data['username'], time.time(), SECRET_KEY).encode("utf8"))
-                token = md5.hexdigest()
-                # 保存(存在就更新不存在就创建，并设置过期时间为60分钟)
-                expiration_time = datetime.datetime.now() + datetime.timedelta(minutes=60)
-                defaults = {
-                    "token": token,
-                    "expiration_time": expiration_time,
-                    "update_date": datetime.datetime.now()
-                }
-                UserToken.objects.update_or_create(username=user_obj, defaults=defaults)
-                res = {
-                    "data": "null",
-                    "token": token,
-                    "meta": {"msg": "登录成功！", "status": 200}
-                }
-                return res
-            else:
-                res = {
-                    "data": "null",
-                    "token": "null",
-                    "meta": {"msg": "登录失败,用户不存在，或者验证失败！", "status": 401}
-                }
-            return res
-
-        except Exception as error:
-            res = {
-                "data": "null",
-                "token": "null",
-                "meta": {"msg": "内部错误:{0}".format(error), "status": 500}
-            }
-            return res
+        user_obj = auth.authenticate(**attrs)
+        if not user_obj:
+            raise serializers.ValidationError(detail="登录失败，用户名或者密码错误！", code="auth")
+        return attrs
 
 
 class ResetPasswordSerializer(serializers.Serializer):
@@ -102,3 +71,4 @@ class ResetPasswordSerializer(serializers.Serializer):
         new_password = attrs['newPassword']
         self.user.set_password(new_password)
         self.user.save()
+        return attrs

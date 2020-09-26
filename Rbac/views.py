@@ -2,6 +2,10 @@
 from rest_framework.views import APIView
 from Rbac.models import *
 from django.http import JsonResponse
+import hashlib
+import datetime
+import time
+from KubernetesManagerWeb.settings import SECRET_KEY
 from Rbac.serializers import \
     RoleSerializer, \
     PermissionSerializer, \
@@ -14,15 +18,37 @@ class AuthView(APIView):
     def post(self, request):
         signin = SignInSerializer(data=request.data)
         if not signin.is_valid():
+            error_message = ""
+            for value in signin.errors.values():
+                error_message = "{0};{1}".format(error_message, ",".join(value))
             res = {
                 "data": "null",
-                "meta": {"msg": "请求格式异常sign", "status": 401}
+                "meta": {"msg": error_message.lstrip(';'), "status": 401}
             }
             return JsonResponse(res)
-        return JsonResponse(signin.login(
-            username=request.data['username'],
-            password=request.data['password']
-        ))
+        md5 = hashlib.md5(
+            "{0}{1}{2}".format(signin.username, time.time(), SECRET_KEY).encode("utf8")
+        )
+        token = md5.hexdigest()
+        # 保存(存在就更新不存在就创建，并设置过期时间为60分钟)
+        expiration_time = datetime.datetime.now() + datetime.timedelta(minutes=60)
+        defaults = {
+            "token": token,
+            "expiration_time": expiration_time,
+            "update_date": datetime.datetime.now()
+        }
+        try:
+            UserToken.objects.update_or_create(username=signin.username, defaults=defaults)
+            return {
+                "data": "null",
+                "token": token,
+                "meta": {"msg": "登录成功！", "status": 200}
+            }
+        except Exception as error:
+            return {
+                "data": "null",
+                "meta": {"msg": "登录失败，用户token更新失败，{0}".format(error), "status": 500}
+            }
 
 
 class RolesView(APIView):

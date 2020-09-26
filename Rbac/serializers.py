@@ -33,8 +33,21 @@ class UserInfoSerializer(ModelSerializer):
 
 
 class SignInSerializer(serializers.Serializer):
-    username = serializers.CharField(allow_blank=False, allow_null=False)
-    password = serializers.CharField(allow_null=False, allow_blank=False)
+    username = serializers.CharField(
+        allow_blank=False,
+        allow_null=False,
+        error_messages={
+            "required": "缺少用户名字段."
+        }
+    )
+    password = serializers.CharField(
+        allow_null=False,
+        allow_blank=False,
+        error_messages={
+            "required": "缺少密码字段.",
+            "min_length": "密码太短，至少8个字符."
+        }
+    )
 
     def validate(self, attrs):
         """

@@ -30,12 +30,12 @@ class PermissionSerializer(ModelSerializer):
         elif attrs['permission_type'] == 'menu' and attrs['path']:
             raise serializers.ValidationError("当权限为:menu,权限内容必须为空")
 
-        parent = Permission.objects.filter(
-            parent=attrs['parent'],
-            parent__permission_type='menu'
-        )
-        if len(parent) != 1:
-            raise serializers.ValidationError("父权限类型错误，或者不存在")
+        # parent = Permission.objects.filter(
+        #     parent=attrs['parent'],
+        #     parent__permission_type='menu'
+        # )
+        # if len(parent) != 1:
+        #     raise serializers.ValidationError("父权限类型错误，或者不存在")
 
     def validate_permission_type(self, attrs):
         """

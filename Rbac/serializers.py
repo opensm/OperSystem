@@ -20,14 +20,17 @@ class PermissionSerializer(ModelSerializer):
         :param attrs:
         :return:
         """
+        path_length = len(attrs['path'].split(os.sep))
         if attrs['permission_type'] in ('url', 'button') and not attrs['path']:
             raise serializers.ValidationError("当权限类型为:url或者button,权限的地址必须存在")
-        elif attrs['permission_type'] == 'menu' and attrs['path']:
+        if attrs['permission_type'] == 'menu' and attrs['path']:
             raise serializers.ValidationError("当权限为:menu,权限内容必须为空")
-        if attrs['path'].startswith(os.sep) and not len(attrs['path'].split(os.sep)) < 2:
+        if attrs['path'].startswith(os.sep) and not path_length < 2:
             raise serializers.ValidationError("输入权限格式错误！")
-        if (attrs['path'].startswith(os.sep) and attrs['parent'] is None) and attrs['level'] != 999:
-            raise serializers.ValidationError("获取到的权限类型格式，父类型，以及权限等级不符合规定！")
+        if path_length > 1 and attrs['parent'] is not None:
+            raise serializers.ValidationError("当权限为完整路径，则父权限应该为空")
+        if path_length > 1 and attrs['level'] != 999:
+            raise serializers.ValidationError("获取到权限为完整路径，权限等级应该为:999！")
         return attrs
 
     def validate_permission_type(self, attrs):

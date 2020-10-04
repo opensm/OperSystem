@@ -10,18 +10,26 @@ class Permission(models.Model):
     permission_choice = (
         ("button", "按钮"),
         ("url", "页面"),
-        ("menu", "菜单")
+        ("menu", "菜单"),
+        ('other', "其他")
+    )
+    request_choice = (
+        ("POST", "新增"),
+        ("GET", "查看"),
+        ("DELETE", "删除"),
+        ("PUT", "修改")
     )
     auth_name = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
     parent = models.ForeignKey(
         'self', verbose_name='父级菜单', null=True, blank=True, related_name='children', on_delete=models.DO_NOTHING
     )
     path = models.CharField(verbose_name='URL', max_length=255, null=False, blank=False)
-    level = models.IntegerField(verbose_name="权限等级", null=False, blank=False)
+    css_style = models.CharField(verbose_name="CSS样式", null=True, blank=True, default="")
     permission_type = models.CharField(
         verbose_name="权限类型", max_length=10, null=False, blank=False, choices=permission_choice,
         default="url"
     )
+    request_type = models.CharField(verbose_name="请求类型", null=False, default="POST", choices=request_choice)
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
     def __str__(self):

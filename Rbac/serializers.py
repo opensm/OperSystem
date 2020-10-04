@@ -19,6 +19,17 @@ class RoleSerializer(ModelSerializer):
 
 
 class PermissionSerializer(ModelSerializer):
+
+    def validate(self, attrs):
+        """
+        :param attrs:
+        :return:
+        """
+        if attrs['permission_type'] in ('url', 'button') and not attrs['path']:
+            raise serializers.ValidationError("当权限类型为:url或者button,权限的地址必须存在")
+        elif attrs['permission_type'] == 'menu' and attrs['path']:
+            raise serializers.ValidationError("当权限为:menu,权限内容必须为空")
+
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Permission  # 指定需要序列化的模型表
         # fields = ("__all__")

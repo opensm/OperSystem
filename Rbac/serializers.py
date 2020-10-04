@@ -3,6 +3,7 @@ from rest_framework import serializers
 from django.contrib import auth
 from django.contrib.auth import password_validation
 from Rbac.models import Role, Permission, UserInfo
+import os
 
 
 class RoleSerializer(ModelSerializer):
@@ -23,13 +24,10 @@ class PermissionSerializer(ModelSerializer):
             raise serializers.ValidationError("当权限类型为:url或者button,权限的地址必须存在")
         elif attrs['permission_type'] == 'menu' and attrs['path']:
             raise serializers.ValidationError("当权限为:menu,权限内容必须为空")
-
-        # parent = Permission.objects.filter(
-        #     parent=attrs['parent'],
-        #     parent__permission_type='menu'
-        # )
-        # if len(parent) != 1:
-        #     raise serializers.ValidationError("父权限类型错误，或者不存在")
+        if attrs['path'].startswith(os.sep) and not len(attrs['path'].split(os.sep)) < 2:
+            raise serializers.ValidationError("输入权限格式错误！")
+        if (attrs['path'].startswith(os.sep) and attrs['parent'] is None) and attrs['level'] != 999:
+            raise serializers.ValidationError("获取到的权限类型格式，父类型，以及权限等级不符合规定！")
         return attrs
 
     def validate_permission_type(self, attrs):
@@ -39,7 +37,6 @@ class PermissionSerializer(ModelSerializer):
         """
         if attrs not in ("button", "menu", "url"):
             raise serializers.ValidationError("传入的权限类型错误，权限类型必须为:button,menu,url")
-
         return attrs
 
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别

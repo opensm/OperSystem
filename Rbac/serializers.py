@@ -31,7 +31,7 @@ class PermissionSerializer(ModelSerializer):
             raise serializers.ValidationError("当权限为完整路径，则父权限应该为空")
         if path_length > 1 and attrs['level'] != 999:
             raise serializers.ValidationError("获取到权限为完整路径，权限等级应该为:999！")
-        if path_length < 1 and attrs['level'] == 999:
+        if path_length < 2 and attrs['level'] == 999:
             raise serializers.ValidationError("输入的权限等级，与权限不一致！")
         return attrs
 

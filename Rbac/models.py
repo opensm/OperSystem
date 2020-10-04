@@ -12,7 +12,7 @@ class Permission(models.Model):
         ("url", "页面"),
         ("menu", "菜单")
     )
-    authName = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
+    auth_name = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
     parent = models.ForeignKey(
         'self', verbose_name='父级菜单', null=True, blank=True, related_name='children', on_delete=models.DO_NOTHING
     )
@@ -25,7 +25,7 @@ class Permission(models.Model):
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
     def __str__(self):
-        return self.authName
+        return self.auth_name
 
 
 class Role(models.Model):

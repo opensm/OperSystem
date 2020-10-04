@@ -2,7 +2,7 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
 from django.contrib import auth
 from django.contrib.auth import password_validation
-from Rbac.models import Role, Permission, UserInfo, UserToken
+from Rbac.models import Role, Permission, UserInfo
 
 
 class RoleSerializer(ModelSerializer):

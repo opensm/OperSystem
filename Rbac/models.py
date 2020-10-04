@@ -24,12 +24,16 @@ class Permission(models.Model):
         'self', verbose_name='父级菜单', null=True, blank=True, related_name='children', on_delete=models.DO_NOTHING
     )
     path = models.CharField(verbose_name='URL', max_length=255, null=False, blank=False)
-    css_style = models.CharField(verbose_name="CSS样式", null=True, blank=True, default="")
+    css_style = models.CharField(
+        verbose_name="CSS样式", null=True, blank=True, default="", max_length=2000
+    )
     permission_type = models.CharField(
         verbose_name="权限类型", max_length=10, null=False, blank=False, choices=permission_choice,
         default="url"
     )
-    request_type = models.CharField(verbose_name="请求类型", null=False, default="POST", choices=request_choice)
+    request_type = models.CharField(
+        verbose_name="请求类型", null=False, default="POST", choices=request_choice, max_length=10
+    )
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
     def __str__(self):

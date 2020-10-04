@@ -33,6 +33,8 @@ class PermissionSerializer(ModelSerializer):
             raise serializers.ValidationError("获取到权限为完整路径，权限等级应该为:999！")
         if path_length < 2 and attrs['level'] == 999:
             raise serializers.ValidationError("输入的权限等级，与权限不一致！")
+        if attrs['level'] != 999 and attrs['path'] is None:
+            raise serializers.ValidationError("权限等级不为：999，请输入权限")
         return attrs
 
     def validate_permission_type(self, attrs):

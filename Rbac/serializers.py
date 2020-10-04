@@ -21,9 +21,6 @@ class PermissionSerializer(ModelSerializer):
         :return:
         """
         path_length = len(attrs['path'].split(os.sep))
-        print(os.sep)
-        print(attrs['path'].split(os.sep))
-        print(attrs['path'])
         if attrs['permission_type'] in ('url', 'button') and not attrs['path']:
             raise serializers.ValidationError("当权限类型为:url或者button,权限的地址必须存在")
         if attrs['permission_type'] == 'menu' and attrs['path']:

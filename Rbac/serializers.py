@@ -1,14 +1,8 @@
-from abc import ABC
-
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
 from django.contrib import auth
 from django.contrib.auth import password_validation
 from Rbac.models import Role, Permission, UserInfo, UserToken
-import hashlib
-import datetime
-import time
-from KubernetesManagerWeb.settings import SECRET_KEY
 
 
 class RoleSerializer(ModelSerializer):

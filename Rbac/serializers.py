@@ -23,8 +23,6 @@ class PermissionSerializer(ModelSerializer):
         path_length = len(attrs['path'].split(os.sep))
         if attrs['permission_type'] in ('url', 'button') and not attrs['path']:
             raise serializers.ValidationError("当权限类型为:url或者button,权限的地址必须存在")
-        if attrs['permission_type'] == 'menu' and attrs['path']:
-            raise serializers.ValidationError("当权限为:menu,权限内容必须为空")
         if attrs['path'].startswith(os.sep) and path_length < 2:
             raise serializers.ValidationError("输入权限格式错误！")
         if path_length > 1 and attrs['parent'] is not None:

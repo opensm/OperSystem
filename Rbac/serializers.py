@@ -48,6 +48,7 @@ class PermissionSerializer(ModelSerializer):
         model = Permission  # 指定需要序列化的模型表
         # fields = ("__all__")
         exclude = ('create_date',)
+        read_only_fields = ['id']
 
 
 class UserInfoSerializer(ModelSerializer):

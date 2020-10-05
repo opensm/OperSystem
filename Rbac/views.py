@@ -11,7 +11,8 @@ from Rbac.serializers import \
     PermissionSerializer, \
     SignInSerializer, \
     UserInfoSerializer, \
-    ResetPasswordSerializer
+    ResetPasswordSerializer, \
+    UserEditRoleSerializer
 
 
 class AuthView(APIView):
@@ -418,4 +419,16 @@ class UserEditRoleView(APIView):
         :param userId:
         :return:
         """
-
+        query = UserInfo.objects.get(id=userId)
+        data = UserEditRoleSerializer(instance=query, data=request.data)
+        if not data.is_valid():
+            return {
+                "data": "null",
+                "meta": {"msg": "修改失败{0}".format(data.errors), "status": 500}
+            }
+        else:
+            data.save()
+            return {
+                "data": [],
+                "meta": {"msg": "修改密码成功,用户ID为：{0}".format(userId), "status": 200}
+            }

@@ -133,3 +133,4 @@ class UserEditRoleSerializer(serializers.Serializer):
         """
         for role in validated_data['roles'].split(","):
             instance.roles.add(Role.objects.get(id=role))
+        instance.save()

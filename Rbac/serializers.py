@@ -111,3 +111,25 @@ class ResetPasswordSerializer(serializers.Serializer):
         self.user.set_password(new_password)
         self.user.save()
         return attrs
+
+
+class UserEditRoleSerializer(serializers.Serializer):
+    roles = serializers.CharField(required=True)
+
+    def validated_roles(self, attrs):
+        """
+        :param attrs:
+        :return:
+        """
+        for role in attrs.split(","):
+            if not Role.objects.filter(id=role).exist():
+                raise serializers.ValidationError("角色id不存在:{0}".format(role))
+
+    def update(self, instance, validated_data):
+        """
+        :param instance:
+        :param validated_data:
+        :return:
+        """
+        for role in validated_data['roles'].split(","):
+            instance.roles.add(Role.objects.get(id=role))

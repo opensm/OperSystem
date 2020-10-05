@@ -408,3 +408,14 @@ class ResetPassWordView(APIView):
             "meta": {"msg": "修改用户信息成功", "status": 200}
         }
         return JsonResponse(res)
+
+
+class UserEditRoleView(APIView):
+
+    def put(self, request, userId):
+        """
+        :param request:
+        :param userId:
+        :return:
+        """
+

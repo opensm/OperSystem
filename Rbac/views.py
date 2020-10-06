@@ -477,6 +477,7 @@ class RolePermissionEditView(APIView):
         """
         try:
             query = Role.objects.get(id=roleId)
+            print(query)
         except Exception as error:
             res = {
                 "data": roleId,
@@ -488,7 +489,7 @@ class RolePermissionEditView(APIView):
         if not data.is_valid():
             res = {
                 "data": roleId,
-                "meta": {"msg": "修改角色权限失败", "status": 200}
+                "meta": {"msg": "修改角色相关权限失败", "status": 200}
             }
             return JsonResponse(res)
         else:

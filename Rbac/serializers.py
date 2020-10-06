@@ -114,7 +114,7 @@ class ResetPasswordSerializer(serializers.Serializer):
 
 
 class UserEditRoleSerializer(serializers.Serializer):
-    roles = serializers.CharField(required=True)
+    roles = serializers.CharField()
 
     def validated_roles(self, attrs):
         """

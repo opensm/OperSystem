@@ -6,7 +6,9 @@ from Rbac.views import AuthView, \
     PermissionView, \
     UserView, \
     UsersView, \
-    ResetPassWordView
+    ResetPassWordView, \
+    UserStatusEditView, \
+    UserEditRoleView
 
 app_name = 'rbac'
 
@@ -21,6 +23,8 @@ urlpatterns = [
     path('permission/<int:permissionId>', PermissionView.as_view(), name='permission'),
     # 用户管理
     re_path('user$', UsersView.as_view(), name='users'),
-    path('user/<int:userId>', UserView.as_view(), name='user'),
-    path('resetpass/<int:userId>', ResetPassWordView.as_view(), name='password'),
+    re_path('user/<int:userId>$', UserView.as_view(), name='user'),
+    re_path('user/<int:userId>/reset_passoword$', ResetPassWordView.as_view(), name='password'),
+    re_path('user/<int:userId>/state$', UserStatusEditView.as_view(), name="user_status"),
+    re_path('user/<int:userId>/roles$', UserEditRoleView.as_view(), name="user_role")
 ]

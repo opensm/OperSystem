@@ -134,3 +134,23 @@ class UserEditRoleSerializer(serializers.Serializer):
         for role in validated_data['roles'].split(","):
             instance.roles.add(Role.objects.get(id=role))
         instance.save()
+        return instance
+
+
+class UserStatusEditSerializer(serializers.Serializer):
+    is_active = serializers.BooleanField(default=True, required=True)
+
+    def validated_is_active(self, attrs):
+        """
+        :param attrs:
+        :return:
+        """
+        if attrs not in [True, False]:
+            raise serializers.ValidationError("请输入正确的用户状态值:True,False")
+
+    def update(self, instance, validated_data):
+        if not hasattr(instance, 'is_active'):
+            raise serializers.ValidationError("object error,必须是Userinfo,才能修改用户状态！")
+        instance.is_active = validated_data['is_active']
+        instance.save()
+        return instance

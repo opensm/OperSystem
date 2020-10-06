@@ -138,7 +138,7 @@ class UserEditRoleSerializer(serializers.Serializer):
 
 
 class UserStatusEditSerializer(serializers.Serializer):
-    is_active = serializers.BooleanField(default=True, required=True)
+    is_active = serializers.BooleanField(required=True)
 
     def validated_is_active(self, attrs):
         """

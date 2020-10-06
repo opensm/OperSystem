@@ -1,9 +1,11 @@
-from rest_framework.serializers import ModelSerializer
-from rest_framework import serializers
+import os
+
 from django.contrib import auth
 from django.contrib.auth import password_validation
+from rest_framework import serializers
+from rest_framework.serializers import ModelSerializer
+
 from Rbac.models import Role, Permission, UserInfo
-import os
 
 
 class RoleSerializer(ModelSerializer):
@@ -153,4 +155,20 @@ class UserStatusEditSerializer(serializers.Serializer):
             raise serializers.ValidationError("object error,必须是Userinfo,才能修改用户状态！")
         instance.is_active = validated_data['is_active']
         instance.save()
+        return instance
+
+
+class RolePermissionEditSerializer(serializers.ModelSerializer):
+    # permission_ids = serializers.ManyRelatedField()
+    class Meta:
+        model = Role
+        fields = ('permissions',)
+
+    def update(self, instance, validated_data):
+        """
+        :param instance:
+        :param validated_data:
+        :return:
+        """
+        print(validated_data)
         return instance

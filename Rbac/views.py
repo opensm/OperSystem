@@ -13,7 +13,8 @@ from Rbac.serializers import \
     UserInfoSerializer, \
     ResetPasswordSerializer, \
     UserEditRoleSerializer, \
-    UserStatusEditSerializer
+    UserStatusEditSerializer, \
+    RolePermissionEditSerializer
 
 
 class AuthView(APIView):
@@ -463,5 +464,37 @@ class UserStatusEditView(APIView):
             res = {
                 "data": userId,
                 "meta": {"msg": "修改用户状态成功", "status": 200}
+            }
+            return JsonResponse(res)
+
+
+class RolePermissionEditView(APIView):
+    def put(self, request, roleId):
+        """
+        :param request:
+        :param roleId:
+        :return:
+        """
+        try:
+            query = Role.objects.get(id=roleId)
+        except Exception as error:
+            res = {
+                "data": roleId,
+                "meta": {"msg": "修改角色相关权限失败，{0}".format(error), "status": 200}
+            }
+            return JsonResponse(res)
+
+        data = RolePermissionEditSerializer(instance=query, data=request.data)
+        if not data.is_valid():
+            res = {
+                "data": roleId,
+                "meta": {"msg": "修改角色权限失败", "status": 200}
+            }
+            return JsonResponse(res)
+        else:
+            data.save()
+            res = {
+                "data": roleId,
+                "meta": {"msg": "修改角色权限成功", "status": 200}
             }
             return JsonResponse(res)

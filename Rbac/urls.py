@@ -17,7 +17,8 @@ urlpatterns = [
     path('auth/login', AuthView.as_view(), name='login'),
     # 角色管理
     re_path('role$', RolesView.as_view(), name='roles'),
-    path('role/<int:roleId>', RoleView.as_view(), name='role'),
+    re_path('role/(?P<roleId>[0-9])$', RoleView.as_view()),
+    re_path('role/(?P<roleId>[0-9])/permission$', RoleView.as_view()),
     # 权限管理
     re_path('permission$', PermissionsView.as_view(), name='permissions'),
     path('permission/<int:permissionId>', PermissionView.as_view(), name='permission'),

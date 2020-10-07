@@ -425,6 +425,7 @@ class UsersView(APIView):
             data.save()
             user_data = UserInfo.objects.get(username=data.validated_data['username'])
             user_data.set_password("123456")
+            user_data.save()
             res = {
                 "data": data.data,
                 "meta": {"msg": "角色数据保存成功", "status": 200}

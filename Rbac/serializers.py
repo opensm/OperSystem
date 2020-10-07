@@ -86,7 +86,7 @@ class SignInSerializer(serializers.Serializer):
         user_obj = auth.authenticate(**attrs)
         if not user_obj:
             raise serializers.ValidationError(detail="登录失败，用户名或者密码错误！", code="auth")
-        UserInfo.objects.filter(username=attrs['username']).update(last_login=datetime.datetime.now())
+        UserInfo.objects.filter(**attrs).update(last_login=datetime.datetime.now())
         return attrs
 
 

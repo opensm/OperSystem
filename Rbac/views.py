@@ -546,7 +546,7 @@ class RolePermissionEditView(APIView):
         else:
             data.save()
             res = {
-                "data": roleId,
+                "data": data.data,
                 "meta": {"msg": "修改角色权限成功", "status": 200}
             }
             return JsonResponse(res)

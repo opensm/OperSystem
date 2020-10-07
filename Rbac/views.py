@@ -386,7 +386,7 @@ class UsersView(APIView):
         """
         try:
             query = UserInfo.objects.all()
-            data = UserInfoSerializer(instance=query)
+            data = UserInfoSerializer(instance=query,many=True)
             res = {
                 "data": data.data,
                 "meta": {"msg": "获取角色成功", "status": 200}

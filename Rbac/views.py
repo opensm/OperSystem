@@ -450,7 +450,7 @@ class UserView(APIView):
             }
             return JsonResponse(res)
         print(query)
-        data = UserInfoSerializer(instance=query, many=True)
+        data = UserInfoSerializer(instance=query)
         data = {
             "data": data,
             "meta": {"msg": "查看角色信息成功", "status": 200}

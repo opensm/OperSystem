@@ -8,14 +8,14 @@ from Rbac.views import AuthView, \
     UsersView, \
     ResetPassWordView, \
     UserStatusEditView, \
-    UserEditRoleView,\
+    UserEditRoleView, \
     RolePermissionEditView
 
 app_name = 'rbac'
 
 urlpatterns = [
     # 用户登录
-    path('auth/login', AuthView.as_view(), name='login'),
+    path('login', AuthView.as_view(), name='login'),
     # 角色管理
     re_path('role$', RolesView.as_view(), name='roles'),
     re_path('role/(?P<roleId>[0-9])$', RoleView.as_view()),

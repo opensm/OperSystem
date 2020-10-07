@@ -115,17 +115,18 @@ class ResetPasswordSerializer(serializers.Serializer):
         return attrs
 
 
-class UserEditRoleSerializer(serializers.Serializer):
-    roles = serializers.CharField()
+class UserEditRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserInfo
+        fields = ("roles",)
 
     def validated_roles(self, attrs):
         """
         :param attrs:
         :return:
         """
-        for role in attrs.split(","):
-            if not Role.objects.filter(id=role).exist():
-                raise serializers.ValidationError("角色id不存在:{0}".format(role))
+        if not Role.objects.filter(id=attrs).exist():
+            raise serializers.ValidationError("角色id不存在:{0}".format(attrs))
 
     def update(self, instance, validated_data):
         """
@@ -133,14 +134,17 @@ class UserEditRoleSerializer(serializers.Serializer):
         :param validated_data:
         :return:
         """
-        for role in validated_data['roles'].split(","):
-            instance.roles.add(Role.objects.get(id=role))
+        for role in validated_data['roles']:
+            instance.roles.add(role)
         instance.save()
         return instance
 
 
-class UserStatusEditSerializer(serializers.Serializer):
-    is_active = serializers.BooleanField(required=True)
+class UserStatusEditSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserInfo
+        fields = ('is_active',)
 
     def validated_is_active(self, attrs):
         """
@@ -170,6 +174,7 @@ class RolePermissionEditSerializer(serializers.ModelSerializer):
         :param validated_data:
         :return:
         """
+        instance.permissions.clean()
         for permission in validated_data['permissions']:
             instance.permissions.add(permission)
         instance.save()

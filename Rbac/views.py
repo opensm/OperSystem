@@ -32,6 +32,16 @@ def format_error(data):
 
 class AuthView(APIView):
     def post(self, request):
+        """
+        :param request:
+        :url api/v1/auth/login
+        :parameter:
+        {
+            "username": "username",
+            "password": "password"
+        }
+        :return:
+        """
         data = SignInSerializer(data=request.data)
         if not data.is_valid():
             format_error(data=data.errors)
@@ -68,6 +78,13 @@ class AuthView(APIView):
 class RolesView(APIView):
 
     def get(self, request):
+        """
+        :param request:
+        :url /api/v1/role
+        :parameter
+        {}
+        :return:
+        """
         try:
             query = Role.objects.all()
             data = RoleSerializer(instance=query, many=True)
@@ -85,6 +102,17 @@ class RolesView(APIView):
             return JsonResponse(res)
 
     def post(self, request):
+        """
+        :param request:
+        : url  /api/v1/role:
+        :parameter:
+        {
+            "name": "name",
+            "code": "code",
+            "desc": "desc"
+        }
+        :return:
+        """
         data = RoleSerializer(data=request.data)
         if not data.is_valid():
             res = {
@@ -107,6 +135,9 @@ class RoleView(APIView):
         """
         :param request:
         :param roleId:
+        :url /api/v1/role/(?P<roleId>[0-9])$
+        :parameter:
+        {}
         :return: 查看具体角色信息
         """
         try:
@@ -136,6 +167,13 @@ class RoleView(APIView):
         """
         :param request:
         :param roleId:
+        :url /api/v1/role/(?P<roleId>[0-9])$
+        :parameter:
+        {
+            "name": "name",
+            "code": "code",
+            "desc": "desc"
+        }
         :return: 修改角色信息
         """
         try:
@@ -167,6 +205,9 @@ class RoleView(APIView):
         """
         :param request:
         :param roleId:
+        :url /api/v1/role/(?P<roleId>[0-9])$
+        :parameter:
+        {}
         :return: 删除角色
         """
         try:
@@ -188,6 +229,9 @@ class PermissionsView(APIView):
     def get(self, request):
         """
         :param request:
+        :url /api/v1/permission
+        :parameter:
+        {}
         :return:
         """
         try:
@@ -208,6 +252,16 @@ class PermissionsView(APIView):
     def post(self, request):
         """
         :param request:
+        :url /api/v1/permission
+        :parameter:
+        {
+            "auth_name": "auth_name",
+            "parent": "parent",
+            "path": "path",
+            "css_style": "css_style",
+            "permission_type": "permission_type",
+            "request_type": "request_type"
+        }
         :return:
         """
         data = PermissionSerializer(data=request.data)
@@ -232,7 +286,10 @@ class PermissionView(APIView):
         """
         :param request:
         :param permissionId:
-        :return: 查看具体角色信息
+        :url /api/v1/permission/<int:permissionId>
+        :parameter:
+        {}
+        :return: 查看权限信息
         """
         try:
             query = Permission.objects.get(id=permissionId)
@@ -254,7 +311,17 @@ class PermissionView(APIView):
         """
         :param request:
         :param permissionId:
-        :return: 修改角色信息
+        :url /api/v1/permission/<int:permissionId>
+        :parameter:
+        {
+            "auth_name": "auth_name",
+            "parent": "parent",
+            "path": "path",
+            "css_style": "css_style",
+            "permission_type": "permission_type",
+            "request_type": "request_type"
+        }
+        :return: 修改权限信息
         """
         try:
             query = Permission.objects.get(id=permissionId)
@@ -283,6 +350,9 @@ class PermissionView(APIView):
         """
         :param request:
         :param permissionId:
+        :url /api/v1/permission/<int:permissionId>
+        :parameter:
+        {}
         :return: 删除角色
         """
         if not Permission.objects.filter(id=permissionId).exists():
@@ -309,6 +379,13 @@ class PermissionView(APIView):
 class UsersView(APIView):
 
     def get(self, request):
+        """
+        :param request:
+        :url  /api/v1/user
+        :parameter:
+        {}
+        :return: 查看用户列表
+        """
         try:
             data = UserInfo.objects.all()
             ret = UserInfoSerializer(instance=data, many=True)
@@ -326,6 +403,20 @@ class UsersView(APIView):
             return JsonResponse(res)
 
     def post(self, request):
+        """
+        :param request:
+        :url  /api/v1/user
+        :parameter:
+        {
+            "username": "username",
+            "name": "name",
+            "mobile": "mobile",
+            "email": "email",
+            "is_active": "is_active",
+            "is_staff": "is_staff"
+        }
+        :return: 创建用户
+        """
         data = UserInfoSerializer(data=request.data)
         if not data.is_valid():
             res = {
@@ -348,6 +439,9 @@ class UserView(APIView):
         """
         :param request:
         :param userId:
+        :url  /api/v1/user/(?P<userId>[0-9])$
+        :parameter:
+        {}
         :return: 查看具体角色信息
         """
         try:
@@ -377,7 +471,17 @@ class UserView(APIView):
         """
         :param request:
         :param userId:
-        :return: 修改角色信息
+        :url  /api/v1/user/(?P<userId>[0-9])$
+        :parameter:
+        {
+            "username": "username",
+            "name": "name",
+            "mobile": "mobile",
+            "email": "email",
+            "is_active": "is_active",
+            "is_staff": "is_staff"
+        }
+        :return: 修改用户信息
         """
         try:
             query = UserInfo.objects.get(id=userId)
@@ -406,6 +510,9 @@ class UserView(APIView):
         """
         :param request:
         :param userId:
+        :url  /api/v1/user/(?P<userId>[0-9])$
+        :parameter:
+        {}
         :return: 删除用户
         """
         try:
@@ -429,6 +536,12 @@ class ResetPassWordView(APIView):
         """
         :param request:
         :param userId:
+        :url  /api/v1/user/(?P<userId>[0-9])/reset_passoword$
+        :parameter:
+        {
+            "oldPassword": "oldPassword",
+            "newPassword": "newPassword"
+        }
         :return:
         """
         try:
@@ -453,18 +566,6 @@ class ResetPassWordView(APIView):
             }
         return JsonResponse(res)
 
-    def get(self, request, userId):
-        """
-        :param request:
-        :param userId:
-        :return:
-        """
-        res = {
-            "data": userId,
-            "meta": {"msg": "修改用户信息成功", "status": 200}
-        }
-        return JsonResponse(res)
-
 
 class UserEditRoleView(APIView):
 
@@ -472,6 +573,13 @@ class UserEditRoleView(APIView):
         """
         :param request:
         :param userId:
+        :url  /api/v1/user/(?P<userId>[0-9])/roles$
+        :parameter:
+        {
+            "roles": "角色ID1",
+            "roles": "角色ID2",
+            ......
+        }
         :return:
         """
         try:
@@ -501,6 +609,11 @@ class UserStatusEditView(APIView):
         """
         :param request:
         :param userId:
+        :url  /api/v1/user/(?P<userId>[0-9])/state$
+        :parameter:
+        {
+            "is_active": "True"|"False",
+        }
         :return:
         """
         try:

@@ -33,7 +33,7 @@ class Permission(models.Model):
         default="url"
     )
     request_type = models.CharField(
-        verbose_name="请求类型", null=False, default="POST", choices=request_choice, max_length=15
+        verbose_name="请求类型", null=True, choices=request_choice, max_length=15
     )
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 

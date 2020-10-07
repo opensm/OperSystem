@@ -23,18 +23,21 @@ class PermissionSerializer(serializers.ModelSerializer):
         :return:
         """
         path_length = len(attrs['path'].split(os.sep))
-        if attrs['permission_type'] in ('url', 'button') and not attrs['path']:
-            raise serializers.ValidationError("当权限类型为:url或者button,权限的地址必须存在")
-        if attrs['path'].startswith(os.sep) and path_length < 2:
-            raise serializers.ValidationError("输入权限格式错误！")
-        if path_length > 1 and attrs['parent'] is not None:
-            raise serializers.ValidationError("当权限为完整路径，则父权限应该为空")
-        if path_length > 1 and attrs['permission_type'] != "other":
-            raise serializers.ValidationError("获取到权限为完整路径，权限等级应该为:999！")
-        if path_length < 2 and attrs['permission_type'] == "other":
-            raise serializers.ValidationError("输入的权限等级，与权限不一致！")
-        if attrs['permission_type'] != "other" and attrs['path'] is None:
-            raise serializers.ValidationError("权限等级不为：999，请输入权限")
+        # /api/v1/auth/login button post
+        if path_length > 1 and attrs['permission_type'] == 'menu':
+            raise serializers.ValidationError("当权限为完整的列表时，权限不能为button,或者当权限为menu时，权限不能为完整列表")
+        # if attrs['permission_type'] in ('url', 'button') and not attrs['path']:
+        #     raise serializers.ValidationError("当权限类型为:url或者button,权限的地址必须存在")
+        # if attrs['path'].startswith(os.sep) and path_length < 2:
+        #     raise serializers.ValidationError("输入权限格式错误！")
+        # if path_length > 1 and attrs['parent'] is not None:
+        #     raise serializers.ValidationError("当权限为完整路径，则父权限应该为空")
+        # if path_length > 1 and attrs['permission_type'] != "other":
+        #     raise serializers.ValidationError("获取到权限为完整路径，权限等级应该为:999！")
+        # if path_length < 2 and attrs['permission_type'] == "other":
+        #     raise serializers.ValidationError("输入的权限等级，与权限不一致！")
+        # if attrs['permission_type'] != "other" and attrs['path'] is None:
+        #     raise serializers.ValidationError("权限等级不为：999，请输入权限")
         return attrs
 
     def validate_permission_type(self, attrs):

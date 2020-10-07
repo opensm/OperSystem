@@ -17,13 +17,14 @@ class Permission(models.Model):
         ("POST", "新增"),
         ("GET", "查看"),
         ("DELETE", "删除"),
-        ("PUT", "修改")
+        ("PUT", "修改"),
+        ("NOT_REQUEST", "子菜单没有请求类型")
     )
     auth_name = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
     parent = models.ForeignKey(
         'self', verbose_name='父级菜单', null=True, blank=True, related_name='children', on_delete=models.DO_NOTHING
     )
-    path = models.CharField(verbose_name='URL', max_length=255, null=False, blank=False)
+    path = models.CharField(verbose_name='URL', max_length=255, null=True, blank=False)
     css_style = models.CharField(
         verbose_name="CSS样式", null=True, blank=True, default="", max_length=2000
     )

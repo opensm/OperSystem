@@ -56,7 +56,7 @@ class PermissionSerializer(ModelSerializer):
 class UserInfoSerializer(ModelSerializer):
     class Meta:
         model = UserInfo
-        exclude = ('password',)
+        exclude = ('password', 'roles')
         # fields = '__all__'
 
 
@@ -141,7 +141,6 @@ class UserEditRoleSerializer(serializers.ModelSerializer):
 
 
 class UserStatusEditSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = UserInfo
         fields = ('is_active',)

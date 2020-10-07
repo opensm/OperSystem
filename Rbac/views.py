@@ -385,17 +385,16 @@ class UsersView(APIView):
         :return: 查看用户列表
         """
         try:
-            data = UserInfo.objects.all()
-            ret = UserInfoSerializer(instance=data, many=True)
+            query = UserInfo.objects.all()
+            data = UserInfoSerializer(instance=query, many=True)
             res = {
-                "data": ret.data,
+                "data": data.data,
                 "meta": {"msg": "获取角色成功", "status": 200}
             }
             return JsonResponse(res)
         except Exception as error:
             res = {
                 "data": "null",
-                "token": "null",
                 "meta": {"msg": "内部错误:{0}".format(error), "status": 500}
             }
             return JsonResponse(res)

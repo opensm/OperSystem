@@ -170,5 +170,7 @@ class RolePermissionEditSerializer(serializers.ModelSerializer):
         :param validated_data:
         :return:
         """
-        print(validated_data)
+        for permission in validated_data['permissions']:
+            instance.permissions.add(permission)
+        instance.save()
         return instance

@@ -60,13 +60,16 @@ class AuthView(APIView):
         other = {
             "token": token,
             "expiration_time": expiration_time,
-            "update_date": datetime.datetime.now()
+            "update_date": datetime.datetime.now(),
+            "default": {
+                "username": data.data['username']
+            }
         }
         default = {
             "username": data.data['username']
         }
         try:
-            UserToken.objects.update_or_create(other=other, defaults=default)
+            UserToken.objects.update_or_create(**other)
             res = {
                 "data": "null",
                 "token": token,

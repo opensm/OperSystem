@@ -62,7 +62,7 @@ class AuthView(APIView):
             "expiration_time": expiration_time,
             "update_date": datetime.datetime.now(),
             "defaults": {
-                "username_id": UserInfo.objects.get(username=data.data['username']).id
+                "username": UserInfo.objects.get(username=data.data['username']).id
             }
         }
 

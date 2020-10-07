@@ -449,7 +449,7 @@ class UserView(APIView):
                 "meta": {"msg": "获取到用户信息失败,UserId:{0},原因:{1}".format(userId, error), "status": 500}
             }
             return JsonResponse(res)
-
+        print(query)
         data = UserInfoSerializer(instance=query, many=True)
         data = {
             "data": data,

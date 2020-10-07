@@ -422,6 +422,7 @@ class UsersView(APIView):
             }
             return JsonResponse(res)
         else:
+            data.set_password("123456")
             data.save()
             data = {
                 "data": data.data,

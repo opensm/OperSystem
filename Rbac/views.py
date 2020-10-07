@@ -67,7 +67,10 @@ class AuthView(APIView):
         }
 
         try:
-            UserToken.objects.update_or_create(**other)
+            UserToken.objects.update_or_create(
+                token=token, expiration_time=expiration_time, update_date=datetime.datetime.now(),
+                defaults={"username": UserInfo.objects.get(username=data.data['username'])}
+            )
             res = {
                 "data": "null",
                 "token": token,

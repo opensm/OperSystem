@@ -147,14 +147,14 @@ class RoleView(APIView):
                 "data": "null",
                 "meta": {"msg": "获取到角色信息失败,RoleID:{0},原因:{1}".format(roleId, error), "status": 500}
             }
-            return res
+            return JsonResponse(res)
 
         data = RoleSerializer(instance=query)
-        data = {
+        res = {
             "data": data.data,
             "meta": {"msg": "查看角色信息成功", "status": 200}
         }
-        return JsonResponse(data)
+        return JsonResponse(res)
 
     def post(self, request):
         """
@@ -192,8 +192,6 @@ class RoleView(APIView):
             }
             return JsonResponse(res)
         else:
-            # data.update(instance=query, validated_data=ret.validated_data)
-            # result = serializers.serialize('json', data)
             data.save()
             res = {
                 "data": data.data,

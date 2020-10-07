@@ -50,7 +50,7 @@ class AuthView(APIView):
                 "meta": {"msg": format_error(data=data.errors).lstrip(';'), "status": 401}
             }
             return JsonResponse(res)
-        print(data.data['username'])
+        print(data.data)
         md5 = hashlib.md5(
             "{0}{1}{2}".format(data.data['username'], time.time(), SECRET_KEY).encode("utf8")
         )

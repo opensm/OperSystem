@@ -81,7 +81,8 @@ class UserInfo(AbstractBaseUser, PermissionsMixin):
 
 class UserToken(models.Model):
     username = models.OneToOneField(
-        to='UserInfo', on_delete=models.DO_NOTHING, verbose_name="用户"
+        to='UserInfo', on_delete=models.DO_NOTHING, verbose_name="用户",
+        to_field="id"
     )
     token = models.CharField(max_length=60)
     update_date = models.DateTimeField(verbose_name='更新日期', auto_now_add=True)

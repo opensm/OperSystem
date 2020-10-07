@@ -65,6 +65,7 @@ class UserInfo(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(verbose_name="员工", default=True)
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True, null=True)
     update_date = models.DateTimeField(verbose_name='更新日期', auto_now_add=True, null=True)
+    last_login = models.DateTimeField(verbose_name='最近登录', auto_now_add=True, null=True)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['mobile', 'is_active', 'is_superuser', 'email']

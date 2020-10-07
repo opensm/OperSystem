@@ -65,9 +65,6 @@ class AuthView(APIView):
                 "username": UserInfo.objects.get(username=data.data['username'])
             }
         }
-        default = {
-            "username": data.data['username']
-        }
         try:
             UserToken.objects.update_or_create(**other)
             res = {

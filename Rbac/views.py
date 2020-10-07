@@ -422,8 +422,8 @@ class UsersView(APIView):
             }
             return JsonResponse(res)
         else:
-            user_data = UserInfo.objects.get(username=data.validated_data['username'])
             data.save()
+            user_data = UserInfo.objects.get(username=data.validated_data['username'])
             user_data.set_password("123456")
             res = {
                 "data": data.data,

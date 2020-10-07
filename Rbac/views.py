@@ -57,13 +57,16 @@ class AuthView(APIView):
         token = md5.hexdigest()
         # 保存(存在就更新不存在就创建，并设置过期时间为60分钟)
         expiration_time = datetime.datetime.now() + datetime.timedelta(minutes=60)
-        defaults = {
+        other = {
             "token": token,
             "expiration_time": expiration_time,
             "update_date": datetime.datetime.now()
         }
+        default = {
+            "username": data.data['username']
+        }
         try:
-            UserToken.objects.update_or_create(username=data.data['username'], defaults=defaults)
+            UserToken.objects.update_or_create(other=other, defaults=default)
             res = {
                 "data": "null",
                 "token": token,
@@ -389,7 +392,7 @@ class UsersView(APIView):
         """
         try:
             query = UserInfo.objects.all()
-            data = UserInfoSerializer(instance=query,many=True)
+            data = UserInfoSerializer(instance=query, many=True)
             res = {
                 "data": data.data,
                 "meta": {"msg": "获取角色成功", "status": 200}

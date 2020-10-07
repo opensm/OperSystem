@@ -64,16 +64,18 @@ class AuthView(APIView):
         }
         try:
             UserToken.objects.update_or_create(username=data.username, defaults=defaults)
-            return {
+            res = {
                 "data": "null",
                 "token": token,
                 "meta": {"msg": "登录成功！", "status": 200}
             }
+            return JsonResponse(res)
         except Exception as error:
-            return {
+            res = {
                 "data": "null",
                 "meta": {"msg": "登录失败，用户token更新失败，{0}".format(error), "status": 500}
             }
+            return JsonResponse(res)
 
 
 class RolesView(APIView):

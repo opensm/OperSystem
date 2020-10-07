@@ -17,23 +17,31 @@ from Rbac.serializers import \
     RolePermissionEditSerializer
 
 
+def format_error(data):
+    if not isinstance(data, dict):
+        raise TypeError("数据；类型错误！{0}:{1}".format(type(data), data))
+
+    error_message = ""
+    for key, value in data.items():
+        if key == "non_field_errors":
+            error_message = "{0};{1}".format(error_message, ",".join(value))
+        else:
+            error_message = "{0}{1}：{2}".format(error_message, key, ",".join(value))
+    return error_message
+
+
 class AuthView(APIView):
     def post(self, request):
-        signin = SignInSerializer(data=request.data)
-        if not signin.is_valid():
-            error_message = ""
-            for key, value in signin.errors.items():
-                if key == "non_field_errors":
-                    error_message = "{0};{1}".format(error_message, ",".join(value))
-                else:
-                    error_message = "{0}{1}：{2}".format(error_message, key, ",".join(value))
+        data = SignInSerializer(data=request.data)
+        if not data.is_valid():
+            format_error(data=data.errors)
             res = {
                 "data": "null",
-                "meta": {"msg": error_message.lstrip(';'), "status": 401}
+                "meta": {"msg": format_error(data=data.errors).lstrip(';'), "status": 401}
             }
             return JsonResponse(res)
         md5 = hashlib.md5(
-            "{0}{1}{2}".format(signin.username, time.time(), SECRET_KEY).encode("utf8")
+            "{0}{1}{2}".format(data.username, time.time(), SECRET_KEY).encode("utf8")
         )
         token = md5.hexdigest()
         # 保存(存在就更新不存在就创建，并设置过期时间为60分钟)
@@ -44,7 +52,7 @@ class AuthView(APIView):
             "update_date": datetime.datetime.now()
         }
         try:
-            UserToken.objects.update_or_create(username=signin.username, defaults=defaults)
+            UserToken.objects.update_or_create(username=data.username, defaults=defaults)
             return {
                 "data": "null",
                 "token": token,
@@ -61,10 +69,10 @@ class RolesView(APIView):
 
     def get(self, request):
         try:
-            data = Role.objects.all()
-            ret = RoleSerializer(instance=data, many=True)
+            query = Role.objects.all()
+            data = RoleSerializer(instance=query, many=True)
             res = {
-                "data": ret.data,
+                "data": data.data,
                 "meta": {"msg": "获取角色成功", "status": 200}
             }
             return JsonResponse(res)
@@ -77,20 +85,20 @@ class RolesView(APIView):
             return JsonResponse(res)
 
     def post(self, request):
-        res = RoleSerializer(data=request.data)
-        if not res.is_valid():
+        data = RoleSerializer(data=request.data)
+        if not data.is_valid():
             res = {
                 "data": "null",
-                "meta": {"msg": "传入参数错误:{0}".format(res.errors), "status": 500}
+                "meta": {"msg": "传入参数错误:{0}".format(format_error(data=data.errors)), "status": 500}
             }
             return JsonResponse(res)
         else:
-            res.save()
-            data = {
-                "data": res.data,
+            data.save()
+            res = {
+                "data": data.data,
                 "meta": {"msg": "角色数据保存成功", "status": 200}
             }
-            return JsonResponse(data)
+            return JsonResponse(res)
 
 
 class RoleView(APIView):
@@ -101,10 +109,18 @@ class RoleView(APIView):
         :param roleId:
         :return: 查看具体角色信息
         """
-        ret = RoleSerializer(Role.objects.filter(id=roleId).first())
-        # print(Role.objects.filter(id=roleId))
+        try:
+            query = Role.objects.get(id=roleId)
+        except Exception as error:
+            res = {
+                "data": "null",
+                "meta": {"msg": "获取到角色信息失败,RoleID:{0},原因:{1}".format(roleId, error), "status": 500}
+            }
+            return res
+
+        data = RoleSerializer(instance=query)
         data = {
-            "data": ret.data,
+            "data": data.data,
             "meta": {"msg": "查看角色信息成功", "status": 200}
         }
         return JsonResponse(data)
@@ -123,18 +139,19 @@ class RoleView(APIView):
         :return: 修改角色信息
         """
         query = Role.objects.filter(pk=roleId).first()
-        ret = RoleSerializer(instance=query, data=request.data)
-        if not ret.is_valid():
+        data = RoleSerializer(instance=query, data=request.data)
+        if not data.is_valid():
             res = {
                 "data": "null",
-                "meta": {"msg": "传入参数错误:{0}".format(ret.errors), "status": 500}
+                "meta": {"msg": "传入参数错误:{0}".format(format_error(data=data.errors)), "status": 500}
             }
             return JsonResponse(res)
         else:
-            ret.update(instance=query, validated_data=ret.validated_data)
+            # data.update(instance=query, validated_data=ret.validated_data)
             # result = serializers.serialize('json', data)
+            data.save()
             res = {
-                "data": ret.data,
+                "data": data.data,
                 "meta": {"msg": "修改角色信息成功", "status": 200}
             }
         return JsonResponse(res)
@@ -168,9 +185,9 @@ class PermissionsView(APIView):
         """
         try:
             data = Permission.objects.all()
-            ret = PermissionSerializer(instance=data, many=True)
+            data = PermissionSerializer(instance=data, many=True)
             res = {
-                "data": ret.data,
+                "data": data.data,
                 "meta": {"msg": "获取权限数据成功", "status": 200}
             }
             return JsonResponse(res)
@@ -191,7 +208,7 @@ class PermissionsView(APIView):
         if not res.is_valid():
             res = {
                 "data": "null",
-                "meta": {"msg": "传入参数错误:{0}".format(res.errors), "status": 500}
+                "meta": {"msg": "传入参数错误:{0}".format(format_error(data=res.errors)), "status": 500}
             }
             return JsonResponse(res)
         else:
@@ -231,18 +248,19 @@ class PermissionView(APIView):
                 "meta": {"msg": "权限信息不存在", "status": 500}
             }
             return JsonResponse(res)
-        query = Permission.objects.filter(pk=permissionId).first()
-        ret = PermissionSerializer(instance=query, data=request.data)
-        if not ret.is_valid():
+        query = Permission.objects.get(pk=permissionId)
+        data = PermissionSerializer(instance=query, data=request.data)
+        if not data.is_valid():
             res = {
                 "data": "null",
-                "meta": {"msg": "传入参数错误:{0}".format(ret.errors), "status": 500}
+                "meta": {"msg": "传入参数错误:{0}".format(format_error(data=data.errors)), "status": 500}
             }
             return JsonResponse(res)
         else:
-            ret.update(instance=query, validated_data=ret.validated_data)
+            # ret.update(instance=query, validated_data=ret.validated_data)
+            data.save()
             res = {
-                "data": ret.data,
+                "data": data.data,
                 "meta": {"msg": "修改角色信息成功", "status": 200}
             }
         return JsonResponse(res)
@@ -294,17 +312,17 @@ class UsersView(APIView):
             return JsonResponse(res)
 
     def post(self, request):
-        res = UserInfoSerializer(data=request.data)
-        if not res.is_valid():
+        data = UserInfoSerializer(data=request.data)
+        if not data.is_valid():
             res = {
                 "data": "null",
-                "meta": {"msg": "传入参数错误:{0}".format(res.errors), "status": 500}
+                "meta": {"msg": "传入参数错误:{0}".format(format_error(data=data.errors)), "status": 500}
             }
             return JsonResponse(res)
         else:
-            res.save()
+            data.save()
             data = {
-                "data": res.data,
+                "data": data.data,
                 "meta": {"msg": "角色数据保存成功", "status": 200}
             }
             return JsonResponse(data)
@@ -318,10 +336,18 @@ class UserView(APIView):
         :param userId:
         :return: 查看具体角色信息
         """
-        ret = UserInfoSerializer(UserInfo.objects.filter(id=userId).first())
-        # print(Role.objects.filter(id=roleId))
+        try:
+            query = UserInfo.objects.get(id=userId)
+        except Exception as error:
+            res = {
+                "data": "null",
+                "meta": {"msg": "获取到用户信息失败,UserId:{0},原因:{1}".format(userId, error), "status": 500}
+            }
+            return res
+
+        data = UserInfoSerializer(instance=query, many=True)
         data = {
-            "data": ret.data,
+            "data": data.data,
             "meta": {"msg": "查看角色信息成功", "status": 200}
         }
         return JsonResponse(data)
@@ -339,19 +365,25 @@ class UserView(APIView):
         :param userId:
         :return: 修改角色信息
         """
-        query = UserInfo.objects.filter(pk=userId).first()
-        ret = UserInfoSerializer(instance=query, data=request.data)
-        if not ret.is_valid():
+        try:
+            query = UserInfo.objects.get(id=userId)
+        except Exception as error:
             res = {
                 "data": "null",
-                "meta": {"msg": "传入参数错误:{0}".format(ret.errors), "status": 500}
+                "meta": {"msg": "修改用户信息失败,UserId:{0},原因:{1}".format(userId, error), "status": 500}
+            }
+            return res
+        data = UserInfoSerializer(instance=query, data=request.data)
+        if not data.is_valid():
+            res = {
+                "data": "null",
+                "meta": {"msg": "传入参数错误:{0}".format(format_error(data=data.errors)), "status": 500}
             }
             return JsonResponse(res)
         else:
-            ret.update(instance=query, validated_data=ret.validated_data)
-            # result = serializers.serialize('json', data)
+            data.save()
             res = {
-                "data": ret.data,
+                "data": data.data,
                 "meta": {"msg": "修改用户信息成功", "status": 200}
             }
         return JsonResponse(res)
@@ -385,17 +417,24 @@ class ResetPassWordView(APIView):
         :param userId:
         :return:
         """
-        query = UserInfo.objects.get(id=userId)
-        reset_ser = ResetPasswordSerializer(user=query, data=request.data)
-        if not reset_ser.is_valid():
+        try:
+            query = UserInfo.objects.get(id=userId)
+        except Exception as error:
             res = {
                 "data": "null",
-                "meta": {"msg": "修改失败{0}".format(reset_ser.errors), "status": 500}
+                "meta": {"msg": "获取到用户密码失败,UserId:{0},原因:{1}".format(userId, error), "status": 500}
+            }
+            return res
+        data = ResetPasswordSerializer(user=query, data=request.data)
+        if not data.is_valid():
+            res = {
+                "data": userId,
+                "meta": {"msg": "修改密码失败{0}".format(format_error(data=data.errors)), "status": 500}
             }
             return JsonResponse(res)
         else:
             res = {
-                "data": [],
+                "data": userId,
                 "meta": {"msg": "修改密码成功,用户ID为：{0}".format(userId), "status": 200}
             }
         return JsonResponse(res)
@@ -421,12 +460,19 @@ class UserEditRoleView(APIView):
         :param userId:
         :return:
         """
-        query = UserInfo.objects.get(id=userId)
+        try:
+            query = UserInfo.objects.get(id=userId)
+        except Exception as error:
+            res = {
+                "data": "null",
+                "meta": {"msg": "修改到用户关联角色失败,UserId:{0},原因:{1}".format(userId, error), "status": 500}
+            }
+            return res
         data = UserEditRoleSerializer(instance=query, data=request.data)
         if not data.is_valid():
             return {
                 "data": "null",
-                "meta": {"msg": "修改失败{0}".format(data.errors), "status": 500}
+                "meta": {"msg": "修改用户角色失败,{0}".format(format_error(data=data.errors)), "status": 500}
             }
         else:
             data.save()
@@ -456,7 +502,7 @@ class UserStatusEditView(APIView):
         if not data.is_valid():
             res = {
                 "data": userId,
-                "meta": {"msg": "修改用户状态失败", "status": 200}
+                "meta": {"msg": "修改用户状态失败,{0}".format(format_error(data=data.errors)), "status": 200}
             }
             return JsonResponse(res)
         else:
@@ -473,6 +519,13 @@ class RolePermissionEditView(APIView):
         """
         :param request:
         :param roleId:
+        :url /api/v1/role/1/permission
+        :parameter:
+        {
+            "permissions": 1,
+            "permissions": 2,
+            "permissions": 3
+        }
         :return:
         """
         try:
@@ -483,13 +536,11 @@ class RolePermissionEditView(APIView):
                 "meta": {"msg": "修改角色相关权限失败，{0}".format(error), "status": 200}
             }
             return JsonResponse(res)
-        print(request.data)
         data = RolePermissionEditSerializer(instance=query, data=request.data)
         if not data.is_valid():
-            print(data.errors)
             res = {
                 "data": roleId,
-                "meta": {"msg": "修改角色相关权限失败", "status": 200}
+                "meta": {"msg": "修改角色相关权限失败,{0}".format(format_error(data=data.errors)), "status": 200}
             }
             return JsonResponse(res)
         else:

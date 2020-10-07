@@ -328,7 +328,7 @@ class PermissionView(APIView):
                 "data": "null",
                 "meta": {"msg": "修改权限信息失败,PermissionId:{0},原因:{1}".format(permissionId, error), "status": 500}
             }
-            return res
+            return JsonResponse(res)
         data = PermissionSerializer(instance=query, data=request.data)
         if not data.is_valid():
             res = {
@@ -449,7 +449,7 @@ class UserView(APIView):
                 "data": "null",
                 "meta": {"msg": "获取到用户信息失败,UserId:{0},原因:{1}".format(userId, error), "status": 500}
             }
-            return res
+            return JsonResponse(res)
 
         data = UserInfoSerializer(instance=query, many=True)
         data = {
@@ -457,13 +457,6 @@ class UserView(APIView):
             "meta": {"msg": "查看角色信息成功", "status": 200}
         }
         return JsonResponse(data)
-
-    def post(self, request):
-        """
-        :param request:
-        :return:修改角色权限分配
-        """
-        return JsonResponse({"data": "post"})
 
     def put(self, request, userId):
         """
@@ -488,7 +481,7 @@ class UserView(APIView):
                 "data": "null",
                 "meta": {"msg": "修改用户信息失败,UserId:{0},原因:{1}".format(userId, error), "status": 500}
             }
-            return res
+            return JsonResponse(res)
         data = UserInfoSerializer(instance=query, data=request.data)
         if not data.is_valid():
             res = {
@@ -549,7 +542,7 @@ class ResetPassWordView(APIView):
                 "data": "null",
                 "meta": {"msg": "获取到用户密码失败,UserId:{0},原因:{1}".format(userId, error), "status": 500}
             }
-            return res
+            return JsonResponse(res)
         data = ResetPasswordSerializer(user=query, data=request.data)
         if not data.is_valid():
             res = {
@@ -587,7 +580,7 @@ class UserEditRoleView(APIView):
                 "data": "null",
                 "meta": {"msg": "修改到用户关联角色失败,UserId:{0},原因:{1}".format(userId, error), "status": 500}
             }
-            return res
+            return JsonResponse(res)
         data = UserEditRoleSerializer(instance=query, data=request.data)
         if not data.is_valid():
             return {

@@ -483,7 +483,7 @@ class RolePermissionEditView(APIView):
                 "meta": {"msg": "修改角色相关权限失败，{0}".format(error), "status": 200}
             }
             return JsonResponse(res)
-
+        print(request.data)
         data = RolePermissionEditSerializer(instance=query, data=request.data)
         if not data.is_valid():
             print(data.errors)

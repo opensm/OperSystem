@@ -3,19 +3,18 @@ import os
 from django.contrib import auth
 from django.contrib.auth import password_validation
 from rest_framework import serializers
-from rest_framework.serializers import ModelSerializer
 
 from Rbac.models import Role, Permission, UserInfo
 
 
-class RoleSerializer(ModelSerializer):
+class RoleSerializer(serializers.ModelSerializer):
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Role  # 指定需要序列化的模型表
         # fields = ("__all__")
         exclude = ('permissions',)
 
 
-class PermissionSerializer(ModelSerializer):
+class PermissionSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         """
@@ -53,7 +52,7 @@ class PermissionSerializer(ModelSerializer):
         read_only_fields = ['id']
 
 
-class UserInfoSerializer(ModelSerializer):
+class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserInfo
         exclude = ('password', 'roles')

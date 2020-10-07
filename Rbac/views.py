@@ -422,8 +422,8 @@ class UsersView(APIView):
             }
             return JsonResponse(res)
         else:
-            data.set_password("123456")
             data.save()
+            data.set_password("123456")
             data = {
                 "data": data.data,
                 "meta": {"msg": "角色数据保存成功", "status": 200}

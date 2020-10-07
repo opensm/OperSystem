@@ -50,9 +50,9 @@ class AuthView(APIView):
                 "meta": {"msg": format_error(data=data.errors).lstrip(';'), "status": 401}
             }
             return JsonResponse(res)
-        print(data)
+        print(data.data['username'])
         md5 = hashlib.md5(
-            "{0}{1}{2}".format(data.username, time.time(), SECRET_KEY).encode("utf8")
+            "{0}{1}{2}".format(data.data['username'], time.time(), SECRET_KEY).encode("utf8")
         )
         token = md5.hexdigest()
         # 保存(存在就更新不存在就创建，并设置过期时间为60分钟)

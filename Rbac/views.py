@@ -138,11 +138,18 @@ class RoleView(APIView):
         :param roleId:
         :return: 修改角色信息
         """
-        query = Role.objects.filter(pk=roleId).first()
+        try:
+            query = Role.objects.get(id=roleId)
+        except Exception as error:
+            res = {
+                "data": "null",
+                "meta": {"msg": "修改角色信息失败,RoleID:{0},原因:{1}".format(roleId, error), "status": 500}
+            }
+            return res
         data = RoleSerializer(instance=query, data=request.data)
         if not data.is_valid():
             res = {
-                "data": "null",
+                "data": data.data,
                 "meta": {"msg": "传入参数错误:{0}".format(format_error(data=data.errors)), "status": 500}
             }
             return JsonResponse(res)
@@ -184,8 +191,8 @@ class PermissionsView(APIView):
         :return:
         """
         try:
-            data = Permission.objects.all()
-            data = PermissionSerializer(instance=data, many=True)
+            query = Permission.objects.all()
+            data = PermissionSerializer(instance=query, many=True)
             res = {
                 "data": data.data,
                 "meta": {"msg": "获取权限数据成功", "status": 200}
@@ -194,7 +201,6 @@ class PermissionsView(APIView):
         except Exception as error:
             res = {
                 "data": "null",
-                "token": "null",
                 "meta": {"msg": "内部错误:{0}".format(error), "status": 500}
             }
             return JsonResponse(res)
@@ -204,17 +210,17 @@ class PermissionsView(APIView):
         :param request:
         :return:
         """
-        res = PermissionSerializer(data=request.data)
-        if not res.is_valid():
+        data = PermissionSerializer(data=request.data)
+        if not data.is_valid():
             res = {
                 "data": "null",
-                "meta": {"msg": "传入参数错误:{0}".format(format_error(data=res.errors)), "status": 500}
+                "meta": {"msg": "传入参数错误:{0}".format(format_error(data=data.errors)), "status": 500}
             }
             return JsonResponse(res)
         else:
-            res.save()
+            data.save()
             data = {
-                "data": res.data,
+                "data": data.data,
                 "meta": {"msg": "权限数据保存成功", "status": 200}
             }
             return JsonResponse(data)
@@ -228,13 +234,21 @@ class PermissionView(APIView):
         :param permissionId:
         :return: 查看具体角色信息
         """
-        ret = PermissionSerializer(Permission.objects.filter(id=permissionId).first())
+        try:
+            query = Permission.objects.get(id=permissionId)
+        except Exception as error:
+            res = {
+                "data": "null",
+                "meta": {"msg": "查看权限信息失败,PermissionId:{0},原因:{1}".format(permissionId, error), "status": 500}
+            }
+            return res
+        data = PermissionSerializer(instance=query)
         # print(Role.objects.filter(id=roleId))
-        data = {
-            "data": ret.data,
+        res = {
+            "data": data.data,
             "meta": {"msg": "查看角色信息成功", "status": 200}
         }
-        return JsonResponse(data)
+        return JsonResponse(res)
 
     def put(self, request, permissionId):
         """
@@ -242,13 +256,14 @@ class PermissionView(APIView):
         :param permissionId:
         :return: 修改角色信息
         """
-        if not Permission.objects.filter(id=permissionId).exists():
+        try:
+            query = Permission.objects.get(id=permissionId)
+        except Exception as error:
             res = {
                 "data": "null",
-                "meta": {"msg": "权限信息不存在", "status": 500}
+                "meta": {"msg": "修改权限信息失败,PermissionId:{0},原因:{1}".format(permissionId, error), "status": 500}
             }
-            return JsonResponse(res)
-        query = Permission.objects.get(pk=permissionId)
+            return res
         data = PermissionSerializer(instance=query, data=request.data)
         if not data.is_valid():
             res = {
@@ -257,7 +272,6 @@ class PermissionView(APIView):
             }
             return JsonResponse(res)
         else:
-            # ret.update(instance=query, validated_data=ret.validated_data)
             data.save()
             res = {
                 "data": data.data,

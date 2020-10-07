@@ -451,11 +451,11 @@ class UserView(APIView):
             return JsonResponse(res)
         print(query)
         data = UserInfoSerializer(instance=query)
-        data = {
+        res = {
             "data": data,
             "meta": {"msg": "查看角色信息成功", "status": 200}
         }
-        return JsonResponse(data)
+        return JsonResponse(res)
 
     def put(self, request, userId):
         """

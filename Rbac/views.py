@@ -422,9 +422,9 @@ class UsersView(APIView):
             }
             return JsonResponse(res)
         else:
+            user_data = UserInfo.objects.get(username=data.validated_data['username'])
             data.save()
-            print(data)
-            data.set_password("123456")
+            user_data.set_password("123456")
             res = {
                 "data": data.data,
                 "meta": {"msg": "角色数据保存成功", "status": 200}

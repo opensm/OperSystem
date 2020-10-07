@@ -423,12 +423,13 @@ class UsersView(APIView):
             return JsonResponse(res)
         else:
             data.save()
+            print(data)
             data.set_password("123456")
-            data = {
+            res = {
                 "data": data.data,
                 "meta": {"msg": "角色数据保存成功", "status": 200}
             }
-            return JsonResponse(data)
+            return JsonResponse(res)
 
 
 class UserView(APIView):

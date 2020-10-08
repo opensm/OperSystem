@@ -30,8 +30,8 @@ class Permission(models.Model):
         verbose_name="是否为菜单", max_length=10, null=False, blank=False, choices=menu_choice,
         default="True"
     )
-    request_type = models.CharField(
-        verbose_name="请求类型", null=True, choices=request_choice, max_length=15
+    request_type = models.ManyToManyField(
+        verbose_name="请求类型", null=True, max_length=15, to="RequestTypes"
     )
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 

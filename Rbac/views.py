@@ -621,6 +621,7 @@ class UserEditRoleView(APIView):
                 "meta": {"msg": "修改到用户关联角色失败,UserId:{0},原因:{1}".format(userId, error), "status": 500}
             }
             return JsonResponse(res)
+        print(len(query.roles))
         print(query.roles)
         for value in query.roles.all():
             print(value)

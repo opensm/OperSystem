@@ -28,8 +28,8 @@ class RbacMiddleware(MiddlewareMixin):
         :return:
         """
         # 当前访问的URL
-        print(request.path_info)
-        print(request.META)
+        token = request.META.get('HTTP_AUTHORIZATION')
+        print(token)
         current_url = request.path_info
         # for valid in settings.VALID_LIST:
         #     if re.match(valid, current_url):

@@ -688,7 +688,7 @@ class UserStatusEditView(APIView):
             return JsonResponse(res)
         res = {
             "data": query.is_active,
-            "meta": {"msg": "获取角色信息成功：{0}".format(userId), "status": 200}
+            "meta": {"msg": "获取账号状态成功，账号ID：{0}".format(userId), "status": 200}
         }
         return JsonResponse(res)
 

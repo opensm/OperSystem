@@ -46,7 +46,7 @@ class RbacMiddleware(MiddlewareMixin):
 
         for value in permission_list:
             print(current_url)
-            print(value.path)
+            print(value.parent)
         # # 当前用户的所有权限
         # permission_dict = request.session.get(settings.PERMISSION_DICT_SESSION_KEY)
         # if permission_dict is None:

@@ -39,6 +39,11 @@ class Permission(models.Model):
         return self.auth_name
 
 
+class RequestTypes(models.Model):
+    request_name = models.CharField(verbose_name="请求名称", max_length=20, default="新增", null=False)
+    request = models.CharField(verbose_name="请求类型", max_length=20, default="POST", null=False)
+
+
 class Role(models.Model):
     name = models.CharField(verbose_name='角色', max_length=32, blank=False, null=False, default="默认角色")
     code = models.CharField(verbose_name='编码', max_length=32, blank=False, null=False, default="master")

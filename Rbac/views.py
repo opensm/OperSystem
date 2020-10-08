@@ -692,7 +692,7 @@ class RolePermissionEditView(APIView):
         except Exception as error:
             res = {
                 "data": roleId,
-                "meta": {"msg": "修改角色相关权限失败，{0}".format(error), "status": 200}
+                "meta": {"msg": "获取角色信息失败，{0}".format(error), "status": 200}
             }
             return JsonResponse(res)
         data = RolePermissionEditSerializer(instance=query, data=request.data)

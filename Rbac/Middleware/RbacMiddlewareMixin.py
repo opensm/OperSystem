@@ -1,7 +1,7 @@
 import re
 from django.conf import settings
 from django.shortcuts import HttpResponse, render, redirect
-from Rbac.models import UserInfo
+from Rbac.models import UserInfo, UserToken, Permission
 
 
 class MiddlewareMixin(object):
@@ -28,13 +28,18 @@ class RbacMiddleware(MiddlewareMixin):
         :return:
         """
         # 当前访问的URL
-        token = request.META.get('HTTP_AUTHORIZATION')
-        print(token)
+        try:
+            token = request.META.get('HTTP_AUTHORIZATION')
+        except AttributeError as error:
+            print(error)
+            return False
         current_url = request.path_info
         # for valid in settings.VALID_LIST:
         #     if re.match(valid, current_url):
         #         return None
         try:
+            token_object = UserToken.objects.get(token=token)
+            print(token_object.expiration_time)
             user_message = UserInfo.objects.get(username=request.user)
             if user_message.is_superuser:
                 return None

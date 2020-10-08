@@ -40,7 +40,7 @@ class Permission(models.Model):
 
 
 class RequestTypes(models.Model):
-    request_name = models.CharField(verbose_name="请求名称", max_length=20, default="新增", null=False)
+    name = models.CharField(verbose_name="请求名称", max_length=20, default="新增", null=False)
     request = models.CharField(verbose_name="请求类型", max_length=20, default="POST", null=False)
 
 

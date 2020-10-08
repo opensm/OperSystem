@@ -633,18 +633,18 @@ class UserEditRoleView(APIView):
             }
             return JsonResponse(res)
         data = RoleSerializer(instance=query.roles.all(), many=True)
-        if not data.is_valid():
-            res = {
-                "data": userId,
-                "meta": {"msg": "获取到的角色数据异常，{0}".format(format_error(data=data.errors)), "status": 500}
-            }
-            return JsonResponse(res)
-        else:
-            res = {
-                "data": data.data,
-                "meta": {"msg": "获取角色信息成功：{0}".format(userId), "status": 200}
-            }
-            return JsonResponse(res)
+        # if not data.is_valid():
+        #     res = {
+        #         "data": userId,
+        #         "meta": {"msg": "获取到的角色数据异常，{0}".format(format_error(data=data.errors)), "status": 500}
+        #     }
+        #     return JsonResponse(res)
+        # else:
+        res = {
+            "data": data.data,
+            "meta": {"msg": "获取角色信息成功：{0}".format(userId), "status": 200}
+        }
+        return JsonResponse(res)
 
 
 class UserStatusEditView(APIView):

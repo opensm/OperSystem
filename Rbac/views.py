@@ -681,9 +681,7 @@ class RolePermissionEditView(APIView):
         :url /api/v1/role/1/permission
         :parameter:
         {
-            "permissions": 1,
-            "permissions": 2,
-            "permissions": 3
+            "permissions": [1,2,3],
         }
         :return:
         """
@@ -707,5 +705,34 @@ class RolePermissionEditView(APIView):
             res = {
                 "data": data.data,
                 "meta": {"msg": "修改角色权限成功", "status": 200}
+            }
+            return JsonResponse(res)
+
+    def get(self, request, roleId):
+        """
+        :param request:
+        :param roleId:
+        :return:
+        """
+        try:
+            query = Role.objects.get(id=roleId)
+        except Exception as error:
+            res = {
+                "data": roleId,
+                "meta": {"msg": "获取角色信息失败，{0}".format(error), "status": 200}
+            }
+            return JsonResponse(res)
+
+        data = PermissionSerializer(instance=query, many=True)
+        if not data.is_valid():
+            res = {
+                "data": roleId,
+                "meta": {"msg": "获取角色相关的权限:{0},数据异常:{1}".format(roleId, format_error(data=data.errors)), "status": 200}
+            }
+            return JsonResponse(res)
+        else:
+            res = {
+                "data": data.data,
+                "meta": {"msg": "获取角色权限成功", "status": 200}
             }
             return JsonResponse(res)

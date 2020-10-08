@@ -626,6 +626,12 @@ class UserEditRoleView(APIView):
         # print(query.roles)
         # for value in query.roles.all():
         #     print(value)
+        if not query.roles.exists():
+            res = {
+                "data": [],
+                "meta": {"msg": "获取角色信息成功：{0}".format(userId), "status": 200}
+            }
+            return JsonResponse(res)
         data = RoleSerializer(instance=query.roles.all(), many=True)
         if not data.is_valid():
             res = {

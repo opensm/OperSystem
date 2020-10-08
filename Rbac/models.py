@@ -40,8 +40,8 @@ class Permission(models.Model):
 
 
 class RequestTypes(models.Model):
-    name = models.CharField(verbose_name="请求名称", max_length=20, default="新增", null=False)
-    request = models.CharField(verbose_name="请求类型", max_length=20, default="POST", null=False)
+    name = models.CharField(verbose_name="请求名称", max_length=20, default="新增", null=False, unique=True)
+    request = models.CharField(verbose_name="请求类型", max_length=20, default="POST", null=False, unique=True)
 
 
 class Role(models.Model):

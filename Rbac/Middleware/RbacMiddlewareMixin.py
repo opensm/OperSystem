@@ -44,7 +44,7 @@ class RbacMiddleware(MiddlewareMixin):
             #     return None
             # else:
             #     print("普通用户权限")
-            print(permission_list)
+            # print(permission_list)
         except Exception as error:
             print(error)
             return HttpResponse("权限验证失败！")

@@ -59,7 +59,7 @@ class PermissionSerializer(serializers.ModelSerializer):
 class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserInfo
-        exclude = ('password', 'roles')
+        exclude = ('password',)
         # fields = '__all__'
 
 

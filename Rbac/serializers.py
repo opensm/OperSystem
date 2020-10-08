@@ -24,8 +24,8 @@ class PermissionSerializer(serializers.ModelSerializer):
         """
         path_length = len(attrs['path'].split(os.sep))
         # /api/v1/auth/login button post
-        if path_length > 1 and attrs['permission_type'] == 'menu':
-            raise serializers.ValidationError("当权限为完整的列表时，权限不能为button,或者当权限为menu时，权限不能为完整列表")
+        if path_length > 1 and attrs['is_menu']:
+            raise serializers.ValidationError("当权限为完整的列表时，权限不能为menu,或者当权限为menu时，权限不能为完整列表")
         # if attrs['permission_type'] in ('url', 'button') and not attrs['path']:
         #     raise serializers.ValidationError("当权限类型为:url或者button,权限的地址必须存在")
         # if attrs['path'].startswith(os.sep) and path_length < 2:

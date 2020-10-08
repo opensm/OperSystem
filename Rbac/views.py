@@ -594,16 +594,46 @@ class UserEditRoleView(APIView):
             return JsonResponse(res)
         data = UserEditRoleSerializer(instance=query, data=request.data)
         if not data.is_valid():
-            return {
+            res = {
                 "data": "null",
                 "meta": {"msg": "修改用户角色失败,{0}".format(format_error(data=data.errors)), "status": 500}
             }
+            return JsonResponse(res)
         else:
             data.save()
-            return {
+            res = {
                 "data": [],
                 "meta": {"msg": "修改密码成功,用户ID为：{0}".format(userId), "status": 200}
             }
+            return JsonResponse(res)
+
+    def get(self, request, userId):
+        """
+        :param request:
+        :param userId:
+        :return:
+        """
+        try:
+            query = UserInfo.objects.get(id=userId)
+        except Exception as error:
+            res = {
+                "data": "null",
+                "meta": {"msg": "修改到用户关联角色失败,UserId:{0},原因:{1}".format(userId, error), "status": 500}
+            }
+            return JsonResponse(res)
+        data = RoleSerializer(instance=query.roles.all(), many=True)
+        if not data.is_valid():
+            res = {
+                "data": userId,
+                "meta": {"msg": "获取到的角色数据异常，{0}".format(format_error(data=data.errors)), "status": 500}
+            }
+            return JsonResponse(res)
+        else:
+            res = {
+                "data": data.data,
+                "meta": {"msg": "获取角色信息成功：{0}".format(userId), "status": 200}
+            }
+            return JsonResponse(res)
 
 
 class UserStatusEditView(APIView):

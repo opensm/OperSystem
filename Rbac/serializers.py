@@ -167,7 +167,8 @@ class UserStatusEditSerializer(serializers.ModelSerializer):
 
 
 class RolePermissionEditSerializer(serializers.ModelSerializer):
-    # permission_ids = serializers.ManyRelatedField()
+    permissions = serializers.PrimaryKeyRelatedField(many=True, required=True)
+
     class Meta:
         model = Role
         fields = ('permissions',)

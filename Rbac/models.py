@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class Permission(models.Model):
-    permission_choice = (
+    menu_choice = (
         ("button", "按钮"),
         ("url", "页面"),
         ("menu", "菜单"),
@@ -28,9 +28,9 @@ class Permission(models.Model):
     css_style = models.CharField(
         verbose_name="CSS样式", null=True, blank=True, default="", max_length=2000
     )
-    permission_type = models.CharField(
-        verbose_name="权限类型", max_length=10, null=False, blank=False, choices=permission_choice,
-        default="url"
+    is_menu = models.BooleanField(
+        verbose_name="是否为菜单", max_length=10, null=False, blank=False, choices=menu_choice,
+        default="True"
     )
     request_type = models.CharField(
         verbose_name="请求类型", null=True, choices=request_choice, max_length=15

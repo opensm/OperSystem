@@ -28,6 +28,7 @@ class RbacMiddleware(MiddlewareMixin):
         :return:
         """
         # 当前访问的URL
+        print(request)
         current_url = request.path_info
         for valid in settings.VALID_LIST:
             if re.match(valid, current_url):

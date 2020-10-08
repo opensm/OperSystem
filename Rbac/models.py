@@ -13,9 +13,16 @@ class Permission(models.Model):
     )
     auth_name = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
     parent = models.ForeignKey(
-        'self', verbose_name='父级菜单', null=True, blank=True, related_name='children', on_delete=models.DO_NOTHING
+        'self',
+        verbose_name='父级菜单',
+        null=True,
+        blank=True,
+        related_name='children',
+        on_delete=models.DO_NOTHING
     )
-    path = models.CharField(verbose_name='URL', max_length=255, null=False, blank=False)
+    path = models.CharField(
+        verbose_name='URL', max_length=255, null=False, blank=False
+    )
     css_style = models.CharField(
         verbose_name="CSS样式", null=True, blank=True, default="", max_length=2000
     )

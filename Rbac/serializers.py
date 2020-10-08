@@ -167,11 +167,21 @@ class UserStatusEditSerializer(serializers.ModelSerializer):
 
 
 class RolePermissionEditSerializer(serializers.ModelSerializer):
-    permissions = serializers.PrimaryKeyRelatedField(many=True, required=True, queryset=Permission.objects.all())
+    # permissions = serializers.PrimaryKeyRelatedField(many=True, required=True, queryset=Permission.objects.all())
 
     class Meta:
         model = Role
         fields = ('permissions',)
+
+    def validate_permissions(self, attrs):
+        """
+        :param attrs:
+        :return:
+        """
+        for value in attrs.split(","):
+            if not Permission.objects.filter(id=value).exist():
+                raise serializers.ValidationError("权限ID为：{0}的权限不存在！")
+        return attrs
 
     def update(self, instance, validated_data):
         """

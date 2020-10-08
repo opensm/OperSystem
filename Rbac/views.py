@@ -557,13 +557,13 @@ class ResetPassWordView(APIView):
         data = ResetPasswordSerializer(user=query, data=request.data)
         if not data.is_valid():
             res = {
-                "data": userId,
+                "data": data.data,
                 "meta": {"msg": "修改密码失败{0}".format(format_error(data=data.errors)), "status": 500}
             }
             return JsonResponse(res)
         else:
             res = {
-                "data": userId,
+                "data": data.data,
                 "meta": {"msg": "修改密码成功,用户ID为：{0}".format(userId), "status": 200}
             }
         return JsonResponse(res)

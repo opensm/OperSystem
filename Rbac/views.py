@@ -621,11 +621,6 @@ class UserEditRoleView(APIView):
                 "meta": {"msg": "修改到用户关联角色失败,UserId:{0},原因:{1}".format(userId, error), "status": 500}
             }
             return JsonResponse(res)
-
-        # print(len(query.roles))
-        # print(query.roles)
-        # for value in query.roles.all():
-        #     print(value)
         if not query.roles.exists():
             res = {
                 "data": [],
@@ -633,16 +628,9 @@ class UserEditRoleView(APIView):
             }
             return JsonResponse(res)
         data = RoleSerializer(instance=query.roles.all(), many=True)
-        # if not data.is_valid():
-        #     res = {
-        #         "data": userId,
-        #         "meta": {"msg": "获取到的角色数据异常，{0}".format(format_error(data=data.errors)), "status": 500}
-        #     }
-        #     return JsonResponse(res)
-        # else:
         res = {
             "data": data.data,
-            "meta": {"msg": "获取角色信息成功：{0}".format(userId), "status": 200}
+            "meta": {"msg": "获取用户角色信息成功，用户id：{0}".format(userId), "status": 200}
         }
         return JsonResponse(res)
 
@@ -755,15 +743,8 @@ class RolePermissionEditView(APIView):
             return JsonResponse(res)
 
         data = PermissionSerializer(instance=query, many=True)
-        if not data.is_valid():
-            res = {
-                "data": roleId,
-                "meta": {"msg": "获取角色相关的权限:{0},数据异常:{1}".format(roleId, format_error(data=data.errors)), "status": 200}
-            }
-            return JsonResponse(res)
-        else:
-            res = {
-                "data": data.data,
-                "meta": {"msg": "获取角色权限成功", "status": 200}
-            }
-            return JsonResponse(res)
+        res = {
+            "data": data.data,
+            "meta": {"msg": "获取角色权限成功", "status": 200}
+        }
+        return JsonResponse(res)

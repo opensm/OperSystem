@@ -157,6 +157,7 @@ class UserStatusEditSerializer(serializers.ModelSerializer):
         """
         if attrs not in [True, False]:
             raise serializers.ValidationError("请输入正确的用户状态值:True,False")
+        return attrs
 
     def update(self, instance, validated_data):
         if not hasattr(instance, 'is_active'):

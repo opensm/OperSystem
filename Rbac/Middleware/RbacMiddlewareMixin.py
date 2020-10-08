@@ -48,10 +48,10 @@ class RbacMiddleware(MiddlewareMixin):
             print(error)
             return HttpResponse("权限验证失败！")
 
-        # 当前用户的所有权限
-        permission_dict = request.session.get(settings.PERMISSION_DICT_SESSION_KEY)
-        if permission_dict is None:
-            return HttpResponse("没有权限！")
+        # # 当前用户的所有权限
+        # permission_dict = request.session.get(settings.PERMISSION_DICT_SESSION_KEY)
+        # if permission_dict is None:
+        #     return HttpResponse("没有权限！")
 
         # 用户权限和当前URL进行匹配
         flag = False

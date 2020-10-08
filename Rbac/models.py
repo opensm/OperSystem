@@ -11,13 +11,6 @@ class Permission(models.Model):
         ("True", "菜单"),
         ("False", "非菜单")
     )
-    request_choice = (
-        ("POST", "新增"),
-        ("GET", "查看"),
-        ("DELETE", "删除"),
-        ("PUT", "修改"),
-        ("NOT_REQUEST", "子菜单,不存在页面")
-    )
     auth_name = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
     parent = models.ForeignKey(
         'self', verbose_name='父级菜单', null=True, blank=True, related_name='children', on_delete=models.DO_NOTHING

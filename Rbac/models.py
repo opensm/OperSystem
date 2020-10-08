@@ -31,7 +31,7 @@ class Permission(models.Model):
         default="True"
     )
     request_type = models.ManyToManyField(
-        verbose_name="请求类型", null=True, max_length=15, to="RequestTypes"
+        verbose_name="请求类型", max_length=15, to="RequestTypes"
     )
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 

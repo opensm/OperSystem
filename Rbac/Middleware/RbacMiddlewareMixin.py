@@ -2,7 +2,7 @@ import re
 from django.conf import settings
 from django.shortcuts import HttpResponse, render, redirect
 from Rbac.models import UserInfo, UserToken, Permission
-
+import datetime
 
 class MiddlewareMixin(object):
     def __init__(self, get_response=None):
@@ -39,6 +39,8 @@ class RbacMiddleware(MiddlewareMixin):
         #         return None
         try:
             token_object = UserToken.objects.get(token=token)
+            if token_object.expiration_time < datetime.datetime.now():
+                return HttpResponse("验证过期！")
             print(token_object.expiration_time)
             user_message = UserInfo.objects.get(username=request.user)
             if user_message.is_superuser:

@@ -4,6 +4,7 @@ from django.shortcuts import HttpResponse, render, redirect
 from Rbac.models import UserInfo, UserToken, Permission
 import datetime
 
+
 class MiddlewareMixin(object):
     def __init__(self, get_response=None):
         self.get_response = get_response
@@ -38,17 +39,18 @@ class RbacMiddleware(MiddlewareMixin):
             token_object = UserToken.objects.get(token=token)
             if token_object.expiration_time < datetime.datetime.now():
                 return HttpResponse("验证过期！请重新登陆！")
-            print(token_object.username)
-            user_message = Permission.objects.filter(role__userinfo=token_object.username)
+            permission_list = Permission.objects.filter(role__userinfo=token_object.username)
             # if user_message.is_superuser:
             #     return None
             # else:
             #     print("普通用户权限")
-            print(user_message)
+            print(permission_list)
         except Exception as error:
             print(error)
             return HttpResponse("权限验证失败！")
 
+        for value in permission_list:
+            print(value)
         # # 当前用户的所有权限
         # permission_dict = request.session.get(settings.PERMISSION_DICT_SESSION_KEY)
         # if permission_dict is None:

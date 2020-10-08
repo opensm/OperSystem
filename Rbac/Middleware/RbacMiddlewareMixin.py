@@ -51,21 +51,21 @@ class RbacMiddleware(MiddlewareMixin):
         #     return HttpResponse("没有权限！")
 
         # 用户权限和当前URL进行匹配
-        flag = False
-        for item in permission_dict.values():
-
-            urls = item['urls']
-            codes = item['codes']
-            for rex in urls:
-                reg = settings.REX_FORMAT % (rex,)
-                if re.match(reg, current_url):
-                    flag = True
-                    request.permission_codes = codes
-                    break
-            if flag:
-                break
-        if not flag:
-            return render(request, "404.html")
+        # flag = False
+        # for item in permission_dict.values():
+        #
+        #     urls = item['urls']
+        #     codes = item['codes']
+        #     for rex in urls:
+        #         reg = settings.REX_FORMAT % (rex,)
+        #         if re.match(reg, current_url):
+        #             flag = True
+        #             request.permission_codes = codes
+        #             break
+        #     if flag:
+        #         break
+        # if not flag:
+        #     return render(request, "404.html")
 
     def process_response(self, request, response):
         return response

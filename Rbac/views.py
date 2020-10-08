@@ -632,7 +632,7 @@ class UserEditRoleView(APIView):
                 "meta": {"msg": "获取角色信息成功：{0}".format(userId), "status": 200}
             }
             return JsonResponse(res)
-        data = RoleSerializer(data=query.roles.all(), many=True)
+        data = RoleSerializer(instance=query.roles.all(), many=True)
         if not data.is_valid():
             res = {
                 "data": userId,

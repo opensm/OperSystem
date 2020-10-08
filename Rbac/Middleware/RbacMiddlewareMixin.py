@@ -32,8 +32,7 @@ class RbacMiddleware(MiddlewareMixin):
         try:
             token = request.META.get('HTTP_AUTHORIZATION')
         except AttributeError as error:
-            print(error)
-            return False
+            return HttpResponse("验证失败,{0}".format(error))
         current_url = request.path_info
         try:
             token_object = UserToken.objects.get(token=token)
@@ -41,12 +40,11 @@ class RbacMiddleware(MiddlewareMixin):
                 return HttpResponse("验证过期！请重新登陆！")
             permission_list = Permission.objects.filter(role__userinfo=token_object.username)
         except Exception as error:
-            print(error)
-            return HttpResponse("权限验证失败！")
+            return HttpResponse("权限验证失败,{0}！".format(error))
 
         for value in permission_list:
             print(current_url)
-            print(value.parent.objects.all())
+            print(value)
         # # 当前用户的所有权限
         # permission_dict = request.session.get(settings.PERMISSION_DICT_SESSION_KEY)
         # if permission_dict is None:

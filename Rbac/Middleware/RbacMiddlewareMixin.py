@@ -30,9 +30,9 @@ class RbacMiddleware(MiddlewareMixin):
         # 当前访问的URL
         print(request.path_info)
         current_url = request.path_info
-        for valid in settings.VALID_LIST:
-            if re.match(valid, current_url):
-                return None
+        # for valid in settings.VALID_LIST:
+        #     if re.match(valid, current_url):
+        #         return None
         try:
             user_message = UserInfo.objects.get(username=request.user)
             if user_message.is_superuser:

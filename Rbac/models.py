@@ -8,10 +8,8 @@ from django.utils.translation import ugettext_lazy as _
 
 class Permission(models.Model):
     menu_choice = (
-        ("button", "按钮"),
-        ("url", "页面"),
-        ("menu", "菜单"),
-        ('other', "其他")
+        ("True", "菜单"),
+        ("False", "非菜单")
     )
     request_choice = (
         ("POST", "新增"),

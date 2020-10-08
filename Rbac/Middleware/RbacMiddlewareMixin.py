@@ -34,9 +34,6 @@ class RbacMiddleware(MiddlewareMixin):
             print(error)
             return False
         current_url = request.path_info
-        # for valid in settings.VALID_LIST:
-        #     if re.match(valid, current_url):
-        #         return None
         try:
             token_object = UserToken.objects.get(token=token)
             if token_object.expiration_time < datetime.datetime.now():

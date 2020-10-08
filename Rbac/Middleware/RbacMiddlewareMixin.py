@@ -38,6 +38,7 @@ class RbacMiddleware(MiddlewareMixin):
             token_object = UserToken.objects.get(token=token)
             if token_object.expiration_time < datetime.datetime.now():
                 return HttpResponse("验证过期！请重新登陆！")
+            print(token_object.username)
             user_message = Permission.objects.filter(role__userinfo=token_object.username)
             # if user_message.is_superuser:
             #     return None

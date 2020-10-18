@@ -75,6 +75,7 @@ class AuthView(APIView):
             else:
                 user_token_obj = UserToken.objects.get(username=user_obj)
                 user_token_obj.token = token
+                user_token_obj.expiration_time = expiration_time
                 user_token_obj.save()
             # UserToken.objects.update_or_create(
             #     token=token, expiration_time=expiration_time, update_date=datetime.datetime.now(),

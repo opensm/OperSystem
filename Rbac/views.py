@@ -50,7 +50,6 @@ class AuthView(APIView):
                 "meta": {"msg": format_error(data=data.errors).lstrip(';'), "status": 401}
             }
             return JsonResponse(res)
-        print(data.data)
         md5 = hashlib.md5(
             "{0}{1}{2}".format(data.data['username'], time.time(), SECRET_KEY).encode("utf8")
         )
@@ -65,7 +64,6 @@ class AuthView(APIView):
                 "username": UserInfo.objects.get(username=data.data['username'])
             }
         }
-        print(UserInfo.objects.get(username=data.data['username']))
         try:
             if not UserInfo.objects.filter(username=data.data['username']).exists():
                 raise Exception("用户不存在：{0}".format(data.data['username']))

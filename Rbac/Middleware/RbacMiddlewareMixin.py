@@ -45,7 +45,6 @@ class RbacMiddleware(MiddlewareMixin):
             return HttpResponse("权限验证失败,{0}！".format(error))
 
         for value in permission_list:
-            print(current_url)
             print(value)
         # # 当前用户的所有权限
         # permission_dict = request.session.get(settings.PERMISSION_DICT_SESSION_KEY)

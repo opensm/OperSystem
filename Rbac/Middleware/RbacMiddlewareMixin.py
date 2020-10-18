@@ -29,11 +29,13 @@ class RbacMiddleware(MiddlewareMixin):
         :return:
         """
         # 当前访问的URL
+        current_url = request.path_info
+        if current_url in ['/api/v1/auth/login']:
+            return None
         try:
             token = request.META.get('HTTP_AUTHORIZATION')
         except AttributeError as error:
             return HttpResponse("验证失败,{0}".format(error))
-        current_url = request.path_info
         try:
             token_object = UserToken.objects.get(token=token)
             if token_object.expiration_time < datetime.datetime.now():

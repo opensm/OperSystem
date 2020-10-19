@@ -70,7 +70,7 @@ class RbacMiddleware(MiddlewareMixin):
         except Exception as error:
             return HttpResponse("权限验证失败,{0}！".format(error))
         for value in permission_list:
-            print(value.request_type)
+            print(value.request_type.name)
             parch_url = self.format_url(value)
             print(parch_url)
             permission_url = os.path.join('/api/v1', parch_url)

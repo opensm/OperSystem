@@ -30,7 +30,7 @@ class RbacMiddleware(MiddlewareMixin):
         :param path:
         :return:
         """
-        print(obj.path)
+        print(obj.path, obj.request_type)
         if not isinstance(obj, Permission):
             raise Exception("输入类型错误！")
         # 当前为页面并没有父页面

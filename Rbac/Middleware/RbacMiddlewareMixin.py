@@ -43,10 +43,10 @@ class RbacMiddleware(MiddlewareMixin):
             return os.path.join(obj.path, path)
         elif obj.parent is not None and path is None:
             print(3, obj.path)
-            self.format_url(obj=obj.parent, path=obj.path)
+            return self.format_url(obj=obj.parent, path=obj.path)
         elif obj.parent is not None and path is not None:
             print(4)
-            self.format_url(obj.parent, path=os.path.join(obj.path, path))
+            return self.format_url(obj.parent, path=os.path.join(obj.path, path))
         else:
             print(obj.parent, path)
 

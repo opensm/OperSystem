@@ -30,7 +30,7 @@ class RbacMiddleware(MiddlewareMixin):
         :param path:
         :return:
         """
-        print(obj.path, obj.request_type)
+        # print(obj.path, obj.request_type)
         if not isinstance(obj, Permission):
             raise Exception("输入类型错误！")
         # 当前为页面并没有父页面
@@ -70,6 +70,7 @@ class RbacMiddleware(MiddlewareMixin):
         except Exception as error:
             return HttpResponse("权限验证失败,{0}！".format(error))
         for value in permission_list:
+            print(value.request_type)
             parch_url = self.format_url(value)
             print(parch_url)
             permission_url = os.path.join('/api/v1', parch_url)

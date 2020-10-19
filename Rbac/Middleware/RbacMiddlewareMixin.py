@@ -69,15 +69,15 @@ class RbacMiddleware(MiddlewareMixin):
             )
         except Exception as error:
             return HttpResponse("权限验证失败,{0}！".format(error))
+        flag = 0
         for value in permission_list:
-            print(value.request_type.name)
             parch_url = self.format_url(value)
-            print(parch_url)
             permission_url = os.path.join('/api/v1', parch_url)
             if re.match(value.path, current_url) and value.request_type == request.method:
-                return None
-            else:
-                print(permission_url)
+                flag = 1
+                continue
+        if flag == 0:
+            return HttpResponse("没有权限：Error Code 401")
 
     def process_response(self, request, response):
         return response

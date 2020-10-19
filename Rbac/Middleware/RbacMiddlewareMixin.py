@@ -76,7 +76,7 @@ class RbacMiddleware(MiddlewareMixin):
             print(value.auth_name)
             print("+++++++++++++++++++++++++++++++++")
             print(permission_url)
-            print(value.request_type)
+            print(value.request_type.all())
             print("---------------------------------")
             print(current_url)
             print(request.method)

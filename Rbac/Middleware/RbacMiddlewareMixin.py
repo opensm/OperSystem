@@ -46,6 +46,8 @@ class RbacMiddleware(MiddlewareMixin):
         elif obj.parent is not None and path is not None:
             print(4)
             self.format_url(obj.parent, path=os.path.join(obj.path, path))
+        else:
+            print(obj.parent, path)
 
     def process_request(self, request):
         """

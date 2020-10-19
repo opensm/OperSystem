@@ -34,14 +34,14 @@ class RbacMiddleware(MiddlewareMixin):
             raise Exception("输入类型错误！")
         # 当前为页面并没有父页面
         if obj.parent is None and path is None:
-            print(1)
+            print(1, obj.path)
             return obj.path
         # 当前为页面并之前也存在页面
         elif obj.parent is None and path is not None:
-            print(2)
+            print(2, obj.path, path)
             return os.path.join(obj.path, path)
         elif obj.parent is not None and path is None:
-            print(3)
+            print(3, obj.path)
             self.format_url(obj=obj.parent, path=obj.path)
         elif obj.parent is not None and path is not None:
             print(4)

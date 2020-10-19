@@ -73,7 +73,7 @@ class RbacMiddleware(MiddlewareMixin):
         for value in permission_list:
             parch_url = self.format_url(value)
             permission_url = os.path.join('/api/v1', parch_url)
-            if re.match(value.path, current_url) and value.request_type == request.method:
+            if re.match(permission_url, current_url) and value.request_type == request.method:
                 flag = 1
                 continue
         if flag == 0:

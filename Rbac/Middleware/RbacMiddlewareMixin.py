@@ -3,6 +3,7 @@ from django.conf import settings
 from django.shortcuts import HttpResponse, render, redirect
 from Rbac.models import UserInfo, UserToken, Permission
 import datetime
+import os
 
 
 class MiddlewareMixin(object):
@@ -23,6 +24,25 @@ class MiddlewareMixin(object):
 
 class RbacMiddleware(MiddlewareMixin):
 
+    def format_url(self, obj, path=None):
+        """
+        :param obj:
+        :param path:
+        :return:
+        """
+        if not isinstance(obj, Permission):
+            raise Exception("输入类型错误！")
+        # 当前为页面并没有父页面
+        if obj.parent is None and path is None:
+            return obj.path
+        # 当前为页面并之前也存在页面
+        elif obj.parent is None and path is not None:
+            return os.path.join(obj.path, path)
+        elif obj.parent is not None and path is None:
+            self.format_url(obj=obj.parent, path=obj.path)
+        elif obj.parent is not None and path is not None:
+            self.format_url(obj.parent, path=os.path.join(obj.path, path))
+
     def process_request(self, request):
         """
         :param request:
@@ -40,12 +60,27 @@ class RbacMiddleware(MiddlewareMixin):
             token_object = UserToken.objects.get(token=token)
             if token_object.expiration_time < datetime.datetime.now():
                 return HttpResponse("验证过期！请重新登陆！")
-            permission_list = Permission.objects.filter(role__userinfo=token_object.username)
+            permission_list = Permission.objects.filter(
+                role__userinfo=token_object.username,
+                request_type__isnull=False
+            )
         except Exception as error:
             return HttpResponse("权限验证失败,{0}！".format(error))
 
         for value in permission_list:
-            print(value)
+            # if value.request_type is None:
+            #     continue
+            permission_url = os.path.join('api/v1', self.format_url(value))
+            if re.match(value.path, current_url) and value.request_type == request.method:
+                return None
+            else:
+                print(permission_url)
+            # if value.parent is None:
+            #     if re.match(value.path, current_url) and value.request_type == request.method:
+            #         return None
+            # else:
+            #     url =
+            #     for
         # # 当前用户的所有权限
         # permission_dict = request.session.get(settings.PERMISSION_DICT_SESSION_KEY)
         # if permission_dict is None:

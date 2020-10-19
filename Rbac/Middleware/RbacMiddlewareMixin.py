@@ -80,8 +80,9 @@ class RbacMiddleware(MiddlewareMixin):
             print("---------------------------------")
             print(current_url)
             print(request.method)
-
-            if re.match(permission_url, current_url) and value.request_type == request.method:
+            request_method = [x.request for x in value.request_type.all()]
+            print(request_method)
+            if re.match(permission_url, current_url) and request.method in request_method:
                 flag = 1
                 continue
         if flag == 0:

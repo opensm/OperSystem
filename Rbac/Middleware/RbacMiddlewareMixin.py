@@ -2,6 +2,7 @@ import re
 from django.conf import settings
 from django.shortcuts import HttpResponse, render, redirect
 from Rbac.models import UserInfo, UserToken, Permission
+from django.http import JsonResponse
 import datetime
 import os
 
@@ -58,35 +59,45 @@ class RbacMiddleware(MiddlewareMixin):
         try:
             token = request.META.get('HTTP_AUTHORIZATION')
         except AttributeError as error:
-            return HttpResponse("验证失败,{0}".format(error))
+            print(error)
+            res = {
+                "data": "null",
+                "meta": {"msg": "验证失败,TOKEN值不存在！", "status": 401}
+            }
+            return JsonResponse(res)
         try:
             token_object = UserToken.objects.get(token=token)
             if token_object.expiration_time < datetime.datetime.now():
-                return HttpResponse("验证过期！请重新登陆！")
+                res = {
+                    "data": "null",
+                    "meta": {"msg": "验证过期！请重新登陆！", "status": 401}
+                }
+                return JsonResponse(res)
             permission_list = Permission.objects.filter(
                 role__userinfo=token_object.username,
                 request_type__isnull=False
             )
         except Exception as error:
-            return HttpResponse("权限验证失败,{0}！".format(error))
+            print(error)
+            res = {
+                "data": "null",
+                "meta": {"msg": "权限验证失败,Token值异常！", "status": 401}
+            }
+            return JsonResponse(res)
         flag = 0
         for value in permission_list:
             parch_url = self.format_url(value)
             permission_url = os.path.join('/api/v1', parch_url)
-            print(value.auth_name)
-            print("+++++++++++++++++++++++++++++++++")
-            print(permission_url)
-            print(value.request_type.all())
-            print("---------------------------------")
-            print(current_url)
-            print(request.method)
             request_method = [x.request for x in value.request_type.all()]
-            print(request_method)
             if re.match(permission_url, current_url) and request.method in request_method:
                 flag = 1
                 continue
         if flag == 0:
-            return HttpResponse("没有权限：Error Code 401")
+            res = {
+                "data": "null",
+                "meta": {"msg": "没有权限：Error Code 401", "status": 401}
+            }
+            return JsonResponse(res)
 
     def process_response(self, request, response):
         return response

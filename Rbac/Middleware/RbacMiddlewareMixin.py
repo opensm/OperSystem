@@ -70,42 +70,14 @@ class RbacMiddleware(MiddlewareMixin):
             )
         except Exception as error:
             return HttpResponse("权限验证失败,{0}！".format(error))
-
         for value in permission_list:
-            # if value.request_type is None:
-            #     continue
-            permission_url = os.path.join('api/v1', self.format_url(value))
+            parch_url = self.format_url(value)
+            print(parch_url)
+            permission_url = os.path.join('/api/v1', parch_url)
             if re.match(value.path, current_url) and value.request_type == request.method:
                 return None
             else:
                 print(permission_url)
-            # if value.parent is None:
-            #     if re.match(value.path, current_url) and value.request_type == request.method:
-            #         return None
-            # else:
-            #     url =
-            #     for
-        # # 当前用户的所有权限
-        # permission_dict = request.session.get(settings.PERMISSION_DICT_SESSION_KEY)
-        # if permission_dict is None:
-        #     return HttpResponse("没有权限！")
-
-        # 用户权限和当前URL进行匹配
-        # flag = False
-        # for item in permission_dict.values():
-        #
-        #     urls = item['urls']
-        #     codes = item['codes']
-        #     for rex in urls:
-        #         reg = settings.REX_FORMAT % (rex,)
-        #         if re.match(reg, current_url):
-        #             flag = True
-        #             request.permission_codes = codes
-        #             break
-        #     if flag:
-        #         break
-        # if not flag:
-        #     return render(request, "404.html")
 
     def process_response(self, request, response):
         return response

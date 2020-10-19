@@ -39,6 +39,7 @@ class RbacMiddleware(MiddlewareMixin):
         # 当前为页面并之前也存在页面
         elif obj.parent is None and path is not None:
             print(2, obj.path, path)
+            print(os.path.join(obj.path, path))
             return os.path.join(obj.path, path)
         elif obj.parent is not None and path is None:
             print(3, obj.path)

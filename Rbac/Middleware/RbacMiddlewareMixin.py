@@ -1,7 +1,5 @@
 import re
-from django.conf import settings
-from django.shortcuts import HttpResponse, render, redirect
-from Rbac.models import UserInfo, UserToken, Permission
+from Rbac.models import UserToken, Permission
 from django.http import JsonResponse
 import datetime
 import os
@@ -58,6 +56,7 @@ class RbacMiddleware(MiddlewareMixin):
             return None
         try:
             token = request.META.get('HTTP_AUTHORIZATION')
+            print(token)
         except AttributeError as error:
             print(error)
             res = {

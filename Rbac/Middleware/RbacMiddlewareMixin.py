@@ -56,7 +56,8 @@ class RbacMiddleware(MiddlewareMixin):
             return None
         try:
             token = request.META.get('HTTP_AUTHORIZATION')
-            print(token)
+            if not token:
+                raise Exception("没有获取到正确的token")
         except AttributeError as error:
             print(error)
             res = {

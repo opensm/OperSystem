@@ -770,5 +770,5 @@ class UserMenu(APIView):
         role = UserInfo.objects.get(pk=userId)
         p = Permission.objects.filter(role__in=role.roles.all())
         for s in p:
-            print(s)
+            print(s.objects.all())
         return JsonResponse({})

@@ -767,8 +767,8 @@ class UserMenu(APIView):
         :param userId:
         :return:
         """
-        role = UserInfo.objects.get(pk=userId).roles
-        p = Permission.objects.filter(role__in=role)
+        role = UserInfo.objects.get(pk=userId)
+        p = Permission.objects.filter(role__in=role.roles.all())
         for s in p:
             print(s)
         return JsonResponse({})

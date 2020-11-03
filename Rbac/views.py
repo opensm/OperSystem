@@ -761,13 +761,13 @@ class RolePermissionEditView(APIView):
 
 
 class UserMenu(APIView):
-    def get(self, request, user_id):
+    def get(self, request, userId):
         """
         :param request:
-        :param user_id:
+        :param userId:
         :return:
         """
-        role = UserInfo.objects.get(pk=user_id).roles
+        role = UserInfo.objects.get(pk=userId).roles
         p = Permission.objects.filter(role__in=role)
         for s in p:
             print(s)

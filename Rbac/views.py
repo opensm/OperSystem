@@ -758,3 +758,17 @@ class RolePermissionEditView(APIView):
             "meta": {"msg": "获取角色权限成功", "status": 200}
         }
         return JsonResponse(res)
+
+
+class UserMenu(APIView):
+    def get(self, request, user_id):
+        """
+        :param request:
+        :param user_id:
+        :return:
+        """
+        role = UserInfo.objects.get(pk=user_id).roles
+        p = Permission.objects.filter(role__in=role)
+        for s in p:
+            print(s)
+        return JsonResponse({})

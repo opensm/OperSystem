@@ -16,7 +16,7 @@ class RoleSerializer(serializers.ModelSerializer):
 
 
 class PermissionSerializer(serializers.ModelSerializer):
-    children = serializers.RelatedField(many=True, read_only=True)
+    children = serializers.StringRelatedField(many=True)
 
     def validate(self, attrs):
         """
@@ -53,7 +53,7 @@ class PermissionSerializer(serializers.ModelSerializer):
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Permission  # 指定需要序列化的模型表
         # fields = ("__all__")
-        fields = ('children',)
+        fields = ['children', 'auth_name', 'path', 'css_style', 'is_menu', 'request_type']
         # exclude = ('create_date',)
         read_only_fields = ['id']
 

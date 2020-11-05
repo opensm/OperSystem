@@ -761,6 +761,21 @@ class RolePermissionEditView(APIView):
 
 
 class UserMenu(APIView):
+    def format_menu_data(self, permission_object, permission_dict=None):
+        """
+        :param permission_object:
+        :param permission_dict:
+        :return:
+        """
+        if not isinstance(permission_object, Permission):
+            raise TypeError("输入类型错误")
+
+        if permission_dict:
+            if not isinstance(permission_dict, dict):
+                raise TypeError("输入类型错误")
+        if permission_object.children is None and permission_dict:
+            permission_dict['children'] = PermissionSerializer()
+
     def get(self, request, userId):
         """
         :param request:
@@ -769,6 +784,7 @@ class UserMenu(APIView):
         """
         role = UserInfo.objects.get(pk=userId)
         p = Permission.objects.filter(role__in=role.roles.all())
-        for c in p:
-            print(c.children.all())
-        return JsonResponse({})
+        data = PermissionSerializer(instance=p, many=True)
+        # for c in p:
+        #     print(c.children.all())
+        return JsonResponse(data)

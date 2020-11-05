@@ -785,7 +785,7 @@ class UserMenu(APIView):
         user = UserInfo.objects.get(pk=userId)
         p = Permission.objects.filter(role__userinfo=user)
         data = PermissionSerializer(instance=p, many=True)
-        print(data)
+        print(data.data)
         # for c in p:
         #     print(c.children.all())
         return JsonResponse({})

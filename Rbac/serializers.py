@@ -16,7 +16,7 @@ class RoleSerializer(serializers.ModelSerializer):
 
 
 class PermissionSerializer(serializers.ModelSerializer):
-    children = serializers.RelatedField(many=True)
+    children = serializers.RelatedField(many=True, read_only=True)
 
     def validate(self, attrs):
         """

@@ -787,7 +787,7 @@ class UserMenu(APIView):
 
         for data in instance:
             print(data)
-            ins = PermissionSerializer(instance=data, many=True)
+            ins = PermissionSerializer(instance=data)
             print(ins.data)
         # for c in p:
         #     print(c.children.all())

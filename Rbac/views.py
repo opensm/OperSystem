@@ -783,9 +783,11 @@ class UserMenu(APIView):
         :return:
         """
         user = UserInfo.objects.get(pk=userId)
-        p = Permission.objects.filter(role__userinfo=user)
-        data = PermissionSerializer(instance=p, many=True)
-        print(data.data)
+        instance = Permission.objects.filter(role__userinfo=user)
+
+        for data in instance:
+            ins = PermissionSerializer(instance=data, many=True)
+            print(ins.data)
         # for c in p:
         #     print(c.children.all())
         return JsonResponse({})

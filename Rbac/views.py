@@ -786,6 +786,7 @@ class UserMenu(APIView):
         instance = Permission.objects.filter(role__userinfo=user)
 
         for data in instance:
+            print(data)
             ins = PermissionSerializer(instance=data, many=True)
             print(ins.data)
         # for c in p:

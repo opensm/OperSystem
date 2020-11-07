@@ -22,7 +22,7 @@ class SubPermissionSerializer(serializers.ModelSerializer):
 
 
 class PermissionSerializer(serializers.ModelSerializer):
-    children = SubPermissionSerializer(many=True)
+    # children = SubPermissionSerializer(many=True)
 
     def validate(self, attrs):
         """

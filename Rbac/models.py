@@ -29,7 +29,7 @@ class Permission(models.Model):
         on_delete=models.DO_NOTHING
     )
     path = models.CharField(
-        verbose_name='URL', max_length=255, null=False, blank=False, unique=True
+        verbose_name='URL', max_length=255, null=False, blank=False
     )
     css = models.CharField(
         verbose_name="CSS样式", null=True, blank=True, default="", max_length=2000

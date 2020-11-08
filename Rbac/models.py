@@ -10,7 +10,8 @@ class Permission(models.Model):
     menu_choice = (
         (0, "一级菜单"),
         (1, "二级菜单"),
-        (2, "三级菜单")
+        (2, "三级菜单"),
+        (999, "按钮功能")
     )
     request_choice = (
         ("POST", "添加"),
@@ -41,11 +42,17 @@ class Permission(models.Model):
     # request_type = models.ManyToManyField(
     #     verbose_name="请求类型", max_length=15, to="RequestTypes"
     # )
-    request_type = models.CharField(verbose_name="请求类型", default="POST", max_length=7, choices=request_choice)
+    request_type = models.CharField(
+        verbose_name="请求类型",
+        default="POST",
+        max_length=7,
+        choices=request_choice
+    )
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
     def __str__(self):
         return self.auth_name
+
 
 #
 # class RequestTypes(models.Model):

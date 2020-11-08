@@ -13,7 +13,7 @@ class Permission(models.Model):
         (2, "三级菜单"),
         (999, "按钮功能")
     )
-    request_choice = (
+    request = (
         ("POST", "添加"),
         ("GET", "查询"),
         ("DELETE", "删除"),
@@ -42,13 +42,17 @@ class Permission(models.Model):
     # request_type = models.ManyToManyField(
     #     verbose_name="请求类型", max_length=15, to="RequestTypes"
     # )
-    request_type = models.CharField(
+    method = models.CharField(
         verbose_name="请求类型",
         default="POST",
         max_length=7,
-        choices=request_choice
+        choices=request,
+        null=True
     )
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
+
+    class Meta:
+        unique_together = (("path", "method"),)
 
     def __str__(self):
         return self.auth_name

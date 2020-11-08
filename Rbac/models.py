@@ -12,6 +12,12 @@ class Permission(models.Model):
         (1, "二级菜单"),
         (2, "三级菜单")
     )
+    request_choice = (
+        ("POST", "添加"),
+        ("GET", "查询"),
+        ("DELETE", "删除"),
+        ("PATCH", "修改")
+    )
     auth_name = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
     parent = models.ForeignKey(
         'self',
@@ -32,18 +38,19 @@ class Permission(models.Model):
     #     default="True"
     # )
     level = models.IntegerField(verbose_name="菜单级别", default=0, choices=menu_choice)
-    request_type = models.ManyToManyField(
-        verbose_name="请求类型", max_length=15, to="RequestTypes"
-    )
+    # request_type = models.ManyToManyField(
+    #     verbose_name="请求类型", max_length=15, to="RequestTypes"
+    # )
+    request_type = models.CharField(verbose_name="请求类型", default="POST", max_length=7, choices=request_choice)
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
     def __str__(self):
         return self.auth_name
 
-
-class RequestTypes(models.Model):
-    name = models.CharField(verbose_name="请求名称", max_length=20, default="新增", null=False, unique=True)
-    request = models.CharField(verbose_name="请求类型", max_length=20, default="POST", null=False, unique=True)
+#
+# class RequestTypes(models.Model):
+#     name = models.CharField(verbose_name="请求名称", max_length=20, default="新增", null=False, unique=True)
+#     request = models.CharField(verbose_name="请求类型", max_length=20, default="POST", null=False, unique=True)
 
 
 class Role(models.Model):

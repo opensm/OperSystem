@@ -75,7 +75,7 @@ class RbacMiddleware(MiddlewareMixin):
                 return JsonResponse(res)
             permission_list = Permission.objects.filter(
                 role__userinfo=token_object.username,
-                request_type__isnull=False
+                # request_type__isnull=False
             )
         except Exception as error:
             print(error)
@@ -86,8 +86,8 @@ class RbacMiddleware(MiddlewareMixin):
             return JsonResponse(res)
         flag = 0
         for value in permission_list:
-            parch_url = self.format_url(value)
-            permission_url = os.path.join('/api/v1', parch_url)
+            # parch_url = self.format_url(value)
+            permission_url = os.path.join('/api/v1', value.path)
             request_method = [x.request for x in value.request_type.all()]
             print("permission_url:{0}=================current_url:{1}".format(permission_url, current_url))
             print("request:method:{0}=================need:{1}".format(request.method, request_method))

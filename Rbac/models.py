@@ -8,8 +8,9 @@ from django.utils.translation import ugettext_lazy as _
 
 class Permission(models.Model):
     menu_choice = (
-        ("True", "菜单"),
-        ("False", "非菜单")
+        (0, "一级菜单"),
+        (1, "二级菜单"),
+        (2, "三级菜单")
     )
     auth_name = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
     parent = models.ForeignKey(
@@ -23,13 +24,14 @@ class Permission(models.Model):
     path = models.CharField(
         verbose_name='URL', max_length=255, null=False, blank=False, unique=True
     )
-    css_style = models.CharField(
+    css = models.CharField(
         verbose_name="CSS样式", null=True, blank=True, default="", max_length=2000
     )
-    is_menu = models.BooleanField(
-        verbose_name="是否为菜单", max_length=10, null=False, blank=False, choices=menu_choice,
-        default="True"
-    )
+    # is_menu = models.BooleanField(
+    #     verbose_name="是否为菜单", max_length=10, null=False, blank=False, choices=menu_choice,
+    #     default="True"
+    # )
+    level = models.IntegerField(verbose_name="菜单级别", default=0, choices=menu_choice)
     request_type = models.ManyToManyField(
         verbose_name="请求类型", max_length=15, to="RequestTypes"
     )

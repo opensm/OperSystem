@@ -769,7 +769,7 @@ class UserMenu(APIView):
         if childs:
             for child in childs:
                 data = {
-                    "label": child.name,
+                    "label": child.auth_name,
                     "children": []
                 }
                 _childs = Permission.objects.filter(parent=child)
@@ -806,7 +806,7 @@ class UserMenu(APIView):
                     parent=data
                 ).exclude(level=999)
             menu_data = {
-                "label": data.name,
+                "label": data.auth_name,
                 "children": []
             }
             if childs:

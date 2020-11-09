@@ -764,7 +764,7 @@ class RolePermissionEditView(APIView):
 class UserMenu(APIView):
 
     # 递归获取所有的子菜单
-    def get_child_menu(self, childs):
+    def get_child_menu(self, childs, user):
         children = []
         if childs:
             for child in childs:
@@ -772,9 +772,9 @@ class UserMenu(APIView):
                     "label": child.auth_name,
                     "children": []
                 }
-                _childs = Permission.objects.filter(parent=child)
+                _childs = Permission.objects.filter(parent=child, role__userinfo=user)
                 if _childs:
-                    data["children"].append(self.get_child_menu(_childs))
+                    data["children"].append(self.get_child_menu(_childs, user=user))
                 children.append(data)
         return children
 
@@ -811,7 +811,7 @@ class UserMenu(APIView):
                 "children": []
             }
             if childs:
-                menu_data["children"] = self.get_child_menu(childs)
+                menu_data["children"] = self.get_child_menu(childs=childs, user=user)
                 tree.append(menu_data)
             # print(data)
             # ins = PermissionSerializer(instance=data)

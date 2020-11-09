@@ -797,6 +797,7 @@ class UserMenu(APIView):
             ).exclude(level=999)
 
         for data in instance:
+            print(data)
             if user.is_superuser:
                 childs = Permission.objects.filter(
                     parent=data, role__userinfo=user

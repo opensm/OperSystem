@@ -782,7 +782,9 @@ class UserMenu(APIView):
                         parent=child
                     ).exclude(level=999)
                 if _childs:
-                    data["children"].append(self.get_child_menu(_childs, user=user))
+                    child_data = self.get_child_menu(_childs, user=user)
+                    if child_data:
+                        data["children"].append(child_data)
                 children.append(data)
         return children
 

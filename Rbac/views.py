@@ -816,8 +816,8 @@ class UserMenu(APIView):
             if childs:
                 child_data = self.get_child_menu(childs=childs, user=user)
                 if child_data:
-                    menu_data.setdefault('children', []).append(child_data)
-                tree.extend(menu_data)
+                    menu_data.setdefault('children', []).extend(child_data)
+                tree.append(menu_data)
             # print(data)
             # ins = PermissionSerializer(instance=data)
             # print(ins.data)

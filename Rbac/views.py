@@ -2,6 +2,7 @@
 from rest_framework.views import APIView
 from Rbac.models import *
 from django.http import JsonResponse
+from django.db.models import Q
 import hashlib
 import datetime
 import time
@@ -761,19 +762,6 @@ class RolePermissionEditView(APIView):
 
 
 class UserMenu(APIView):
-    def get_menu_tree(self, user_id):
-        tree = []
-        menus = Permission.objects.filter(parent=None, level__exact=999)
-        for menu in menus:
-            menu_data = {
-                "label": menu.name,
-                "children": []
-            }
-            childs = Permission.objects.filter(parent=menu, level__exact=999)
-            if childs:
-                menu_data["children"] = self.get_child_menu(childs)
-            tree.append(menu_data)
-        return tree
 
     # 递归获取所有的子菜单
     def get_child_menu(self, childs):
@@ -800,12 +788,11 @@ class UserMenu(APIView):
         user = UserInfo.objects.get(pk=userId)
         instance = Permission.objects.filter(
             role__userinfo=user,
-            parent=None,
-            level__exact=999
-        )
+            parent=None
+        ).exclude(level=999)
 
         for data in instance:
-            childs = Permission.objects.filter(parent=data, level__exact=999, role__userinfo=user)
+            childs = Permission.objects.filter(parent=data, role__userinfo=user).exclude(level=999)
             menu_data = {
                 "label": data.name,
                 "children": []

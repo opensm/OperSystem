@@ -84,11 +84,10 @@ class RbacMiddleware(MiddlewareMixin):
                 "meta": {"msg": "权限验证失败,Token值异常！", "status": 401}
             }
             return JsonResponse(res)
+        if token_object.username.is_superuser:
+            return None
         flag = 0
         for value in permission_list:
-            if token_object.username.is_superuser:
-                print("++++")
-                flag = 1
             # parch_url = self.format_url(value)
             permission_url = os.path.join('/api/v1', value.path)
             # request_method = [x.request for x in value.request_type.all()]

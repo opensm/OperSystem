@@ -814,4 +814,8 @@ class UserMenu(APIView):
                 if child_data:
                     menu_data.setdefault('children', []).extend(child_data)
                 tree.append(menu_data)
+        res = {
+            "data": tree,
+            "meta": {"msg": "获取菜单列表成功！", "status": 200}
+        }
         return JsonResponse(tree)

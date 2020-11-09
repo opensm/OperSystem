@@ -2,7 +2,6 @@
 from rest_framework.views import APIView
 from Rbac.models import *
 from django.http import JsonResponse
-from django.db.models import Q
 import hashlib
 import datetime
 import time
@@ -771,13 +770,13 @@ class UserMenu(APIView):
                 data = PermissionSerializer(instance=child).data
                 if user.is_superuser:
                     _childs = Permission.objects.filter(
-                        parent=child
-                    )
+                        parent=child,
+                    ).exclude(level=999)
                 else:
                     _childs = Permission.objects.filter(
                         role__userinfo=user,
                         parent=child
-                    )
+                    ).exclude(level=999)
                 if _childs:
                     child_data = self.get_child_menu(childs=_childs, user=user)
                     if child_data:
@@ -796,19 +795,19 @@ class UserMenu(APIView):
         if user.is_superuser:
             instance = Permission.objects.filter(
                 parent=None
-            )
+            ).exclude(level=999)
         else:
             instance = Permission.objects.filter(
                 role__userinfo=user,
                 parent=None
-            )
+            ).exclude(level=999)
 
         for data in instance:
             menu_data = PermissionSerializer(instance=data).data
             if user.is_superuser:
-                childs = Permission.objects.filter(parent=data)
+                childs = Permission.objects.filter(parent=data).exclude(level=999)
             else:
-                childs = Permission.objects.filter(parent=data, role__userinfo=user)
+                childs = Permission.objects.filter(parent=data, role__userinfo=user).exclude(level=999)
             if childs:
                 child_data = self.get_child_menu(childs=childs, user=user)
                 if child_data:

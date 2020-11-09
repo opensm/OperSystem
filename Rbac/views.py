@@ -774,12 +774,12 @@ class UserMenu(APIView):
                 }
                 if user.is_superuser:
                     _childs = Permission.objects.filter(
-                        parent=None
+                        parent=child
                     ).exclude(level=999)
                 else:
                     _childs = Permission.objects.filter(
                         role__userinfo=user,
-                        parent=None
+                        parent=child
                     ).exclude(level=999)
                 if _childs:
                     data["children"].append(self.get_child_menu(_childs, user=user))

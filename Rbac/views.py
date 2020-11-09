@@ -809,19 +809,9 @@ class UserMenu(APIView):
                 childs = Permission.objects.filter(parent=data)
             else:
                 childs = Permission.objects.filter(parent=data, role__userinfo=user)
-            # menu_data = {
-            #     "label": data.auth_name,
-            #     "children": []
-            # }
             if childs:
                 child_data = self.get_child_menu(childs=childs, user=user)
                 if child_data:
                     menu_data.setdefault('children', []).extend(child_data)
                 tree.append(menu_data)
-            # print(data)
-            # ins = PermissionSerializer(instance=data)
-            # print(ins.data)
-        # for c in p:
-        #     print(c.children.all())
-        print(tree)
-        return JsonResponse({})
+        return JsonResponse(tree)

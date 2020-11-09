@@ -763,17 +763,7 @@ class RolePermissionEditView(APIView):
 class CurrentUser(APIView):
 
     def get(self, request):
-        try:
-            token = request.META.get('HTTP_AUTHORIZATION')
-            if not token:
-                raise Exception("没有获取到正确的token")
-        except AttributeError as error:
-            print(error)
-            res = {
-                "data": "null",
-                "meta": {"msg": "验证失败,TOKEN值不存在！", "status": 401}
-            }
-            return JsonResponse(res)
+        token = request.META.get('HTTP_AUTHORIZATION')
         token_object = UserToken.objects.get(token=token)
         data = UserInfoSerializer(token_object.username)
         res = {
@@ -807,14 +797,14 @@ class UserMenu(APIView):
                 children.append(data)
         return children
 
-    def get(self, request, userId):
+    def get(self, request):
         """
         :param request:
-        :param userId:
         :return:
         """
         tree = list()
-        user = UserInfo.objects.get(pk=userId)
+        token = request.META.get('HTTP_AUTHORIZATION')
+        user = UserToken.objects.get(token=token).username
         if user.is_superuser:
             instance = Permission.objects.filter(
                 parent=None

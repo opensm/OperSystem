@@ -86,6 +86,8 @@ class RbacMiddleware(MiddlewareMixin):
             return JsonResponse(res)
         flag = 0
         for value in permission_list:
+            if token_object.username.is_superuser:
+                flag = 1
             # parch_url = self.format_url(value)
             permission_url = os.path.join('/api/v1', value.path)
             # request_method = [x.request for x in value.request_type.all()]

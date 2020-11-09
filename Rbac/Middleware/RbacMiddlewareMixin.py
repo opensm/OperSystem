@@ -87,6 +87,7 @@ class RbacMiddleware(MiddlewareMixin):
         flag = 0
         for value in permission_list:
             if token_object.username.is_superuser:
+                print("++++")
                 flag = 1
             # parch_url = self.format_url(value)
             permission_url = os.path.join('/api/v1', value.path)

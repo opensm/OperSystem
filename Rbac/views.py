@@ -801,11 +801,11 @@ class UserMenu(APIView):
             print(data)
             if user.is_superuser:
                 childs = Permission.objects.filter(
-                    parent=data, role__userinfo=user
+                    parent=data
                 ).exclude(level=999)
             else:
                 childs = Permission.objects.filter(
-                    parent=data
+                    parent=data, role__userinfo=user
                 ).exclude(level=999)
             menu_data = {
                 "label": data.auth_name,

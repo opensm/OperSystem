@@ -781,8 +781,8 @@ class UserMenu(APIView):
                 if _childs:
                     child_data = self.get_child_menu(childs=_childs, user=user)
                     if child_data:
-                        data.setdefault('children', []).extend(child_data)
-                children.append(data)
+                        data.setdefault('children', []).append(child_data)
+                children.extend(data)
         return children
 
     def get(self, request, userId):

@@ -772,12 +772,12 @@ class UserMenu(APIView):
                 if user.is_superuser:
                     _childs = Permission.objects.filter(
                         parent=child
-                    ).exclude(level=999)
+                    )
                 else:
                     _childs = Permission.objects.filter(
                         role__userinfo=user,
                         parent=child
-                    ).exclude(level=999)
+                    )
                 if _childs:
                     child_data = self.get_child_menu(childs=_childs, user=user)
                     if child_data:
@@ -796,23 +796,19 @@ class UserMenu(APIView):
         if user.is_superuser:
             instance = Permission.objects.filter(
                 parent=None
-            ).exclude(level=999)
+            )
         else:
             instance = Permission.objects.filter(
                 role__userinfo=user,
                 parent=None
-            ).exclude(level=999)
+            )
 
         for data in instance:
             menu_data = PermissionSerializer(instance=data).data
             if user.is_superuser:
-                childs = Permission.objects.filter(
-                    parent=data
-                ).exclude(level=999)
+                childs = Permission.objects.filter(parent=data)
             else:
-                childs = Permission.objects.filter(
-                    parent=data, role__userinfo=user
-                ).exclude(level=999)
+                childs = Permission.objects.filter(parent=data, role__userinfo=user)
             # menu_data = {
             #     "label": data.auth_name,
             #     "children": []

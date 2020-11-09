@@ -768,10 +768,7 @@ class UserMenu(APIView):
         children = []
         if childs:
             for child in childs:
-                data = {
-                    "label": child.auth_name,
-                    "children": []
-                }
+                data = PermissionSerializer(instance=child).data
                 if user.is_superuser:
                     _childs = Permission.objects.filter(
                         parent=child
@@ -782,9 +779,9 @@ class UserMenu(APIView):
                         parent=child
                     ).exclude(level=999)
                 if _childs:
-                    child_data = self.get_child_menu(_childs, user=user)
+                    child_data = self.get_child_menu(childs=_childs, user=user)
                     if child_data:
-                        data["children"].append(child_data)
+                        data.setdefault('children', []).append(child_data)
                 children.append(data)
         return children
 
@@ -807,6 +804,7 @@ class UserMenu(APIView):
             ).exclude(level=999)
 
         for data in instance:
+            menu_data = PermissionSerializer(instance=data).data
             if user.is_superuser:
                 childs = Permission.objects.filter(
                     parent=data
@@ -815,12 +813,14 @@ class UserMenu(APIView):
                 childs = Permission.objects.filter(
                     parent=data, role__userinfo=user
                 ).exclude(level=999)
-            menu_data = {
-                "label": data.auth_name,
-                "children": []
-            }
+            # menu_data = {
+            #     "label": data.auth_name,
+            #     "children": []
+            # }
             if childs:
-                menu_data["children"] = self.get_child_menu(childs=childs, user=user)
+                child_data = self.get_child_menu(childs=childs, user=user)
+                if child_data:
+                    menu_data.setdefault('children', []).append(child_data)
                 tree.append(menu_data)
             # print(data)
             # ins = PermissionSerializer(instance=data)

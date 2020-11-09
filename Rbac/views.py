@@ -786,13 +786,25 @@ class UserMenu(APIView):
         """
         tree = list()
         user = UserInfo.objects.get(pk=userId)
-        instance = Permission.objects.filter(
-            role__userinfo=user,
-            parent=None
-        ).exclude(level=999)
+        if user.is_superuser:
+            instance = Permission.objects.filter(
+                parent=None
+            ).exclude(level=999)
+        else:
+            instance = Permission.objects.filter(
+                role__userinfo=user,
+                parent=None
+            ).exclude(level=999)
 
         for data in instance:
-            childs = Permission.objects.filter(parent=data, role__userinfo=user).exclude(level=999)
+            if user.is_superuser:
+                childs = Permission.objects.filter(
+                    parent=data, role__userinfo=user
+                ).exclude(level=999)
+            else:
+                childs = Permission.objects.filter(
+                    parent=data
+                ).exclude(level=999)
             menu_data = {
                 "label": data.name,
                 "children": []

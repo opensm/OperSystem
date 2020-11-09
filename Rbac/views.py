@@ -761,20 +761,34 @@ class RolePermissionEditView(APIView):
 
 
 class UserMenu(APIView):
-    def format_menu_data(self, permission_object, permission_dict=None):
-        """
-        :param permission_object:
-        :param permission_dict:
-        :return:
-        """
-        if not isinstance(permission_object, Permission):
-            raise TypeError("输入类型错误")
+    def get_menu_tree(self, user_id):
+        tree = []
+        menus = Permission.objects.filter(parent=None, level__exact=999)
+        for menu in menus:
+            menu_data = {
+                "label": menu.name,
+                "children": []
+            }
+            childs = Permission.objects.filter(parent=menu, level__exact=999)
+            if childs:
+                menu_data["children"] = self.get_child_menu(childs)
+            tree.append(menu_data)
+        return tree
 
-        if permission_dict:
-            if not isinstance(permission_dict, dict):
-                raise TypeError("输入类型错误")
-        if permission_object.children is None and permission_dict:
-            permission_dict['children'] = PermissionSerializer()
+    # 递归获取所有的子菜单
+    def get_child_menu(self, childs):
+        children = []
+        if childs:
+            for child in childs:
+                data = {
+                    "label": child.name,
+                    "children": []
+                }
+                _childs = Permission.objects.filter(parent=child)
+                if _childs:
+                    data["children"].append(self.get_child_menu(_childs))
+                children.append(data)
+        return children
 
     def get(self, request, userId):
         """
@@ -782,13 +796,27 @@ class UserMenu(APIView):
         :param userId:
         :return:
         """
+        tree = list()
         user = UserInfo.objects.get(pk=userId)
-        instance = Permission.objects.filter(role__userinfo=user)
+        instance = Permission.objects.filter(
+            role__userinfo=user,
+            parent=None,
+            level__exact=999
+        )
 
         for data in instance:
-            print(data)
-            ins = PermissionSerializer(instance=data)
-            print(ins.data)
+            childs = Permission.objects.filter(parent=data, level__exact=999, role__userinfo=user)
+            menu_data = {
+                "label": data.name,
+                "children": []
+            }
+            if childs:
+                menu_data["children"] = self.get_child_menu(childs)
+                tree.append(menu_data)
+            # print(data)
+            # ins = PermissionSerializer(instance=data)
+            # print(ins.data)
         # for c in p:
         #     print(c.children.all())
+        print(tree)
         return JsonResponse({})

@@ -768,12 +768,19 @@ class UserMenu(APIView):
         children = []
         if childs:
             for child in childs:
-                print(child)
                 data = {
                     "label": child.auth_name,
                     "children": []
                 }
-                _childs = Permission.objects.filter(parent=child, role__userinfo=user)
+                if user.is_superuser:
+                    _childs = Permission.objects.filter(
+                        parent=None
+                    ).exclude(level=999)
+                else:
+                    _childs = Permission.objects.filter(
+                        role__userinfo=user,
+                        parent=None
+                    ).exclude(level=999)
                 if _childs:
                     data["children"].append(self.get_child_menu(_childs, user=user))
                 children.append(data)
@@ -798,7 +805,6 @@ class UserMenu(APIView):
             ).exclude(level=999)
 
         for data in instance:
-            print(data)
             if user.is_superuser:
                 childs = Permission.objects.filter(
                     parent=data

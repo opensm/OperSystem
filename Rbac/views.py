@@ -768,6 +768,7 @@ class UserMenu(APIView):
         children = []
         if childs:
             for child in childs:
+                print(child)
                 data = {
                     "label": child.auth_name,
                     "children": []

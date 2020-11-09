@@ -782,7 +782,7 @@ class UserMenu(APIView):
                     child_data = self.get_child_menu(childs=_childs, user=user)
                     if child_data:
                         data.setdefault('children', []).append(child_data)
-                children.extend(data)
+                children.append(data)
         return children
 
     def get(self, request, userId):
@@ -817,7 +817,7 @@ class UserMenu(APIView):
                 child_data = self.get_child_menu(childs=childs, user=user)
                 if child_data:
                     menu_data.setdefault('children', []).append(child_data)
-                tree.append(menu_data)
+                tree.extend(menu_data)
             # print(data)
             # ins = PermissionSerializer(instance=data)
             # print(ins.data)

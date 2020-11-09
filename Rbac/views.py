@@ -760,6 +760,29 @@ class RolePermissionEditView(APIView):
         return JsonResponse(res)
 
 
+class CurrentUser(APIView):
+
+    def get(self, request):
+        try:
+            token = request.META.get('HTTP_AUTHORIZATION')
+            if not token:
+                raise Exception("没有获取到正确的token")
+        except AttributeError as error:
+            print(error)
+            res = {
+                "data": "null",
+                "meta": {"msg": "验证失败,TOKEN值不存在！", "status": 401}
+            }
+            return JsonResponse(res)
+        token_object = UserToken.objects.get(token=token)
+        data = UserInfoSerializer(token_object.username)
+        res = {
+            "data": data.data,
+            "meta": {"msg": "获取当前用户信息成功！", "status": 200}
+        }
+        return JsonResponse(res)
+
+
 class UserMenu(APIView):
 
     # 递归获取所有的子菜单

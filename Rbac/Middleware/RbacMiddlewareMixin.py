@@ -54,7 +54,7 @@ class RbacMiddleware(MiddlewareMixin):
         current_url = request.path_info
         if current_url in ['/api/v1/auth/login']:
             return None
-        print(request.META)
+        # print(request.META)
         try:
             token = request.META.get('HTTP_AUTHORIZATION')
             if not token:

@@ -10,7 +10,8 @@ from Rbac.views import AuthView, \
     UserStatusEditView, \
     UserEditRoleView, \
     RolePermissionEditView, \
-    UserMenu
+    UserMenu, \
+    CurrentUser
 
 app_name = 'rbac'
 
@@ -25,10 +26,11 @@ urlpatterns = [
     re_path('^permission$', PermissionsView.as_view(), name='permissions'),
     path('permission/<int:permissionId>', PermissionView.as_view(), name='permission'),
     # 用户管理
-    re_path('^user$', UsersView.as_view(), name='users'),
+    re_path('^users$', UsersView.as_view(), name='users'),
     re_path('^user/(?P<userId>[0-9])$', UserView.as_view(), name='user'),
     re_path('^user/(?P<userId>[0-9])/reset_passoword$', ResetPassWordView.as_view(), name='password'),
     re_path('^user/(?P<userId>[0-9])/state$', UserStatusEditView.as_view(), name="user_status"),
     re_path('^user/(?P<userId>[0-9])/roles$', UserEditRoleView.as_view(), name="user_role"),
-    re_path('^user/(?P<userId>[0-9])/menus$', UserMenu.as_view(), name="user_menu")
+    re_path('^user/(?P<userId>[0-9])/menus$', UserMenu.as_view(), name="user_menu"),
+    re_path('^user$', CurrentUser.as_view(), name='user'),
 ]

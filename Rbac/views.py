@@ -818,4 +818,4 @@ class UserMenu(APIView):
             "data": tree,
             "meta": {"msg": "获取菜单列表成功！", "status": 200}
         }
-        return JsonResponse(tree)
+        return JsonResponse(res)

@@ -71,8 +71,9 @@ class AuthView(APIView):
         try:
             if not UserInfo.objects.filter(username=data.data['username']).exists():
                 raise Exception("用户不存在：{0}".format(data.data['username']))
+            user_obj = UserInfo.objects.get(username=data.data['username'])
             UserToken.objects.update_or_create(
-                defaults={'username': data.data['username']},
+                defaults={'username': user_obj},
                 token=token,
                 expiration_time=expiration_time,
                 update_date=timezone.now()

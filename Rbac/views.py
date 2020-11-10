@@ -95,6 +95,40 @@ class AuthView(APIView):
             return JsonResponse(res)
 
 
+class LogoutView(APIView):
+    def get(self, request):
+        token = request.META.get('HTTP_AUTHORIZATION')
+        try:
+            UserToken.objects.get(token=token).delete()
+            res = {
+                "data": [],
+                "meta": {"msg": "退出登录成功！", "status": 200}
+            }
+            return JsonResponse(res)
+        except Exception as error:
+            res = {
+                "data": [],
+                "meta": {"msg": "退出登录失败，{0}！".format(error), "status": 500}
+            }
+            return JsonResponse(res)
+
+    def post(self, request):
+        token = request.META.get('HTTP_AUTHORIZATION')
+        try:
+            UserToken.objects.get(token=token).delete()
+            res = {
+                "data": [],
+                "meta": {"msg": "退出登录成功！", "status": 200}
+            }
+            return JsonResponse(res)
+        except Exception as error:
+            res = {
+                "data": [],
+                "meta": {"msg": "退出登录失败，{0}！".format(error), "status": 500}
+            }
+            return JsonResponse(res)
+
+
 class RolesView(APIView):
 
     def get(self, request):

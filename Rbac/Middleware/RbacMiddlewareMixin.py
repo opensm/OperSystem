@@ -5,6 +5,13 @@ from django.urls import resolve
 import datetime
 import os
 
+RESPONSE_STATUS = {
+    'TOKEN_NOT_EXIST': "Token值不存在，请校验上传参数！",
+    'TOKEN_EXPIRATION': "Token已超时，请重新登录！",
+    'TOKEN_ERROR_AUTH': "Token校验异常，请重试！",
+    'TOKEN_SUCCESS_AUTH': "Token校验成功！"
+}
+
 
 class MiddlewareMixin(object):
     def __init__(self, get_response=None):
@@ -24,27 +31,19 @@ class MiddlewareMixin(object):
 
 class RbacMiddleware(MiddlewareMixin):
 
-    def format_url(self, obj, path=None):
-        """
-        :param obj:
-        :param path:
-        :return:
-        """
-        # print(obj.path, obj.request_type)
-        if not isinstance(obj, Permission):
-            raise Exception("输入类型错误！")
-        # 当前为页面并没有父页面
-        if obj.parent is None and path is None:
-            return obj.path
-        # 当前为页面并之前也存在页面
-        elif obj.parent is None and path is not None:
-            return os.path.join(obj.path, path)
-        elif obj.parent is not None and path is None:
-            return self.format_url(obj=obj.parent, path=obj.path)
-        elif obj.parent is not None and path is not None:
-            return self.format_url(obj.parent, path=os.path.join(obj.path, path))
+    def check_token(self, request):
+        if 'HTTP_AUTHORIZATION' not in request.META:
+            return 'TOKEN_NOT_EXIST'
+        token = request.META.get('HTTP_AUTHORIZATION')
+        try:
+            token_object = UserToken.objects.get(token=token)
+        except UserToken.DoesNotExist:
+            return 'TOKEN_ERROR_AUTH'
+
+        if token_object.expiration_time < datetime.datetime.now():
+            return 'TOKEN_EXPIRATION'
         else:
-            print(obj.parent, path)
+            return 'TOKEN_SUCCESS_AUTH'
 
     def process_request(self, request):
         """
@@ -52,54 +51,28 @@ class RbacMiddleware(MiddlewareMixin):
         :return:
         """
         # 当前访问的URL
-        current_url = request.path_info
         resolve_url_obj = resolve(request.path_info)
-        print(resolve_url_obj.url_name)
-        if current_url in ['/api/v1/auth/login']:
+        if resolve_url_obj.url_name in ['login']:
             return None
-        # print(request.META)
-        try:
-            token = request.META.get('HTTP_AUTHORIZATION')
-            if not token:
-                raise Exception("没有获取到正确的token")
-        except AttributeError as error:
-            print(error)
+        token_status = self.check_token(request=request)
+        if token_status != 'TOKEN_SUCCESS_AUTH':
             res = {
                 "data": "null",
-                "meta": {"msg": "验证失败,TOKEN值不存在！", "status": 401}
+                "meta": {"msg": RESPONSE_STATUS[token_status], "status": 401}
             }
             return JsonResponse(res)
-        try:
-            token_object = UserToken.objects.get(token=token)
-            if token_object.expiration_time < datetime.datetime.now():
-                res = {
-                    "data": "null",
-                    "meta": {"msg": "验证过期！请重新登陆！", "status": 401}
-                }
-                return JsonResponse(res)
-            permission_list = Permission.objects.filter(
-                role__userinfo=token_object.username,
-                # request_type__isnull=False
-            )
-        except Exception as error:
-            print(error)
-            res = {
-                "data": "null",
-                "meta": {"msg": "权限验证失败,Token值异常！", "status": 401}
-            }
-            return JsonResponse(res)
-        if token_object.username.is_superuser:
-            return None
+        # if token_object.username.is_superuser:
+        #     return None
         flag = 0
-        for value in permission_list:
-            # parch_url = self.format_url(value)
-            permission_url = os.path.join('/api/v1', value.path)
-            # request_method = [x.request for x in value.request_type.all()]
-            print("permission_url:{0}=================current_url:{1}".format(permission_url, current_url))
-            print("request:method:{0}=================need:{1}".format(request.method, value.request_type))
-            if re.match(permission_url, current_url) and request.method == value.request_type:
-                flag = 1
-                continue
+        # for value in permission_list:
+        #     # parch_url = self.format_url(value)
+        #     permission_url = os.path.join('/api/v1', value.path)
+        #     # request_method = [x.request for x in value.request_type.all()]
+        #     print("permission_url:{0}=================current_url:{1}".format(permission_url, current_url))
+        #     print("request:method:{0}=================need:{1}".format(request.method, value.request_type))
+        #     if re.match(permission_url, current_url) and request.method == value.request_type:
+        #         flag = 1
+        #         continue
         if flag == 0:
             res = {
                 "data": "null",

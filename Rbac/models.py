@@ -28,20 +28,13 @@ class Permission(models.Model):
         related_name='children',
         on_delete=models.DO_NOTHING
     )
-    path = models.CharField(
-        verbose_name='URL', max_length=255, null=False, blank=False
+    resource = models.CharField(
+        verbose_name='相关资源', max_length=255, null=False, blank=False
     )
     css = models.CharField(
         verbose_name="CSS样式", null=True, blank=True, default="", max_length=2000
     )
-    # is_menu = models.BooleanField(
-    #     verbose_name="是否为菜单", max_length=10, null=False, blank=False, choices=menu_choice,
-    #     default="True"
-    # )
     level = models.IntegerField(verbose_name="菜单级别", default=0, choices=menu_choice)
-    # request_type = models.ManyToManyField(
-    #     verbose_name="请求类型", max_length=15, to="RequestTypes"
-    # )
     method = models.CharField(
         verbose_name="请求类型",
         default="POST",
@@ -56,12 +49,6 @@ class Permission(models.Model):
 
     def __str__(self):
         return self.auth_name
-
-
-#
-# class RequestTypes(models.Model):
-#     name = models.CharField(verbose_name="请求名称", max_length=20, default="新增", null=False, unique=True)
-#     request = models.CharField(verbose_name="请求类型", max_length=20, default="POST", null=False, unique=True)
 
 
 class Role(models.Model):

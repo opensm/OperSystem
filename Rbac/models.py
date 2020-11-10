@@ -48,6 +48,7 @@ class Permission(models.Model):
         unique_together = (("resource", "method"),)
 
     def __str__(self):
+        db_table = 'sys_permissions'
         return self.auth_name
 
 
@@ -60,6 +61,9 @@ class Role(models.Model):
         verbose_name='permissions',
         blank=True,
     )
+
+    class Meta:
+        db_table = 'sys_roles'
 
 
 class UserInfo(AbstractBaseUser, PermissionsMixin):
@@ -84,6 +88,7 @@ class UserInfo(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     class Meta:
+        db_table = 'sys_users'
         verbose_name_plural = _("User")
 
     def __str__(self):
@@ -99,5 +104,5 @@ class UserToken(models.Model):
     expiration_time = models.DateTimeField(verbose_name='失效时间', auto_now_add=True)
 
     class Meta:
-        # db_table = 'user_token'
+        db_table = 'sys_token'
         verbose_name = verbose_name_plural = '用户token表'

@@ -58,10 +58,6 @@ class AuthView(APIView):
         # 保存(存在就更新不存在就创建，并设置过期时间为60分钟)
         expiration_time = timezone.now() + timezone.timedelta(minutes=+60)
         try:
-            if not UserInfo.objects.filter(
-                    username=data.data['username']
-            ).exists():
-                raise Exception("用户不存在：{0}".format(data.data['username']))
             other = {
                 "username": UserInfo.objects.get(username=data.data['username']),
                 "defaults": {

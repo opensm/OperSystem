@@ -93,6 +93,8 @@ class SignInSerializer(serializers.Serializer):
         :param attrs:
         :return:
         """
+        print(attrs['username'])
+        print(attrs['password'])
         user_obj = auth.authenticate(
             username=attrs['username'],
             password=attrs['password']

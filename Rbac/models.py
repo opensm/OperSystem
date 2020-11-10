@@ -29,7 +29,7 @@ class Permission(models.Model):
         on_delete=models.DO_NOTHING
     )
     resource = models.CharField(
-        verbose_name='相关资源', max_length=255, null=False, blank=False
+        verbose_name='相关资源', max_length=255, null=False, blank=False, default="login"
     )
     css = models.CharField(
         verbose_name="CSS样式", null=True, blank=True, default="", max_length=2000

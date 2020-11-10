@@ -45,7 +45,7 @@ class Permission(models.Model):
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
     class Meta:
-        unique_together = (("path", "method"),)
+        unique_together = (("resource", "method"),)
 
     def __str__(self):
         return self.auth_name

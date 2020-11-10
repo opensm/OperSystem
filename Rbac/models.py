@@ -49,9 +49,9 @@ class Permission(models.Model):
 
     class Meta:
         unique_together = (("resource", "method"), ("path", "method"), ("resource", "path"))
+        db_table = 'sys_permissions'
 
     def __str__(self):
-        db_table = 'sys_permissions'
         return self.auth_name
 
 

@@ -72,7 +72,12 @@ class AuthView(APIView):
                 raise Exception("用户不存在：{0}".format(data.data['username']))
             user_obj = UserInfo.objects.get(username=data.data['username'])
             if not UserToken.objects.filter(username=user_obj).exists():
-                UserToken.objects.create(username=user_obj, token=token, expiration_time=expiration_time)
+                UserToken.objects.create(
+                    username=user_obj,
+                    token=token,
+                    expiration_time=expiration_time,
+                    update_date=timezone.now()
+                )
             else:
                 user_token_obj = UserToken.objects.get(username=user_obj)
                 user_token_obj.token = token

@@ -57,45 +57,20 @@ class AuthView(APIView):
         token = md5.hexdigest()
         # 保存(存在就更新不存在就创建，并设置过期时间为60分钟)
         expiration_time = timezone.now() + timezone.timedelta(minutes=+60)
-        # datetime.timedelta(minutes=+60)
-        print(expiration_time)
-        print(timezone.now())
-        other = {
-            "token": token,
-            "expiration_time": expiration_time,
-            "update_date": datetime.datetime.now(),
-            "defaults": {
-                "username": UserInfo.objects.get(username=data.data['username'])
-            }
-        }
         try:
-            if not UserInfo.objects.filter(username=data.data['username']).exists():
+            if not UserInfo.objects.filter(
+                    username=data.data['username']
+            ).exists():
                 raise Exception("用户不存在：{0}".format(data.data['username']))
-            user_obj = UserInfo.objects.get(username=data.data['username'])
-            UserToken.objects.update_or_create(
-                defaults={
+            other = {
+                "username": UserInfo.objects.get(username=data.data['username']),
+                "defaults": {
                     "token": token,
                     "expiration_time": expiration_time,
                     "update_date": datetime.datetime.now(),
-                },
-                username=UserInfo.objects.get(username=data.data['username'])
-            )
-            # user_obj = UserInfo.objects.get(username=data.data['username'])
-            # if not UserToken.objects.filter(username=user_obj).exists():
-            #     print("************{0}*****************".format(expiration_time))
-            #     UserToken.objects.create(
-            #         username=user_obj,
-            #         token=token,
-            #         expiration_time=expiration_time,
-            #         update_date=timezone.now()
-            #     )
-            #     print("============={0}================".format(timezone.now()))
-            # else:
-            #     user_token_obj = UserToken.objects.get(username=user_obj)
-            #     user_token_obj.token = token
-            #     user_token_obj.expiration_time = expiration_time
-            #     user_token_obj.update_date = timezone.now()
-            #     user_token_obj.save()
+                }
+            }
+            UserToken.objects.update_or_create(**other)
             res = {
                 "data": "null",
                 "token": token,

@@ -106,8 +106,8 @@ class UserToken(models.Model):
         verbose_name="用户", default=0
     )
     token = models.CharField(max_length=60)
-    update_date = models.DateTimeField(verbose_name='更新日期')
-    expiration_time = models.DateTimeField(verbose_name='失效时间')
+    update_date = models.DateTimeField(verbose_name='更新日期', default=0)
+    expiration_time = models.DateTimeField(verbose_name='失效时间', default=0)
 
     class Meta:
         db_table = 'sys_token'

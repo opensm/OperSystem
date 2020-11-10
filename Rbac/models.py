@@ -29,10 +29,10 @@ class Permission(models.Model):
         on_delete=models.DO_NOTHING
     )
     resource = models.CharField(
-        verbose_name='相关资源', max_length=255, null=False, blank=False, default="login"
+        verbose_name='相关资源', max_length=255, null=False, blank=False, default="login", unique=True
     )
     path = models.CharField(
-        verbose_name='URL', max_length=255, null=False, blank=False, default="/"
+        verbose_name='URL', max_length=255, null=False, blank=False, default="/", unique=True
     )
     css = models.CharField(
         verbose_name="CSS样式", null=True, blank=True, default="", max_length=2000
@@ -48,7 +48,7 @@ class Permission(models.Model):
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
     class Meta:
-        unique_together = (("resource", "method"),)
+        unique_together = (("resource", "method"), ("path", "method"), ("resource", "path"))
 
     def __str__(self):
         db_table = 'sys_permissions'

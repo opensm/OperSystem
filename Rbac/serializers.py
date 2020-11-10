@@ -104,6 +104,7 @@ class SignInSerializer(serializers.Serializer):
                 username=attrs
         ).exists():
             raise serializers.ValidationError(detail="登录失败，用户不存在！", code="auth")
+        return attrs
 
 
 class ResetPasswordSerializer(serializers.Serializer):

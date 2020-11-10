@@ -70,10 +70,11 @@ class UserInfo(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(verbose_name='用户名', max_length=50, null=False, unique=True)
     name = models.CharField(verbose_name="姓名", max_length=50, default='')
     mobile = models.CharField(verbose_name="手机", max_length=12, null=False, default="186000000000")
-    roles = models.ManyToManyField(
+    roles = models.ForeignKey(
         Role,
         verbose_name='角色',
-        blank=True
+        blank=True,
+        on_delete=models.CASCADE
     )
     email = models.EmailField(verbose_name="邮箱地址", unique=True, null=False)
     is_active = models.BooleanField(verbose_name="有效", default=True)

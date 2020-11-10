@@ -31,6 +31,9 @@ class Permission(models.Model):
     resource = models.CharField(
         verbose_name='相关资源', max_length=255, null=False, blank=False, default="login"
     )
+    path = models.CharField(
+        verbose_name='URL', max_length=255, null=False, blank=False, default="/"
+    )
     css = models.CharField(
         verbose_name="CSS样式", null=True, blank=True, default="", max_length=2000
     )

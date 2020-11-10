@@ -59,6 +59,7 @@ class AuthView(APIView):
         expiration_time = timezone.now() + timezone.timedelta(minutes=+60)
         # datetime.timedelta(minutes=+60)
         print(expiration_time)
+        print(timezone.now())
         other = {
             "token": token,
             "expiration_time": expiration_time,

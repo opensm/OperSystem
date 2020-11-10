@@ -93,8 +93,8 @@ class SignInSerializer(serializers.Serializer):
         :param attrs:
         :return:
         """
-        print(attrs[0])
-        user_obj = auth.authenticate(**attrs[0])
+        print(attrs)
+        user_obj = auth.authenticate(**attrs)
         if not user_obj:
             raise serializers.ValidationError(detail="登录失败，用户名或者密码错误！", code="auth")
         UserInfo.objects.filter(**attrs).update(last_login=datetime.datetime.now())

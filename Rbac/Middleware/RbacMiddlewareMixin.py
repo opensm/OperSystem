@@ -1,6 +1,7 @@
 import re
 from Rbac.models import UserToken, Permission
 from django.http import JsonResponse
+from django.urls import resolve
 import datetime
 import os
 
@@ -52,6 +53,8 @@ class RbacMiddleware(MiddlewareMixin):
         """
         # 当前访问的URL
         current_url = request.path_info
+        resolve_url_obj = resolve(request.path)
+        print(resolve_url_obj.url_name)
         if current_url in ['/api/v1/auth/login']:
             return None
         # print(request.META)

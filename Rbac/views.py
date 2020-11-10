@@ -2,6 +2,7 @@
 from rest_framework.views import APIView
 from Rbac.models import *
 from django.http import JsonResponse
+from django.utils import timezone
 import hashlib
 import datetime
 import time
@@ -55,7 +56,7 @@ class AuthView(APIView):
         )
         token = md5.hexdigest()
         # 保存(存在就更新不存在就创建，并设置过期时间为60分钟)
-        expiration_time = datetime.datetime.now() + datetime.timedelta(minutes=60)
+        expiration_time = timezone.now() + datetime.timedelta(minutes=60)
         other = {
             "token": token,
             "expiration_time": expiration_time,
@@ -74,13 +75,8 @@ class AuthView(APIView):
                 user_token_obj = UserToken.objects.get(username=user_obj)
                 user_token_obj.token = token
                 user_token_obj.expiration_time = expiration_time
+                user_token_obj.update_date = timezone.now()
                 user_token_obj.save()
-            # UserToken.objects.update_or_create(
-            #     token=token, expiration_time=expiration_time, update_date=datetime.datetime.now(),
-            #     defaults={
-            #         "username": UserInfo.objects.get(username=data.data['username'])
-            #     }
-            # )
             res = {
                 "data": "null",
                 "token": token,

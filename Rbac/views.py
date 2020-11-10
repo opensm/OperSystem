@@ -56,7 +56,9 @@ class AuthView(APIView):
         )
         token = md5.hexdigest()
         # 保存(存在就更新不存在就创建，并设置过期时间为60分钟)
-        expiration_time = timezone.now() + datetime.timedelta(minutes=+60)
+        expiration_time = timezone.now() + timezone.timedelta(minutes=+60)
+        # datetime.timedelta(minutes=+60)
+        print(expiration_time)
         other = {
             "token": token,
             "expiration_time": expiration_time,

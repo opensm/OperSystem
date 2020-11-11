@@ -13,12 +13,6 @@ class Permission(models.Model):
         (2, "三级菜单"),
         (999, "按钮功能")
     )
-    request = (
-        ("POST", "添加"),
-        ("GET", "查询"),
-        ("DELETE", "删除"),
-        ("PATCH", "修改")
-    )
     auth_name = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
     parent = models.ForeignKey(
         'self',
@@ -38,13 +32,6 @@ class Permission(models.Model):
         verbose_name="CSS样式", null=True, blank=True, default="", max_length=2000
     )
     level = models.IntegerField(verbose_name="菜单级别", default=0, choices=menu_choice)
-    method = models.CharField(
-        verbose_name="请求类型",
-        default="POST",
-        max_length=7,
-        choices=request,
-        null=True
-    )
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
     class Meta:
@@ -53,6 +40,25 @@ class Permission(models.Model):
 
     def __str__(self):
         return self.auth_name
+
+
+class ResourcePermission:
+    request = (
+        ("POST", "添加"),
+        ("GET", "查询"),
+        ("DELETE", "删除"),
+        ("PATCH", "修改")
+    )
+    permission = models.ForeignKey(Permission, default='', null=False, on_delete=models.PROTECT)
+    method = models.CharField(
+        verbose_name="请求类型",
+        default="POST",
+        max_length=7,
+        choices=request,
+        null=True
+    )
+    permission_code = models.CharField(verbose_name="权限编码", null=False, default='')
+    permission_param = models.CharField(verbose_name="权限参数", null=True, default='')
 
 
 class Role(models.Model):

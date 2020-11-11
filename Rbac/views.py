@@ -363,10 +363,10 @@ class PermissionView(APIView):
         """
         try:
             query = Permission.objects.get(id=permissionId)
-        except Exception as error:
+        except Permission.DoesNotExist:
             res = {
                 "data": "null",
-                "meta": {"msg": "修改权限信息失败,PermissionId:{0},原因:{1}".format(permissionId, error), "status": 500}
+                "meta": {"msg": "修改权限信息失败,PermissionId:{0},原因:不存在".format(permissionId), "status": 500}
             }
             return JsonResponse(res)
         data = PermissionSerializer(instance=query, data=request.data)

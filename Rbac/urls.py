@@ -25,7 +25,7 @@ urlpatterns = [
     re_path('^role/(?P<roleId>[0-9])$', RoleView.as_view()),
     re_path('^role/(?P<roleId>[0-9])/permission$', RolePermissionEditView.as_view()),
     # 权限管理
-    re_path('^permission$', PermissionsView.as_view(), name='permission_list_manage'),
+    re_path('^permissions$', PermissionsView.as_view(), name='permission_list_manage'),
     path('permission/<int:permissionId>', PermissionView.as_view(), name='each_permission_manage'),
     # 用户管理
     re_path('^users$', UsersView.as_view(), name='users'),

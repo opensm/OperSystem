@@ -24,6 +24,7 @@ class SubPermissionSerializer(serializers.ModelSerializer):
 
         def get_related_field(self, model_field):
             # Handles initializing the `subcategories` field
+            print(model_field)
             return SubPermissionSerializer()
 
 

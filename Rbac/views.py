@@ -789,6 +789,7 @@ class CurrentUser(APIView):
         data = UserInfoSerializer(token_object.username)
         user = ObjectUserInfo()
         menu = data.data
+        print(menu)
         menu['roles'] = user.get_menu(user_obj=token_object.username)
         res = {
             "data": menu,

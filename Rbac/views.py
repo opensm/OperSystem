@@ -16,7 +16,8 @@ from Rbac.serializers import \
     ResetPasswordSerializer, \
     UserEditRoleSerializer, \
     UserStatusEditSerializer, \
-    RolePermissionEditSerializer
+    RolePermissionEditSerializer, \
+    SubPermissionSerializer
 
 
 def format_error(data):
@@ -807,6 +808,8 @@ class UserMenu(APIView):
         :return:
         """
         token = request.META.get('HTTP_AUTHORIZATION')
+        per = Permission.objects.filter(role__userinfo__usertoken=token)
+        per = SubPermissionSerializer(instance=per)
         user = ObjectUserInfo()
         user_obj = user.get_user_object(token=token)
         if not user_obj:

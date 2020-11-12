@@ -20,6 +20,10 @@ class SubPermissionSerializer(serializers.ModelSerializer):
         model = Permission  # 指定需要序列化的模型表
         fields = ("__all__",)
 
+        def get_related_field(self, model_field):
+            # Handles initializing the `subcategories` field
+            return SubPermissionSerializer()
+
 
 class PermissionSerializer(serializers.ModelSerializer):
     # children = SubPermissionSerializer(many=True)

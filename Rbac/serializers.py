@@ -29,6 +29,7 @@ class SubPermissionSerializer(serializers.ModelSerializer):
 
     def get_fields(self):
         fields = super(SubPermissionSerializer, self).get_fields()
+        print(fields)
         fields['children'] = SubPermissionSerializer(many=True)
         # print(fields['children'])
         return fields

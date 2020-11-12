@@ -787,6 +787,7 @@ class CurrentUser(APIView):
         token = request.META.get('HTTP_AUTHORIZATION')
         token_object = UserToken.objects.get(token=token)
         data = UserInfoSerializer(token_object.username)
+        print(data)
         user = ObjectUserInfo()
         menu = data.data
         print(menu)

@@ -1,5 +1,5 @@
 import re
-from Rbac.models import UserToken, Permission
+from Rbac.models import UserToken
 from django.http import JsonResponse
 from django.urls import resolve
 import datetime

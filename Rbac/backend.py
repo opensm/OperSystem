@@ -9,12 +9,6 @@ class ObjectUserInfo:
         self.user_object_type = django_apps.get_model(AUTH_USER_MODEL)
         self.token = None
         self.button_code = 999
-        self.error_message = {
-            "data": [],
-            "msg": "请求成功",
-            "code": 200
-
-        }
 
     @staticmethod
     def get_user_model():
@@ -46,30 +40,4 @@ class ObjectUserInfo:
                 parent=None
             ).exclude(level=self.button_code)
         data = PermissionSerializer(many=True, instance=instance)
-        print(data.data)
         return data.data
-
-    # 递归获取所有的子菜单
-    def get_child_menu(self, childs, user):
-        children = []
-        if not childs:
-            return []
-        for child in childs:
-            print(child)
-            params = {
-                'parent': child
-            }
-            if not user.is_superuser:
-                params['role__userinfo'] = user
-
-            data = PermissionSerializer(instance=child).data
-
-            _childs = Permission.objects.filter(**params)
-            if not _childs:
-                continue
-            child_data = self.get_child_menu(childs=_childs, user=user)
-            if child_data:
-                data.setdefault('children', []).extend(child_data)
-            children.append(data)
-
-        return children

@@ -792,7 +792,6 @@ class CurrentUser(APIView):
         user = ObjectUserInfo()
         menu = data.data
         menu['roles'] = user.get_menu(user_obj=token_object.username)
-        print(menu)
         res = {
             "data": menu,
             "meta": {"msg": "获取当前用户信息成功！", "status": 200}
@@ -808,9 +807,6 @@ class UserMenu(APIView):
         :return:
         """
         token = request.META.get('HTTP_AUTHORIZATION')
-        # per = Permission.objects.filter(role__userinfo__usertoken=UserToken.objects.get(token=token))
-        # data = SubPermissionSerializer(instance=per, many=True)
-        # print(data.data)
         user = ObjectUserInfo()
         user_obj = user.get_user_object(token=token)
         if not user_obj:

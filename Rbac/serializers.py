@@ -21,16 +21,16 @@ class RecursiveField(serializers.Serializer):
 
 
 class SubPermissionSerializer(serializers.ModelSerializer):
-    parent = RecursiveField(many=True)
+    # parent = RecursiveField(many=True)
 
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Permission  # 指定需要序列化的模型表
         fields = ('parent', 'auth_name', 'resource')
 
-        # def get_related_field(self, model_field):
-        #     # Handles initializing the `subcategories` field
-        #     print(model_field)
-        #     return SubPermissionSerializer()
+    def get_fields(self):
+        fields = super(SubPermissionSerializer, self).get_fields()
+        fields['children'] = SubPermissionSerializer(many=True)
+        return fields
 
 
 class PermissionSerializer(serializers.ModelSerializer):

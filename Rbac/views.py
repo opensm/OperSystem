@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from rest_framework.views import APIView
 from Rbac.models import *
+from Rbac.backend import ObjectUserInfo
 from django.http import JsonResponse
 from django.utils import timezone
 import hashlib
@@ -786,8 +787,11 @@ class CurrentUser(APIView):
         token = request.META.get('HTTP_AUTHORIZATION')
         token_object = UserToken.objects.get(token=token)
         data = UserInfoSerializer(token_object.username)
+        user = ObjectUserInfo()
+        menu = data.data
+        menu['roles'] = user.get_menu(user_obj=token_object.username)
         res = {
-            "data": data.data,
+            "data": menu,
             "meta": {"msg": "获取当前用户信息成功！", "status": 200}
         }
         return JsonResponse(res)
@@ -795,59 +799,23 @@ class CurrentUser(APIView):
 
 class UserMenu(APIView):
 
-    # 递归获取所有的子菜单
-    def get_child_menu(self, childs, user):
-        children = []
-        if childs:
-            for child in childs:
-                data = PermissionSerializer(instance=child).data
-                if user.is_superuser:
-                    _childs = Permission.objects.filter(
-                        parent=child,
-                    ).exclude(level=999)
-                else:
-                    _childs = Permission.objects.filter(
-                        role__userinfo=user,
-                        parent=child
-                    ).exclude(level=999)
-                if _childs:
-                    child_data = self.get_child_menu(childs=_childs, user=user)
-                    if child_data:
-                        data.setdefault('children', []).extend(child_data)
-                children.append(data)
-        return children
-
     def get(self, request):
         """
         :param request:
         :return:
         """
-        tree = list()
         token = request.META.get('HTTP_AUTHORIZATION')
-        user = UserToken.objects.get(token=token).username
-        if user.is_superuser:
-            instance = Permission.objects.filter(
-                parent=None
-            ).exclude(level=999)
-        else:
-            instance = Permission.objects.filter(
-                role__userinfo=user,
-                parent=None
-            ).exclude(level=999)
-
-        for data in instance:
-            menu_data = PermissionSerializer(instance=data).data
-            if user.is_superuser:
-                childs = Permission.objects.filter(parent=data).exclude(level=999)
-            else:
-                childs = Permission.objects.filter(parent=data, role__userinfo=user).exclude(level=999)
-            if childs:
-                child_data = self.get_child_menu(childs=childs, user=user)
-                if child_data:
-                    menu_data.setdefault('children', []).extend(child_data)
-                tree.append(menu_data)
+        user = ObjectUserInfo()
+        user_obj = user.get_user_object(token=token)
+        if not user_obj:
+            res = {
+                "data": [],
+                "meta": {"msg": "获取列表失败！", "status": 200}
+            }
+            return JsonResponse(res)
+        menu = user.get_menu(user_obj=user_obj)
         res = {
-            "data": tree,
-            "meta": {"msg": "获取菜单列表成功！", "status": 200}
+            "data": menu,
+            "meta": {"msg": "获取列表失败！", "status": 200}
         }
         return JsonResponse(res)

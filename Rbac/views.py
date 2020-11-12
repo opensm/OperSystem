@@ -810,7 +810,7 @@ class UserMenu(APIView):
         token = request.META.get('HTTP_AUTHORIZATION')
         per = Permission.objects.filter(role__userinfo__usertoken=UserToken.objects.get(token=token))
         data = SubPermissionSerializer(instance=per)
-        print(data.data)
+        print(data)
         user = ObjectUserInfo()
         user_obj = user.get_user_object(token=token)
         if not user_obj:

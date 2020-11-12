@@ -9,6 +9,12 @@ class ObjectUserInfo:
         self.user_object_type = django_apps.get_model(AUTH_USER_MODEL)
         self.token = None
         self.button_code = 999
+        self.error_message = {
+            "data": [],
+            "msg": "请求成功",
+            "code": 200
+
+        }
 
     @staticmethod
     def get_user_model():
@@ -29,7 +35,6 @@ class ObjectUserInfo:
         # 判断传入参数类型
         if not isinstance(user_obj, self.get_user_model()):
             raise TypeError("传入的用户类型错误！")
-
         # 超级用户直接返回全部权限
         if user_obj.is_superuser:
             instance = Permission.objects.filter(
@@ -40,7 +45,9 @@ class ObjectUserInfo:
                 role__userinfo=user_obj,
                 parent=None
             ).exclude(level=self.button_code)
-        return self.get_child_menu(childs=instance, user=user_obj)
+        data = PermissionSerializer(many=True, instance=instance)
+        print(data)
+        return data
 
     # 递归获取所有的子菜单
     def get_child_menu(self, childs, user):

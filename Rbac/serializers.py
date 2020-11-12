@@ -37,7 +37,7 @@ class SubPermissionSerializer(serializers.ModelSerializer):
 
 
 class PermissionSerializer(serializers.ModelSerializer):
-    # children = SubPermissionSerializer(many=True)
+    children = RecursiveField(many=True, read_only=True, allow_null=True)
 
     def validate(self, attrs):
         """
@@ -73,8 +73,8 @@ class PermissionSerializer(serializers.ModelSerializer):
 
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Permission  # 指定需要序列化的模型表
-        fields = ("__all__")
-        # fields = ['children', 'auth_name', 'path', 'css_style', 'is_menu', 'request_type']
+        # fields = ("__all__")
+        fields = ['children', 'auth_name', 'resource', 'path', 'css', 'level']
         # exclude = ('create_date',)
         read_only_fields = ['id']
 

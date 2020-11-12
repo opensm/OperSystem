@@ -808,9 +808,9 @@ class UserMenu(APIView):
         :return:
         """
         token = request.META.get('HTTP_AUTHORIZATION')
-        per = Permission.objects.filter(role__userinfo__usertoken=UserToken.objects.get(token=token))
-        data = SubPermissionSerializer(instance=per, many=True)
-        print(data.data)
+        # per = Permission.objects.filter(role__userinfo__usertoken=UserToken.objects.get(token=token))
+        # data = SubPermissionSerializer(instance=per, many=True)
+        # print(data.data)
         user = ObjectUserInfo()
         user_obj = user.get_user_object(token=token)
         if not user_obj:
@@ -821,7 +821,7 @@ class UserMenu(APIView):
             return JsonResponse(res)
         menu = user.get_menu(user_obj=user_obj)
         res = {
-            "data": data.data,
+            "data": menu,
             "meta": {"msg": "获取列表失败！", "status": 200}
         }
         return JsonResponse(res)

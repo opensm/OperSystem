@@ -21,11 +21,11 @@ class RecursiveField(serializers.Serializer):
 
 
 class SubPermissionSerializer(serializers.ModelSerializer):
-    sub = RecursiveField(many=True)
+    parent = RecursiveField(many=True)
 
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Permission  # 指定需要序列化的模型表
-        fields = ('sub', 'auth_name', 'resource')
+        fields = ('parent', 'auth_name', 'resource')
 
         # def get_related_field(self, model_field):
         #     # Handles initializing the `subcategories` field

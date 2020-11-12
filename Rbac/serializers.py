@@ -65,9 +65,9 @@ class PermissionSerializer(serializers.ModelSerializer):
 
 
 class UserInfoSerializer(serializers.ModelSerializer):
-    permissions = serializers.PrimaryKeyRelatedField(
-        many=True, required=True, queryset=Permission.objects.all(),
-    )
+    # permissions = serializers.PrimaryKeyRelatedField(
+    #     many=True, required=True, queryset=Permission.objects.all(),
+    # )
 
     class Meta:
         model = UserInfo

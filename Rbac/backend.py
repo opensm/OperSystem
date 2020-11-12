@@ -46,8 +46,8 @@ class ObjectUserInfo:
                 parent=None
             ).exclude(level=self.button_code)
         data = PermissionSerializer(many=True, instance=instance)
-        print(data)
-        return data
+        print(data.data)
+        return data.data
 
     # 递归获取所有的子菜单
     def get_child_menu(self, childs, user):

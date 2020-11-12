@@ -48,7 +48,7 @@ class ObjectUserInfo:
         if not childs:
             return []
         for child in childs:
-
+            print(child)
             params = {
                 'parent': child
             }
@@ -60,7 +60,6 @@ class ObjectUserInfo:
             _childs = Permission.objects.filter(**params)
             if not _childs:
                 continue
-
             child_data = self.get_child_menu(childs=_childs, user=user)
             if child_data:
                 data.setdefault('children', []).extend(child_data)

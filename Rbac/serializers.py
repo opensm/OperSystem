@@ -31,7 +31,7 @@ class SubPermissionSerializer(serializers.ModelSerializer):
         fields = super(SubPermissionSerializer, self).get_fields()
         fields['children'] = SubPermissionSerializer(many=True)
         print(fields)
-        print(fields['children'])
+        # print(fields['children'])
         return fields
 
 

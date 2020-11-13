@@ -791,6 +791,7 @@ class CurrentUser(APIView):
         # print(data)
         user = ObjectUserInfo()
         menu = data.data
+        print(menu)
         menu['user_permissions'] = user.get_menu(user_obj=token_object.username)
         res = {
             "data": menu,

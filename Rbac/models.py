@@ -13,7 +13,7 @@ class Permission(models.Model):
         (2, "三级菜单"),
         (999, "按钮功能")
     )
-    auth_name = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
+    name = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
     parent = models.ForeignKey(
         'self',
         verbose_name='父级菜单',

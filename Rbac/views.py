@@ -791,9 +791,8 @@ class CurrentUser(APIView):
         # print(data)
         user = ObjectUserInfo()
         menu = data.data
-        menu['roles'] = user.get_menu(user_obj=token_object.username)
+        # menu['roles'] = user.get_menu(user_obj=token_object.username)
         menu['user_permissions'] = user.get_menu(user_obj=token_object.username)
-        print(menu)
         res = {
             "data": menu,
             "meta": {"msg": "获取当前用户信息成功！", "status": 200}

@@ -28,8 +28,11 @@ class Permission(models.Model):
     path = models.CharField(
         verbose_name='URL', max_length=255, null=False, blank=False, default="/", unique=True
     )
-    css = models.CharField(
-        verbose_name="CSS样式", null=True, blank=True, default="", max_length=2000
+    icon = models.CharField(
+        verbose_name="图标", null=True, blank=True, default="", max_length=2000
+    )
+    component = models.CharField(
+        verbose_name='路径映射', max_length=255, null=False, blank=False, default="/", unique=True
     )
     level = models.IntegerField(verbose_name="菜单级别", default=0, choices=menu_choice)
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)

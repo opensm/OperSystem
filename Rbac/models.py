@@ -42,7 +42,7 @@ class Permission(models.Model):
         db_table = 'sys_permissions'
 
     def __str__(self):
-        return self.auth_name
+        return self.name
 
 
 class ResourcePermission:

@@ -74,7 +74,7 @@ class PermissionSerializer(serializers.ModelSerializer):
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Permission  # 指定需要序列化的模型表
         # fields = ("__all__")
-        fields = ['children', 'auth_name', 'resource', 'path', 'css', 'level']
+        fields = ['children', 'name', 'resource', 'path', 'icon', 'level', 'component']
         # exclude = ('create_date',)
         read_only_fields = ['id']
 

@@ -17,7 +17,7 @@ from Rbac.serializers import \
     UserEditRoleSerializer, \
     UserStatusEditSerializer, \
     RolePermissionEditSerializer, \
-    SubPermissionSerializer
+    RewritePageNumberPagination
 
 
 def format_error(data):
@@ -266,19 +266,22 @@ class RoleView(APIView):
 
 
 class PermissionsView(APIView):
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         """
         :param request:
-        :url /api/v1/permission
+        :url /api/v1/permissions
         :parameter:
         {}
         :return:
         """
+        pg = RewritePageNumberPagination()
         try:
             query = Permission.objects.all()
-            data = PermissionSerializer(instance=query, many=True)
+            page_roles = pg.paginate_queryset(queryset=query, request=request, view=self)
+            data = PermissionSerializer(instance=page_roles, many=True)
             res = {
                 "data": data.data,
+                "to"
                 "meta": {"msg": "获取权限数据成功", "status": 200}
             }
             return JsonResponse(res)

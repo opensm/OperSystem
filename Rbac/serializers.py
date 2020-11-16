@@ -4,6 +4,7 @@ import datetime
 from django.contrib import auth
 from django.contrib.auth import password_validation
 from rest_framework import serializers
+from rest_framework.pagination import PageNumberPagination
 
 from Rbac.models import Role, Permission, UserInfo
 
@@ -220,3 +221,15 @@ class RolePermissionEditSerializer(serializers.ModelSerializer):
             instance.permissions.add(permission)
         instance.save()
         return instance
+
+
+# 自定义分页类
+class RewritePageNumberPagination(PageNumberPagination):
+    # 每页显示多少个
+    page_size = 3
+    # 默认每页显示3个，可以通过传入pager1/?page=2&size=4,改变默认每页显示的个数
+    page_size_query_param = "size"
+    # 最大页数不超过10
+    max_page_size = 10
+    # 获取页码数的
+    page_query_param = "page"

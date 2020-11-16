@@ -282,7 +282,6 @@ class PermissionsView(APIView):
             print(data.data)
             res = {
                 "data": data.data,
-                "to"
                 "meta": {"msg": "获取权限数据成功", "status": 200}
             }
             return JsonResponse(res)

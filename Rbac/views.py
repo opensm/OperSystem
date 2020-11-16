@@ -398,6 +398,7 @@ class PermissionView(APIView):
         {}
         :return: 删除角色
         """
+        print(permissionId)
         if not Permission.objects.filter(id=permissionId).exists():
             res = {
                 "data": "null",

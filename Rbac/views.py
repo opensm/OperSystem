@@ -279,7 +279,7 @@ class PermissionsView(APIView):
             query = Permission.objects.all().order_by('id')
             page_roles = pg.paginate_queryset(queryset=query, request=request, view=self)
             data = PermissionSerializer(instance=page_roles, many=True)
-            print(data)
+            print(data.data)
             res = {
                 "data": data.data,
                 "to"

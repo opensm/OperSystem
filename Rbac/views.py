@@ -410,6 +410,7 @@ class PermissionView(APIView):
                 "data": request.data,
                 "meta": {"msg": "删除权限成功！", "status": 200}
             }
+            print(res)
             return JsonResponse(res)
         except Exception as error:
             res = {

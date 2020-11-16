@@ -417,6 +417,7 @@ class PermissionView(APIView):
                 "data": "null",
                 "meta": {"msg": "删除权限失败:{0}".format(error), "status": 500}
             }
+            print(res)
             return JsonResponse(res)
 
 

@@ -22,7 +22,7 @@ class Permission(models.Model):
         related_name='children',
         on_delete=models.DO_NOTHING
     )
-    resource = models.CharField(
+    model_name = models.CharField(
         verbose_name='相关资源', max_length=255, null=False, blank=False, default="login", unique=True
     )
     path = models.CharField(
@@ -43,6 +43,12 @@ class Permission(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class DataPermission:
+    model_name = models.ForeignKey(
+        to='Permission', to_field='model_name', on_delete=models.PROTECT,
+    )
 
 
 class ResourcePermission:

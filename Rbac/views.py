@@ -398,7 +398,6 @@ class PermissionView(APIView):
         {}
         :return: 删除角色
         """
-        print(permissionId)
         if not Permission.objects.filter(id=permissionId).exists():
             res = {
                 "data": "null",
@@ -411,7 +410,6 @@ class PermissionView(APIView):
                 "data": request.data,
                 "meta": {"msg": "删除权限成功！", "status": 200}
             }
-            print(res)
             return JsonResponse(res)
         except Exception as error:
             res = {

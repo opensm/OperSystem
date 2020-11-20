@@ -49,7 +49,7 @@ class AuthView(APIView):
         data = SignInSerializer(data=request.data)
         if not data.is_valid():
             format_error(data=data.errors)
-            raise error.ERROR_LOGIN_FRONT_NOT_GIFT("errorddddd")
+            raise error.ERROR_LOGIN_FRONT_NOT_GIFT(message='登录失败')
             # res = {
             #     "data": "null",
             #     "meta": {"msg": format_error(data=data.errors).lstrip(';'), "status": 401}

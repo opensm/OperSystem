@@ -16,7 +16,7 @@ class ExceptionBoxMiddleware(MiddlewareMixin):
         if not issubclass(exception.__class__, BaseReturn):
             return None
         ret_json = {
-            'code': exception.__class__.__name__,
+            'code': exception.status_code,
             'message': getattr(exception, 'message', ''),
             'result': False,
             'data': ''

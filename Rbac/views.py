@@ -4,6 +4,7 @@ from Rbac.models import *
 from Rbac.backend import ObjectUserInfo
 from django.http import JsonResponse
 from django.utils import timezone
+from Rbac.Middleware import error
 import hashlib
 import datetime
 import time
@@ -75,7 +76,7 @@ class AuthView(APIView):
                 "meta": {"msg": "登录成功！", "status": 200}
             }
             return JsonResponse(res)
-        except Exception as error:
+        except error.ERROR_LOGIN_FRONT_NOT_GIFT:
             res = {
                 "data": "null",
                 "meta": {"msg": "登录失败，用户token更新失败，{0}".format(error), "status": 500}

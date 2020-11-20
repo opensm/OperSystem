@@ -1,7 +1,7 @@
 from django.apps import apps as django_apps
 from KubernetesManagerWeb.settings import AUTH_USER_MODEL
 from Rbac.serializers import PermissionSerializer
-from Rbac.models import Permission, UserInfo
+from Rbac.models import Permission
 
 
 class ObjectUserInfo:

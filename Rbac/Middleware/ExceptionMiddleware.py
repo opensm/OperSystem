@@ -23,11 +23,9 @@ class ExceptionBoxMiddleware(object):
         response = JsonResponse(ret_json)
         response.status_code = getattr(exception, 'status_code', 500)
         _logger = logger.error if response.status_code >= 500 else logger.warning
-        _logger('status_code->{status_code}, error_code->{code}, url->{url}, '
-                'method->{method}, param->{param}, '
-                'body->{body}，traceback->{traceback}'.format(
-            status_code=response.status_code, code=ret_json['code'], url=request.path,
-            method=request.method, param=json.dumps(getattr(request, request.method, {})),
-            body=request.body, traceback=traceback.format_exc()
+        _logger('status_code->{0}, error_code->{1}, url->{2}, method->{3}, param->{4}, body->{5}，traceback->{6}'.format(
+            response.status_code, ret_json['code'], request.path,
+            request.method, json.dumps(getattr(request, request.method, {})),
+            request.body, traceback.format_exc()
         ))
         return response

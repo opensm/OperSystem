@@ -21,6 +21,7 @@ class ExceptionBoxMiddleware(MiddlewareMixin):
             'result': False,
             'data': ''
         }
+        print(ret_json)
         response = JsonResponse(ret_json)
         current_url = request.path
         # data = getattr(request, '_body', request.body)

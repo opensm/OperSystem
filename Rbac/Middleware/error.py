@@ -9,6 +9,8 @@ class ERROR_LOGIN_FRONT_NOT_GIFT(base.PreconditionFailed412):
     def __init__(self, *args, **kwargs):
         if 'message' in kwargs:
             self.message = kwargs['message']
+        if 'status_code' in kwargs:
+            self.status_code = kwargs['status_code']
 
 
 class ERROR_LOGIN_FRONT_PAY_NOT_MONEY(base.PreconditionFailed412):

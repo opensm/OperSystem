@@ -22,7 +22,7 @@ class Permission(models.Model):
         related_name='children',
         on_delete=models.DO_NOTHING
     )
-    model_name = models.CharField(
+    model = models.CharField(
         verbose_name='相关资源', max_length=255, null=False, blank=False, default="login", unique=True
     )
     path = models.CharField(
@@ -38,7 +38,7 @@ class Permission(models.Model):
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
     class Meta:
-        unique_together = (("resource", "path"),)
+        unique_together = (("model", "path"),)
         db_table = 'sys_permissions'
 
     def __str__(self):

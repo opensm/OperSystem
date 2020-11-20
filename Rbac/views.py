@@ -47,14 +47,22 @@ class AuthView(APIView):
         :return:
         """
         data = SignInSerializer(data=request.data)
-        if not data.is_valid():
-            format_error(data=data.errors)
-            raise error.ERROR_LOGIN_FRONT_NOT_GIFT(message='登录失败', status_code=500)
-            # res = {
-            #     "data": "null",
-            #     "meta": {"msg": format_error(data=data.errors).lstrip(';'), "status": 401}
-            # }
-            # return JsonResponse(res)
+        # if not data.is_valid():
+        #     format_error(data=data.errors)
+        #
+        #     # raise error.ERROR_LOGIN_FRONT_NOT_GIFT(message='登录失败', status_code=500)
+        #     res = {
+        #         "data": "null",
+        #         "meta": {"msg": format_error(data=data.errors).lstrip(';'), "status": 401}
+        #     }
+        #     return JsonResponse(res)
+        try:
+            if not data.is_valid():
+                raise error.ERROR_LOGIN_FRONT_NOT_GIFT(
+                    message=format_error(data=data.errors), status_code=500
+                )
+        except:
+            print(111111111111)
         md5 = hashlib.md5(
             "{0}{1}{2}".format(data.data['username'], time.time(), SECRET_KEY).encode("utf8")
         )

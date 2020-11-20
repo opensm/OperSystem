@@ -6,6 +6,10 @@ from Rbac.Middleware import base
 class ERROR_LOGIN_FRONT_NOT_GIFT(base.PreconditionFailed412):
     message = u"礼品不充足"
 
+    def __init__(self, *args, **kwargs):
+        if 'message' in kwargs:
+            self.message = kwargs['message']
+
 
 class ERROR_LOGIN_FRONT_PAY_NOT_MONEY(base.PreconditionFailed412):
     message = u"没有足够余额"

@@ -27,13 +27,13 @@ class ExceptionBoxMiddleware(MiddlewareMixin):
         # data = getattr(request, '_body', request.body)
         response.status_code = getattr(exception, 'status_code', 500)
         _logger = logger.error if response.status_code >= 500 else logger.warning
-        _logger('status_code->{status_code}, error_code->{code}, url->{url}, '
-                'method->{method}, param->{param}, '
-                'traceback->{traceback}'.format(
-            status_code=response.status_code, code=ret_json['code'], url=current_url,
-            method=request.method, param=json.dumps(getattr(request, request.method, {})),
-             traceback=traceback.format_exc()
-        ))
+        _logger(
+            'status_code->{status_code}, error_code->{code}, url->{url},'
+            ' method->{method}, param->{param},traceback->{traceback}'.format(
+                status_code=response.status_code, code=ret_json['code'], url=current_url,
+                method=request.method, param=json.dumps(getattr(request, request.method, {})),
+                traceback=traceback.format_exc()
+            ))
         # _logger('status_code->{status_code}, error_code->{code}, url->{url}, '
         #         'method->{method}, param->{param}, '
         #         'body->{body}，traceback->{traceback}'.format(
@@ -41,4 +41,5 @@ class ExceptionBoxMiddleware(MiddlewareMixin):
         #     method=request.method, param=json.dumps(getattr(request, request.method, {})),
         #     body=data, traceback=traceback.format_exc()
         # ))
+        print(response)
         return response

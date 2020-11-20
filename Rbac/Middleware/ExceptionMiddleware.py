@@ -22,12 +22,13 @@ class ExceptionBoxMiddleware(MiddlewareMixin):
             'data': ''
         }
         response = JsonResponse(ret_json)
+        current_url = request.path
         response.status_code = getattr(exception, 'status_code', 500)
         _logger = logger.error if response.status_code >= 500 else logger.warning
         _logger('status_code->{status_code}, error_code->{code}, url->{url}, '
                 'method->{method}, param->{param}, '
                 'body->{body}，traceback->{traceback}'.format(
-            status_code=response.status_code, code=ret_json['code'], url=request.path,
+            status_code=response.status_code, code=ret_json['code'], url=current_url,
             method=request.method, param=json.dumps(getattr(request, request.method, {})),
             body=request.body, traceback=traceback.format_exc()
         ))

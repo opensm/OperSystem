@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from Rbac.models import *
 from Rbac.backend import ObjectUserInfo
 from django.http import JsonResponse
+from lib.response import DataResponse
 from django.utils import timezone
 from Rbac.Middleware import error
 import hashlib
@@ -47,22 +48,15 @@ class AuthView(APIView):
         :return:
         """
         data = SignInSerializer(data=request.data)
-        # if not data.is_valid():
-        #     format_error(data=data.errors)
-        #
-        #     # raise error.ERROR_LOGIN_FRONT_NOT_GIFT(message='登录失败', status_code=500)
-        #     res = {
-        #         "data": "null",
-        #         "meta": {"msg": format_error(data=data.errors).lstrip(';'), "status": 401}
-        #     }
-        #     return JsonResponse(res)
-        try:
-            if not data.is_valid():
-                raise error.ERROR_LOGIN_FRONT_NOT_GIFT(
-                    message=format_error(data=data.errors), status_code=500
-                )
-        except:
-            print(111111111111)
+        if not data.is_valid():
+            # raise error.ERROR_LOGIN_FRONT_NOT_GIFT(message='登录失败', status_code=500)
+            # res = {
+            #     "data": "null",
+            #     "meta": {"msg": format_error(data=data.errors).lstrip(';'), "status": 401}
+            # }
+            # return JsonResponse(res)
+            return DataResponse(data=[], code='00001', msg=format_error(data=data.errors))
+
         md5 = hashlib.md5(
             "{0}{1}{2}".format(data.data['username'], time.time(), SECRET_KEY).encode("utf8")
         )

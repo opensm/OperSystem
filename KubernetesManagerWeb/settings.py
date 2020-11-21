@@ -48,8 +48,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'Rbac.Middleware.RbacMiddlewareMixin.RbacMiddleware',
-    'Rbac.Middleware.ExceptionMiddleware.ExceptionBoxMiddleware'
+    'Rbac.Middleware.RbacMiddlewareMixin.RbacMiddleware'
+    # 'Rbac.Middleware.ExceptionMiddleware.ExceptionBoxMiddleware'
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True

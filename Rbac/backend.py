@@ -2,6 +2,7 @@ from django.apps import apps as django_apps
 from KubernetesManagerWeb.settings import AUTH_USER_MODEL
 from Rbac.serializers import PermissionSerializer
 from Rbac.models import Permission
+from rest_framework.pagination import PageNumberPagination
 
 
 class ObjectUserInfo:
@@ -41,3 +42,9 @@ class ObjectUserInfo:
             ).exclude(level=self.button_code)
         data = PermissionSerializer(many=True, instance=instance)
         return data.data
+
+
+class UserPagination(PageNumberPagination):
+    page_size = 6
+    page_query_param = 'page'
+    page_size_query_param = 'size'

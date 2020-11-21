@@ -79,8 +79,8 @@ class AuthView(APIView):
             #     "meta": {"msg": "登录成功！", "status": 200}
             # }
             # return JsonResponse(res)
-            return DataResponse(data=[], code="00000", msg="登录成功")
-        except error.ERROR_LOGIN_FRONT_NOT_GIFT as e:
+            return DataResponse(data=[], code="00000", msg="登录成功", token=token)
+        except Exception as e:
             res = {
                 "data": "null",
                 "meta": {"msg": "登录失败，用户token更新失败，{0}".format(e), "status": 500}

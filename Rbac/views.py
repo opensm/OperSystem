@@ -807,7 +807,7 @@ class CurrentUser(APIView):
             "data": menu,
             "meta": {"msg": "获取当前用户信息成功！", "status": 200}
         }
-        return JsonResponse(res)
+        return DataResponse(data=menu, msg="获取当前用户信息成功！", code='00000')
 
 
 class UserMenu(APIView):

@@ -228,7 +228,7 @@ class RolePermissionEditSerializer(serializers.ModelSerializer):
 # 自定义分页类
 class RewritePageNumberPagination(PageNumberPagination):
     # 每页显示多少个
-    page_size = 3
+    page_size = 10
     # 默认每页显示3个，可以通过传入pager1/?page=2&size=4,改变默认每页显示的个数
     page_size_query_param = "size"
     # 最大页数不超过10

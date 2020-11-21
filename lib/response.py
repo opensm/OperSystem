@@ -33,5 +33,7 @@ class DataResponse(JsonResponse):
                     'code': kwargs['code']
                 }
             }
+        if 'token' in kwargs:
+            params['token'] = kwargs['token']
         print(params)
         super(DataResponse, self).__init__(data=params, **kwargs)

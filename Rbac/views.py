@@ -73,12 +73,13 @@ class AuthView(APIView):
                 }
             }
             UserToken.objects.update_or_create(**other)
-            res = {
-                "data": "null",
-                "token": token,
-                "meta": {"msg": "登录成功！", "status": 200}
-            }
-            return JsonResponse(res)
+            # res = {
+            #     "data": "null",
+            #     "token": token,
+            #     "meta": {"msg": "登录成功！", "status": 200}
+            # }
+            # return JsonResponse(res)
+            return DataResponse(data=[], code=00000, msg="登录成功")
         except error.ERROR_LOGIN_FRONT_NOT_GIFT as e:
             res = {
                 "data": "null",

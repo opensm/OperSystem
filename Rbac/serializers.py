@@ -253,5 +253,6 @@ class RewritePageNumberPagination(PageNumberPagination):
             ('next', self.get_next_link()),
             ('previous', self.get_previous_link()),
             ('data', data),
-            ('meta', meta)
+            ('meta', meta),
+            ('pagesize', self.page.has_other_pages())
         ]))

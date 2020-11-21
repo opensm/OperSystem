@@ -15,7 +15,7 @@ from Rbac.serializers import \
     UserEditRoleSerializer, \
     UserStatusEditSerializer, \
     RolePermissionEditSerializer, \
-    RewritePageNumberPagination,LimitRewritePageNumberPagination
+    RewritePageNumberPagination
 
 
 def format_error(data):
@@ -227,7 +227,7 @@ class PermissionsView(APIView):
         {}
         :return:
         """
-        pg = LimitRewritePageNumberPagination()
+        pg = RewritePageNumberPagination()
         query = Permission.objects.all().order_by('id')
         page_roles = pg.paginate_queryset(queryset=query, request=request, view=self)
         data = PermissionSerializer(instance=page_roles, many=True)

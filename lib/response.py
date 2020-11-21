@@ -1,5 +1,4 @@
 from django.http import JsonResponse
-from django.core.serializers.json import DjangoJSONEncoder
 from lib.code import SYSTEM_CODE_DICT
 
 
@@ -42,5 +41,4 @@ class DataResponse(JsonResponse):
             }
         if 'token' in kwargs:
             params['token'] = kwargs.pop('token')
-        print(params)
         super(DataResponse, self).__init__(data=params, **kwargs)

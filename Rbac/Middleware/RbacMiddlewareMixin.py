@@ -1,5 +1,5 @@
 from Rbac.models import UserToken
-from django.http import JsonResponse
+from lib.response import DataResponse
 from django.urls import resolve
 import datetime
 import os
@@ -55,11 +55,7 @@ class RbacMiddleware(MiddlewareMixin):
             return None
         token_status = self.check_token(request=request)
         if token_status != 'TOKEN_SUCCESS_AUTH':
-            res = {
-                "data": "null",
-                "meta": {"msg": RESPONSE_STATUS[token_status], "status": 401}
-            }
-            return JsonResponse(res)
+            return DataResponse(msg=RESPONSE_STATUS[token_status], code='00001')
         # if token_object.username.is_superuser:
         #     return None
         flag = 1
@@ -73,11 +69,7 @@ class RbacMiddleware(MiddlewareMixin):
         #         flag = 1
         #         continue
         if flag == 0:
-            res = {
-                "data": "null",
-                "meta": {"msg": "没有权限：Error Code 401", "status": 401}
-            }
-            return JsonResponse(res)
+            return DataResponse(msg="没有权限：Error Code 401", code='00001')
 
     def process_response(self, request, response):
         return response

@@ -442,7 +442,7 @@ class UsersView(APIView):
                 "data": data.data,
                 "meta": {"msg": "获取角色成功", "status": 200}
             }
-            return JsonResponse(res)
+            return DataResponse(data=data.data, msg="获取用户列表成功", code='00000')
         except Exception as error:
             res = {
                 "data": "null",
@@ -781,14 +781,14 @@ class RolePermissionEditView(APIView):
                 "data": roleId,
                 "meta": {"msg": "获取角色信息失败，{0}".format(error), "status": 200}
             }
-            return JsonResponse(res)
+            return DataResponse(data={'roleId': roleId}, code='00001', msg='获取角色权限失败')
 
         data = PermissionSerializer(instance=query, many=True)
-        res = {
-            "data": data.data,
-            "meta": {"msg": "获取角色权限成功", "status": 200}
-        }
-        return JsonResponse(res)
+        # res = {
+        #     "data": data.data,
+        #     "meta": {"msg": "获取角色权限成功", "status": 200}
+        # }
+        return DataResponse(data=data.data, code='00000', msg='获取角色权限成功')
 
 
 class CurrentUser(APIView):
@@ -800,13 +800,7 @@ class CurrentUser(APIView):
         # print(data)
         user = ObjectUserInfo()
         menu = data.data
-        # menu['roles'] = user.get_menu(user_obj=token_object.username)
         menu['user_permissions'] = user.get_menu(user_obj=token_object.username)
-        # print(menu)
-        # res = {
-        #     "data": menu,
-        #     "meta": {"msg": "获取当前用户信息成功！", "status": 200}
-        # }
         return DataResponse(data=menu, msg="获取当前用户信息成功！", code='00000')
 
 

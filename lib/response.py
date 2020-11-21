@@ -13,6 +13,7 @@ class DataResponse(JsonResponse):
             raise ValueError(
                 "必须包含code状态码!"
             )
+        code = kwargs.pop('code')
         if kwargs['code'] not in SYSTEM_CODE_DICT:
             params = {
                 'data': [],
@@ -23,7 +24,7 @@ class DataResponse(JsonResponse):
             }
         else:
             if 'msg' in kwargs:
-                msg = kwargs['msg']
+                msg = kwargs.pop('msg')
             else:
                 msg = SYSTEM_CODE_DICT[kwargs['code']]
             params = {
@@ -34,6 +35,6 @@ class DataResponse(JsonResponse):
                 }
             }
         if 'token' in kwargs:
-            params['token'] = kwargs['token']
+            params['token'] = kwargs.pop('token')
         print(params)
         super(DataResponse, self).__init__(data=params, **kwargs)

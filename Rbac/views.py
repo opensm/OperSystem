@@ -227,13 +227,11 @@ class PermissionsView(APIView):
         {}
         :return:
         """
-        print(request.META)
         pg = RewritePageNumberPagination()
         query = Permission.objects.all().order_by('id')
         page_roles = pg.paginate_queryset(queryset=query, request=request, view=self)
         data = PermissionSerializer(instance=page_roles, many=True)
-        print(pg.get_paginated_response(data.data))
-        return pg.get_paginated_response(data=data.data)
+        return pg.get_paginated_response(data=data.data, msg="获取权限列表成功", code='00000')
         # return DataResponse(
         #     data=data.data,
         #     msg='获取权限数据成功！',

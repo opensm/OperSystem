@@ -3,8 +3,10 @@ import datetime
 
 from django.contrib import auth
 from django.contrib.auth import password_validation
+from collections import OrderedDict, namedtuple
 from rest_framework import serializers
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
 
 from Rbac.models import Role, Permission, UserInfo
 
@@ -75,7 +77,7 @@ class PermissionSerializer(serializers.ModelSerializer):
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Permission  # 指定需要序列化的模型表
         # fields = ("__all__")
-        fields = ['children', 'name', 'model', 'path', 'icon', 'level', 'component','id']
+        fields = ['children', 'name', 'model', 'path', 'icon', 'level', 'component', 'id']
         # exclude = ('create_date',)
         read_only_fields = ['id']
 
@@ -233,3 +235,23 @@ class RewritePageNumberPagination(PageNumberPagination):
     max_page_size = 10
     # 获取页码数的
     page_query_param = "page"
+
+    def get_paginated_response(self, data, msg=None, code="00000"):
+        """
+        :param data:
+        :param msg:
+        :param code:
+        :return:
+        """
+        if msg is None:
+            raise ValueError("msg不能为空")
+        if not isinstance(code, str):
+            raise TypeError('code 类型错误，必须是string')
+        meta = {'msg': msg, 'code': code}
+        return Response(OrderedDict([
+            ('total', self.page.paginator.count),
+            ('next', self.get_next_link()),
+            ('previous', self.get_previous_link()),
+            ('data', data),
+            ('meta', meta)
+        ]))

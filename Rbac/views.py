@@ -5,11 +5,8 @@ from Rbac.backend import ObjectUserInfo
 from django.http import JsonResponse
 from lib.response import DataResponse
 from django.utils import timezone
-from Rbac.Middleware import error
-import hashlib
 import datetime
-import time
-from KubernetesManagerWeb.settings import SECRET_KEY
+from Rbac.backend import make_token
 from Rbac.serializers import \
     RoleSerializer, \
     PermissionSerializer, \
@@ -49,20 +46,14 @@ class AuthView(APIView):
         """
         data = SignInSerializer(data=request.data)
         if not data.is_valid():
-            # raise error.ERROR_LOGIN_FRONT_NOT_GIFT(message='登录失败', status_code=500)
-            # res = {
-            #     "data": "null",
-            #     "meta": {"msg": format_error(data=data.errors).lstrip(';'), "status": 401}
-            # }
-            # return JsonResponse(res)
-            return DataResponse(data=[], code='00001', msg=format_error(data=data.errors))
+            return DataResponse(
+                code='00001',
+                msg="登录失败，原因:{0}".format(format_error(data=data.errors))
+            )
 
-        md5 = hashlib.md5(
-            "{0}{1}{2}".format(data.data['username'], time.time(), SECRET_KEY).encode("utf8")
-        )
-        token = md5.hexdigest()
         # 保存(存在就更新不存在就创建，并设置过期时间为60分钟)
         expiration_time = timezone.now() + timezone.timedelta(minutes=+60)
+        token = make_token(username=data.data['username'])
         try:
             other = {
                 "username": UserInfo.objects.get(username=data.data['username']),
@@ -73,19 +64,16 @@ class AuthView(APIView):
                 }
             }
             UserToken.objects.update_or_create(**other)
-            # res = {
-            #     "data": "null",
-            #     "token": token,
-            #     "meta": {"msg": "登录成功！", "status": 200}
-            # }
-            # return JsonResponse(res)
-            return DataResponse(data=[], code="00000", msg="登录成功", token=token)
+            return DataResponse(
+                code="00000",
+                msg="登录成功!",
+                token=token
+            )
         except Exception as e:
-            res = {
-                "data": "null",
-                "meta": {"msg": "登录失败，用户token更新失败，{0}".format(e), "status": 500}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                code="00001",
+                msg="登录失败，用户token更新失败，{0}".format(e)
+            )
 
 
 class LogoutView(APIView):
@@ -93,33 +81,29 @@ class LogoutView(APIView):
         token = request.META.get('HTTP_AUTHORIZATION')
         try:
             UserToken.objects.get(token=token).delete()
-            res = {
-                "data": [],
-                "meta": {"msg": "退出登录成功！", "status": 200}
-            }
-            return JsonResponse(res)
-        except Exception as error:
-            res = {
-                "data": [],
-                "meta": {"msg": "退出登录失败，{0}！".format(error), "status": 500}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                msg='退出登录成功！',
+                code='00000'
+            )
+        except UserToken.DoesNotExist:
+            return DataResponse(
+                msg="退出登录失败！",
+                code='00001'
+            )
 
     def post(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
         try:
             UserToken.objects.get(token=token).delete()
-            res = {
-                "data": [],
-                "meta": {"msg": "退出登录成功！", "status": 200}
-            }
-            return JsonResponse(res)
-        except Exception as error:
-            res = {
-                "data": [],
-                "meta": {"msg": "退出登录失败，{0}！".format(error), "status": 500}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                msg='退出登录成功！',
+                code='00000'
+            )
+        except UserToken.DoesNotExist:
+            return DataResponse(
+                msg="退出登录失败！",
+                code='00001'
+            )
 
 
 class RolesView(APIView):
@@ -132,21 +116,13 @@ class RolesView(APIView):
         {}
         :return:
         """
-        try:
-            query = Role.objects.all()
-            data = RoleSerializer(instance=query, many=True)
-            res = {
-                "data": data.data,
-                "meta": {"msg": "获取角色成功", "status": 200}
-            }
-            return JsonResponse(res)
-        except Exception as error:
-            res = {
-                "data": "null",
-                "token": "null",
-                "meta": {"msg": "内部错误:{0}".format(error), "status": 500}
-            }
-            return JsonResponse(res)
+        query = Role.objects.all()
+        data = RoleSerializer(instance=query, many=True)
+        return DataResponse(
+            data=data.data,
+            msg='获取角色成功！',
+            code='00000'
+        )
 
     def post(self, request):
         """
@@ -162,18 +138,17 @@ class RolesView(APIView):
         """
         data = RoleSerializer(data=request.data)
         if not data.is_valid():
-            res = {
-                "data": "null",
-                "meta": {"msg": "传入参数错误:{0}".format(format_error(data=data.errors)), "status": 500}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                msg="添加角色参数异常:{0}".format(format_error(data=data.errors)),
+                code='00001'
+            )
         else:
             data.save()
-            res = {
-                "data": data.data,
-                "meta": {"msg": "角色数据保存成功", "status": 200}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                data=data.data,
+                msg='角色数据保存成功！',
+                code='00000'
+            )
 
 
 class RoleView(APIView):
@@ -189,26 +164,18 @@ class RoleView(APIView):
         """
         try:
             query = Role.objects.get(id=roleId)
-        except Exception as error:
-            res = {
-                "data": "null",
-                "meta": {"msg": "获取到角色信息失败,RoleID:{0},原因:{1}".format(roleId, error), "status": 500}
-            }
-            return JsonResponse(res)
+        except Role.DoesNotExist:
+            return DataResponse(
+                msg="获取到角色信息失败,角色ID:{0}".format(roleId),
+                code='00001'
+            )
 
         data = RoleSerializer(instance=query)
-        res = {
-            "data": data.data,
-            "meta": {"msg": "查看角色信息成功", "status": 200}
-        }
-        return JsonResponse(res)
-
-    def post(self, request):
-        """
-        :param request:
-        :return:修改角色权限分配
-        """
-        return JsonResponse({"data": "post"})
+        return DataResponse(
+            data=data.data,
+            msg='查看角色信息成功',
+            code='00000'
+        )
 
     def put(self, request, roleId):
         """
@@ -225,26 +192,16 @@ class RoleView(APIView):
         """
         try:
             query = Role.objects.get(id=roleId)
-        except Exception as error:
-            res = {
-                "data": "null",
-                "meta": {"msg": "修改角色信息失败,RoleID:{0},原因:{1}".format(roleId, error), "status": 500}
-            }
-            return res
+        except Role.DoesNotExist:
+            return DataResponse(msg="修改角色信息失败,RoleID:{0}！".format(roleId), code='00001')
         data = RoleSerializer(instance=query, data=request.data)
         if not data.is_valid():
-            res = {
-                "data": data.data,
-                "meta": {"msg": "传入参数错误:{0}".format(format_error(data=data.errors)), "status": 500}
-            }
-            return JsonResponse(res)
+            return DataResponse(msg="修改角色信息失败,RoleID:{0}，{1}！".format(
+                roleId, format_error(data=data.errors)
+            ), code='00001')
         else:
             data.save()
-            res = {
-                "data": data.data,
-                "meta": {"msg": "修改角色信息成功", "status": 200}
-            }
-        return JsonResponse(res)
+        return DataResponse(data=data.data, msg='修改角色信息成功', code='00000')
 
     def delete(self, request, roleId):
         """
@@ -257,17 +214,9 @@ class RoleView(APIView):
         """
         try:
             Role.objects.get(id=roleId).delete()
-            res = {
-                "data": request.data,
-                "meta": {"msg": "删除信息成功！", "status": 200}
-            }
-            return JsonResponse(res)
-        except Exception as error:
-            res = {
-                "data": "null",
-                "meta": {"msg": "删除角色失败:{0}".format(error), "status": 500}
-            }
-            return JsonResponse(res)
+            return DataResponse(msg='删除信息成功!', code='00000')
+        except Role.DoesNotExist:
+            return DataResponse(msg='删除角色失败!', code='00001')
 
 
 class PermissionsView(APIView):
@@ -280,22 +229,12 @@ class PermissionsView(APIView):
         :return:
         """
         pg = RewritePageNumberPagination()
-        try:
-            query = Permission.objects.all().order_by('id')
-            page_roles = pg.paginate_queryset(queryset=query, request=request, view=self)
-            data = PermissionSerializer(instance=page_roles, many=True)
-            print(data.data)
-            res = {
-                "data": data.data,
-                "meta": {"msg": "获取权限数据成功", "status": 200}
-            }
-            return JsonResponse(res)
-        except Exception as error:
-            res = {
-                "data": "null",
-                "meta": {"msg": "内部错误:{0}".format(error), "status": 500}
-            }
-            return JsonResponse(res)
+        query = Permission.objects.all().order_by('id')
+        page_roles = pg.paginate_queryset(queryset=query, request=request, view=self)
+        data = PermissionSerializer(instance=page_roles, many=True)
+        return DataResponse(
+            data=data.data,
+            msg='获取权限数据成功！', code='00000')
 
     def post(self, request):
         """
@@ -314,18 +253,17 @@ class PermissionsView(APIView):
         """
         data = PermissionSerializer(data=request.data)
         if not data.is_valid():
-            res = {
-                "data": "null",
-                "meta": {"msg": "传入参数错误:{0}".format(format_error(data=data.errors)), "status": 500}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                msg='添加数据异常，{0}！'.format(format_error(data=data.errors)),
+                code='00001'
+            )
         else:
             data.save()
-            data = {
-                "data": data.data,
-                "meta": {"msg": "权限数据保存成功", "status": 200}
-            }
-            return JsonResponse(data)
+            return DataResponse(
+                data=data.data,
+                msg='权限数据保存成功！',
+                code='00000'
+            )
 
 
 class PermissionView(APIView):
@@ -342,18 +280,16 @@ class PermissionView(APIView):
         try:
             query = Permission.objects.get(id=permissionId)
         except Permission.DoesNotExist:
-            res = {
-                "data": "null",
-                "meta": {"msg": "查看权限信息失败,PermissionId:{0},原因:不存在".format(permissionId), "status": 500}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                msg='查看权限信息失败,PermissionId:{0},原因:不存在！'.format(permissionId),
+                code='00001'
+            )
         data = PermissionSerializer(instance=query)
-        # print(Role.objects.filter(id=roleId))
-        res = {
-            "data": data.data,
-            "meta": {"msg": "查看角色信息成功", "status": 200}
-        }
-        return JsonResponse(res)
+        return DataResponse(
+            data=data.data,
+            msg='查看角色信息成功！',
+            code='00000'
+        )
 
     def put(self, request, permissionId):
         """
@@ -374,25 +310,21 @@ class PermissionView(APIView):
         try:
             query = Permission.objects.get(id=permissionId)
         except Permission.DoesNotExist:
-            res = {
-                "data": "null",
-                "meta": {"msg": "修改权限信息失败,PermissionId:{0},原因:不存在".format(permissionId), "status": 500}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                msg='修改权限失败,权限Id:{0}！'.format(permissionId),
+                code='00001'
+            )
         data = PermissionSerializer(instance=query, data=request.data)
         if not data.is_valid():
-            res = {
-                "data": "null",
-                "meta": {"msg": "传入参数错误:{0}".format(format_error(data=data.errors)), "status": 500}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                msg='修改权限失败，{0}！'.format(format_error(data=data.errors)),
+                code='00001'
+            )
         else:
             data.save()
-            res = {
-                "data": data.data,
-                "meta": {"msg": "修改角色信息成功", "status": 200}
-            }
-        return JsonResponse(res)
+            return DataResponse(
+                data=data.data, msg='修改权限成功！', code='00000'
+            )
 
     def delete(self, request, permissionId):
         """
@@ -404,25 +336,21 @@ class PermissionView(APIView):
         :return: 删除角色
         """
         if not Permission.objects.filter(id=permissionId).exists():
-            res = {
-                "data": "null",
-                "meta": {"msg": "权限信息不存在", "status": 500}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                msg='权限信息不存在！',
+                code='00001'
+            )
         try:
             Permission.objects.get(id=permissionId).delete()
-            res = {
-                "data": request.data,
-                "meta": {"msg": "删除权限成功！", "status": 200}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                msg='删除权限成功！',
+                code='00000'
+            )
         except Exception as error:
-            res = {
-                "data": "null",
-                "meta": {"msg": "删除权限失败:{0}".format(error), "status": 500}
-            }
-            print(res)
-            return JsonResponse(res)
+            return DataResponse(
+                msg="删除权限失败:{0}".format(error),
+                code='00001'
+            )
 
 
 class UsersView(APIView):
@@ -435,20 +363,13 @@ class UsersView(APIView):
         {}
         :return: 查看用户列表
         """
-        try:
-            query = UserInfo.objects.all()
-            data = UserInfoSerializer(instance=query, many=True)
-            res = {
-                "data": data.data,
-                "meta": {"msg": "获取角色成功", "status": 200}
-            }
-            return DataResponse(data=data.data, msg="获取用户列表成功", code='00000')
-        except Exception as error:
-            res = {
-                "data": "null",
-                "meta": {"msg": "内部错误:{0}".format(error), "status": 500}
-            }
-            return JsonResponse(res)
+        query = UserInfo.objects.all()
+        data = UserInfoSerializer(instance=query, many=True)
+        return DataResponse(
+            data=data.data,
+            msg="获取用户列表成功",
+            code='00000'
+        )
 
     def post(self, request):
         """
@@ -467,21 +388,21 @@ class UsersView(APIView):
         """
         data = UserInfoSerializer(data=request.data)
         if not data.is_valid():
-            res = {
-                "data": "null",
-                "meta": {"msg": "传入参数错误:{0}".format(format_error(data=data.errors)), "status": 500}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                data=data.data,
+                code='00001',
+                msg="获取用户列表失败：{0}".format(format_error(data=data.errors))
+            )
         else:
             data.save()
             user_data = UserInfo.objects.get(username=data.validated_data['username'])
             user_data.set_password("123456")
             user_data.save()
-            res = {
-                "data": data.data,
-                "meta": {"msg": "角色数据保存成功", "status": 200}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                data=data.data,
+                code='00000',
+                msg="角色数据保存成功！"
+            )
 
 
 class UserView(APIView):
@@ -497,18 +418,17 @@ class UserView(APIView):
         """
         try:
             query = UserInfo.objects.get(id=userId)
-        except Exception as error:
-            res = {
-                "data": "null",
-                "meta": {"msg": "获取到用户信息失败,UserId:{0},原因:{1}".format(userId, error), "status": 500}
-            }
-            return JsonResponse(res)
+        except UserInfo.DoesNotExist:
+            return DataResponse(
+                msg="获取到用户信息失败,用户id:{0}!".format(userId),
+                code='00001'
+            )
         data = UserInfoSerializer(instance=query)
-        res = {
-            "data": data.data,
-            "meta": {"msg": "获取到用户信息成功", "status": 200}
-        }
-        return JsonResponse(res)
+        return DataResponse(
+            data=data.data,
+            msg="获取到用户信息成功!",
+            code='00000'
+        )
 
     def put(self, request, userId):
         """
@@ -528,26 +448,24 @@ class UserView(APIView):
         """
         try:
             query = UserInfo.objects.get(id=userId)
-        except Exception as error:
-            res = {
-                "data": "null",
-                "meta": {"msg": "修改用户信息失败,UserId:{0},原因:{1}".format(userId, error), "status": 500}
-            }
-            return JsonResponse(res)
+        except UserInfo.DoesNotExist:
+            return DataResponse(
+                msg="修改用户信息失败,用户ID:{0}!".format(userId),
+                code='00001'
+            )
         data = UserInfoSerializer(instance=query, data=request.data)
         if not data.is_valid():
-            res = {
-                "data": "null",
-                "meta": {"msg": "传入参数错误:{0}".format(format_error(data=data.errors)), "status": 500}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                msg="修改用户信息失败,用户ID:{0},原因:{1}!".format(userId, format_error(data=data.errors)),
+                code='00001'
+            )
         else:
             data.save()
-            res = {
-                "data": data.data,
-                "meta": {"msg": "修改用户信息成功", "status": 200}
-            }
-        return JsonResponse(res)
+        return DataResponse(
+            data=data.data,
+            msg="修改用户信息成功!",
+            code='00000'
+        )
 
     def delete(self, request, userId):
         """
@@ -560,17 +478,15 @@ class UserView(APIView):
         """
         try:
             UserInfo.objects.get(id=userId).delete()
-            res = {
-                "data": request.data,
-                "meta": {"msg": "删除信息成功！", "status": 200}
-            }
-            return JsonResponse(res)
-        except Exception as error:
-            res = {
-                "data": "null",
-                "meta": {"msg": "删除角色失败:{0}".format(error), "status": 500}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                msg="删除用户信息成功!",
+                code='00000'
+            )
+        except UserInfo.DoesNotExist:
+            return DataResponse(
+                msg="删除用户信息失败!",
+                code='00001'
+            )
 
 
 class ResetPassWordView(APIView):
@@ -589,25 +505,24 @@ class ResetPassWordView(APIView):
         """
         try:
             query = UserInfo.objects.get(id=userId)
-        except Exception as error:
-            res = {
-                "data": "null",
-                "meta": {"msg": "获取到用户密码失败,UserId:{0},原因:{1}".format(userId, error), "status": 500}
-            }
-            return JsonResponse(res)
+        except UserInfo.DoesNotExist:
+            return DataResponse(
+                msg="获取到用户密码失败,用户ID:{0}!".format(userId),
+                code='00001'
+            )
         data = ResetPasswordSerializer(user=query, data=request.data)
         if not data.is_valid():
-            res = {
-                "data": data.data,
-                "meta": {"msg": "修改密码失败{0}".format(format_error(data=data.errors)), "status": 500}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                data=data.data,
+                msg="修改密码失败,{0}!".format(format_error(data=data.errors)),
+                code='00001'
+            )
         else:
-            res = {
-                "data": data.data,
-                "meta": {"msg": "修改密码成功,用户ID为：{0}".format(userId), "status": 200}
-            }
-        return JsonResponse(res)
+            return DataResponse(
+                data=data.data,
+                msg="修改密码成功!",
+                code='00000'
+            )
 
 
 class UserEditRoleView(APIView):
@@ -627,26 +542,23 @@ class UserEditRoleView(APIView):
         """
         try:
             query = UserInfo.objects.get(id=userId)
-        except Exception as error:
-            res = {
-                "data": "null",
-                "meta": {"msg": "修改到用户关联角色失败,UserId:{0},原因:{1}".format(userId, error), "status": 500}
-            }
-            return JsonResponse(res)
+        except UserInfo.DoesNotExist:
+            return DataResponse(
+                msg="修改到用户关联角色失败,用户ID:{0}!",
+                code='00001'
+            )
         data = UserEditRoleSerializer(instance=query, data=request.data)
         if not data.is_valid():
-            res = {
-                "data": "null",
-                "meta": {"msg": "修改用户角色失败,{0}".format(format_error(data=data.errors)), "status": 500}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                msg="修改到用户关联角色失败,{0}!".format(format_error(data=data.errors)),
+                code='00001'
+            )
         else:
             data.save()
-            res = {
-                "data": [],
-                "meta": {"msg": "修改密码成功,用户ID为：{0}".format(userId), "status": 200}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                msg="修改到用户关联角色成功,用户ID为：{0}".format(userId),
+                code='00000'
+            )
 
     def get(self, request, userId):
         """
@@ -656,24 +568,23 @@ class UserEditRoleView(APIView):
         """
         try:
             query = UserInfo.objects.get(id=userId)
-        except Exception as error:
-            res = {
-                "data": "null",
-                "meta": {"msg": "修改到用户关联角色失败,UserId:{0},原因:{1}".format(userId, error), "status": 500}
-            }
-            return JsonResponse(res)
-        if not query.roles.exists():
-            res = {
-                "data": [],
-                "meta": {"msg": "获取角色信息成功：{0}".format(userId), "status": 200}
-            }
-            return JsonResponse(res)
+        except UserInfo.DoesNotExist:
+            return DataResponse(
+                msg="获取用户角色信息失败,用户ID为:{0}!".format(userId),
+                code='00001'
+            )
+        # if not query.roles.exists():
+        #     return DataResponse(
+        #         data=[],
+        #         msg="获取用户角色信息为空,用户ID为:{0}!".format(userId),
+        #         code='00000'
+        #     )
         data = RoleSerializer(instance=query.roles.all(), many=True)
-        res = {
-            "data": data.data,
-            "meta": {"msg": "获取用户角色信息成功，用户id：{0}".format(userId), "status": 200}
-        }
-        return JsonResponse(res)
+        return DataResponse(
+            data=data.data,
+            msg="获取用户角色信息成功,用户ID为:{0}!".format(userId),
+            code='00000'
+        )
 
 
 class UserStatusEditView(APIView):
@@ -690,27 +601,24 @@ class UserStatusEditView(APIView):
         """
         try:
             query = UserInfo.objects.get(id=userId)
-        except Exception as error:
-            res = {
-                "data": userId,
-                "meta": {"msg": "修改用户状态失败，{0}".format(error), "status": 200}
-            }
-            return JsonResponse(res)
+        except UserInfo.DoesNotExist:
+            return DataResponse(
+                msg="修改用户状态失败,用户ID不存在:{0}!".format(userId),
+                code='00001'
+            )
 
         data = UserStatusEditSerializer(instance=query, data=request.data)
         if not data.is_valid():
-            res = {
-                "data": userId,
-                "meta": {"msg": "修改用户状态失败,{0}".format(format_error(data=data.errors)), "status": 200}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                msg="修改用户状态失败,{0}!".format(format_error(data=data.errors)),
+                code='00001'
+            )
         else:
             data.save()
-            res = {
-                "data": userId,
-                "meta": {"msg": "修改用户状态成功", "status": 200}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                msg="修改用户状态成功!",
+                code='00000'
+            )
 
     def get(self, request, userId):
         """
@@ -720,17 +628,16 @@ class UserStatusEditView(APIView):
         """
         try:
             query = UserInfo.objects.get(id=userId)
-        except Exception as error:
-            res = {
-                "data": "null",
-                "meta": {"msg": "修改到用户关联角色失败,UserId:{0},原因:{1}".format(userId, error), "status": 500}
-            }
-            return JsonResponse(res)
-        res = {
-            "data": query.is_active,
-            "meta": {"msg": "获取账号状态成功，账号ID：{0}".format(userId), "status": 200}
-        }
-        return JsonResponse(res)
+        except UserInfo.DoesNotExist:
+            return DataResponse(
+                msg="获取账号状态失败,用户ID:{0}!".format(userId),
+                code='00001'
+            )
+        return DataResponse(
+            data={'is_active': query.is_active},
+            msg="获取账号状态成功,用户ID:{0}!".format(userId),
+            code='00000'
+        )
 
 
 class RolePermissionEditView(APIView):
@@ -747,26 +654,24 @@ class RolePermissionEditView(APIView):
         """
         try:
             query = Role.objects.get(id=roleId)
-        except Exception as error:
-            res = {
-                "data": roleId,
-                "meta": {"msg": "获取角色信息失败，{0}".format(error), "status": 200}
-            }
-            return JsonResponse(res)
+        except Role.DoesNotExist:
+            return DataResponse(
+                msg="获取角色权限信息失败!",
+                code='00001'
+            )
         data = RolePermissionEditSerializer(instance=query, data=request.data)
         if not data.is_valid():
-            res = {
-                "data": roleId,
-                "meta": {"msg": "修改角色相关权限失败,{0}".format(format_error(data=data.errors)), "status": 200}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                msg="修改角色权限信息失败，{0}!".format(format_error(data=data.errors)),
+                code='00001'
+            )
         else:
             data.save()
-            res = {
-                "data": data.data,
-                "meta": {"msg": "修改角色权限成功", "status": 200}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                data=data.data,
+                msg="修改角色权限成功!",
+                code='00000'
+            )
 
     def get(self, request, roleId):
         """
@@ -776,19 +681,17 @@ class RolePermissionEditView(APIView):
         """
         try:
             query = Role.objects.get(id=roleId)
-        except Exception as error:
-            res = {
-                "data": roleId,
-                "meta": {"msg": "获取角色信息失败，{0}".format(error), "status": 200}
-            }
-            return DataResponse(data={'roleId': roleId}, code='00001', msg='获取角色权限失败')
-
+        except Role.DoesNotExist:
+            return DataResponse(
+                code='00001',
+                msg="获取角色权限信息失败!"
+            )
         data = PermissionSerializer(instance=query, many=True)
-        # res = {
-        #     "data": data.data,
-        #     "meta": {"msg": "获取角色权限成功", "status": 200}
-        # }
-        return DataResponse(data=data.data, code='00000', msg='获取角色权限成功')
+        return DataResponse(
+            data=data.data,
+            code='00000',
+            msg='获取角色权限信息失败!'
+        )
 
 
 class CurrentUser(APIView):
@@ -797,11 +700,14 @@ class CurrentUser(APIView):
         token = request.META.get('HTTP_AUTHORIZATION')
         token_object = UserToken.objects.get(token=token)
         data = UserInfoSerializer(token_object.username)
-        # print(data)
         user = ObjectUserInfo()
         menu = data.data
         menu['user_permissions'] = user.get_menu(user_obj=token_object.username)
-        return DataResponse(data=menu, msg="获取当前用户信息成功！", code='00000')
+        return DataResponse(
+            data=menu,
+            msg="获取当前用户信息成功！",
+            code='00000'
+        )
 
 
 class UserMenu(APIView):
@@ -815,14 +721,13 @@ class UserMenu(APIView):
         user = ObjectUserInfo()
         user_obj = user.get_user_object(token=token)
         if not user_obj:
-            res = {
-                "data": [],
-                "meta": {"msg": "获取列表失败！", "status": 200}
-            }
-            return JsonResponse(res)
+            return DataResponse(
+                code='00001',
+                msg='Token校验失败!'
+            )
         menu = user.get_menu(user_obj=user_obj)
-        res = {
-            "data": menu,
-            "meta": {"msg": "获取列表失败！", "status": 200}
-        }
-        return JsonResponse(res)
+        return DataResponse(
+            data=menu,
+            code='00000',
+            msg='获取菜单列表成功!'
+        )

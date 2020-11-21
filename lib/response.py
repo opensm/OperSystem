@@ -4,7 +4,9 @@ from lib.code import SYSTEM_CODE_DICT
 
 
 class DataResponse(JsonResponse):
-    def __init__(self, data, **kwargs):
+    def __init__(self, data=None, **kwargs):
+        if data is None:
+            data = []
         if not isinstance(data, (list, dict)):
             raise TypeError(
                 "返回的数据必须是list,或者dict类型！"

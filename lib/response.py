@@ -33,4 +33,5 @@ class DataResponse(JsonResponse):
                     'code': kwargs['code']
                 }
             }
+        print(params)
         super(DataResponse, self).__init__(data=params, **kwargs)

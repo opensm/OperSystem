@@ -14,6 +14,10 @@ class DataResponse(JsonResponse):
                 "必须包含code状态码!"
             )
         code = kwargs.pop('code')
+        if not isinstance(code, str):
+            raise TypeError(
+                'code类型错误，必须是str类型!'
+            )
         if kwargs['code'] not in SYSTEM_CODE_DICT:
             params = {
                 'data': [],

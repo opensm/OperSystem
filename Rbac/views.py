@@ -802,11 +802,11 @@ class CurrentUser(APIView):
         menu = data.data
         # menu['roles'] = user.get_menu(user_obj=token_object.username)
         menu['user_permissions'] = user.get_menu(user_obj=token_object.username)
-        print(menu)
-        res = {
-            "data": menu,
-            "meta": {"msg": "获取当前用户信息成功！", "status": 200}
-        }
+        # print(menu)
+        # res = {
+        #     "data": menu,
+        #     "meta": {"msg": "获取当前用户信息成功！", "status": 200}
+        # }
         return DataResponse(data=menu, msg="获取当前用户信息成功！", code='00000')
 
 

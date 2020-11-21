@@ -5,9 +5,9 @@ from lib.code import SYSTEM_CODE_DICT
 
 class DataResponse(JsonResponse):
     def __init__(self, data, **kwargs):
-        if not isinstance(data, list):
+        if not isinstance(data, (list, dict)):
             raise TypeError(
-                "返回的数据必须是list类型！"
+                "返回的数据必须是list,或者dict类型！"
             )
         if 'code' not in kwargs:
             raise ValueError(

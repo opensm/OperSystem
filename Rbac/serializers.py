@@ -5,7 +5,7 @@ from django.contrib import auth
 from django.contrib.auth import password_validation
 from collections import OrderedDict, namedtuple
 from rest_framework import serializers
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 from rest_framework.response import Response
 
 from Rbac.models import Role, Permission, UserInfo
@@ -255,4 +255,33 @@ class RewritePageNumberPagination(PageNumberPagination):
             ('data', data),
             ('meta', meta),
             ('pagesize', self.page.has_other_pages())
+        ]))
+
+
+class LimitRewritePageNumberPagination(LimitOffsetPagination):
+    default_limit = 5  # 前台不传每页默认显示条数
+
+    limit_query_param = 'page'  # 前天控制每页的显示条数查询参数，一般不需要改，系统默认为 limit 变量
+    offset_query_param = 'offset'  # 前天控制从哪一条开始显示的查询参数
+    # eg:http://127.0.0.1: 8122/book/?xx=5&offset=7  表示显示第8条开始，往下显示5条记录
+    max_limit = 10  # 后台控制显示的最大条数防止前台输入数据过大
+
+    def get_paginated_response(self, data, msg=None, code="00000"):
+        """
+        :param data:
+        :param msg:
+        :param code:
+        :return:
+        """
+        if msg is None:
+            raise ValueError("msg不能为空")
+        if not isinstance(code, str):
+            raise TypeError('code 类型错误，必须是string')
+        meta = {'msg': msg, 'code': code}
+        return Response(OrderedDict([
+            ('total', self.count),
+            ('next', self.get_next_link()),
+            ('previous', self.get_previous_link()),
+            ('data', data),
+            ('meta', meta)
         ]))

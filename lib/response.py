@@ -18,7 +18,7 @@ class DataResponse(JsonResponse):
             raise TypeError(
                 'code类型错误，必须是str类型!'
             )
-        if kwargs['code'] not in SYSTEM_CODE_DICT:
+        if code not in SYSTEM_CODE_DICT:
             params = {
                 'data': [],
                 'meta': {
@@ -30,12 +30,12 @@ class DataResponse(JsonResponse):
             if 'msg' in kwargs:
                 msg = kwargs.pop('msg')
             else:
-                msg = SYSTEM_CODE_DICT[kwargs['code']]
+                msg = SYSTEM_CODE_DICT[code]
             params = {
                 'data': data,
                 'meta': {
                     'msg': msg,
-                    'code': kwargs['code']
+                    'code': code
                 }
             }
         if 'token' in kwargs:

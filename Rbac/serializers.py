@@ -266,6 +266,7 @@ class LimitRewritePageNumberPagination(LimitOffsetPagination):
     # eg:http://127.0.0.1: 8122/book/?xx=5&offset=7  表示显示第8条开始，往下显示5条记录
     max_limit = 10  # 后台控制显示的最大条数防止前台输入数据过大
 
+
     def get_paginated_response(self, data, msg=None, code="00000"):
         """
         :param data:

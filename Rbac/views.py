@@ -227,6 +227,7 @@ class PermissionsView(APIView):
         {}
         :return:
         """
+        print(request.META)
         pg = RewritePageNumberPagination()
         query = Permission.objects.all().order_by('id')
         page_roles = pg.paginate_queryset(queryset=query, request=request, view=self)

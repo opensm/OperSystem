@@ -259,7 +259,6 @@ class RewritePageNumberPagination(PageNumberPagination):
 
     def paginate_queryset(self, queryset, request, view=None):
         sort_by = request.query_params.get(self.sort_query_param, '+id').strip('+')
-        sort_by = 'testttt'
         if not hasattr(queryset, sort_by.strip('-')):
             raise ValueError(
                 '不包含字段:{0}'.format(sort_by)

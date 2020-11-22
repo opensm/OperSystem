@@ -258,12 +258,9 @@ class RewritePageNumberPagination(PageNumberPagination):
         ]))
 
     def paginate_queryset(self, queryset, request, view=None):
-        sort_by = request.query_params.get(self.sort_query_param, '+id')
-        print(sort_by)
-        print(type(queryset))
-        print(queryset)
+        sort_by = request.query_params.get(self.sort_query_param, '+id').strip('+')
         return super(RewritePageNumberPagination, self).paginate_queryset(
-            queryset=queryset.order_by('-id'),
+            queryset=queryset.order_by(sort_by),
             request=request,
             view=view
         )

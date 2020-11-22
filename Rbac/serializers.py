@@ -262,7 +262,7 @@ class RewritePageNumberPagination(PageNumberPagination):
         print(sort_by)
         print(type(queryset))
         print(queryset)
-        super(RewritePageNumberPagination, self).paginate_queryset(
+        return super(RewritePageNumberPagination, self).paginate_queryset(
             queryset=queryset.order_by(sort_by),
             request=request,
             view=view

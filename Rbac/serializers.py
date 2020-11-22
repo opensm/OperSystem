@@ -7,7 +7,6 @@ from collections import OrderedDict, namedtuple
 from rest_framework import serializers
 from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 from rest_framework.response import Response
-
 from Rbac.models import Role, Permission, UserInfo
 
 
@@ -235,6 +234,7 @@ class RewritePageNumberPagination(PageNumberPagination):
     max_page_size = 1000
     # 获取页码数的
     page_query_param = "page"
+    sort_query_param = "sort"
 
     def get_paginated_response(self, data, msg=None, code="00000"):
         """
@@ -257,6 +257,15 @@ class RewritePageNumberPagination(PageNumberPagination):
             ('pagesize', self.page.has_other_pages())
         ]))
 
+    def paginate_queryset(self, queryset, request, view=None):
+        sort_by = request.query_params.get(self.sort_query_param, '+id')
+        print(sort_by)
+        super(RewritePageNumberPagination, self).paginate_queryset(
+            queryset=queryset,
+            request=request,
+            view=view
+        )
+
 
 class LimitRewritePageNumberPagination(LimitOffsetPagination):
     default_limit = 5  # 前台不传每页默认显示条数
@@ -265,7 +274,6 @@ class LimitRewritePageNumberPagination(LimitOffsetPagination):
     offset_query_param = 'offset'  # 前天控制从哪一条开始显示的查询参数
     # eg:http://127.0.0.1: 8122/book/?xx=5&offset=7  表示显示第8条开始，往下显示5条记录
     max_limit = 10  # 后台控制显示的最大条数防止前台输入数据过大
-
 
     def get_paginated_response(self, data, msg=None, code="00000"):
         """

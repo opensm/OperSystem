@@ -229,7 +229,7 @@ class PermissionsView(APIView):
         """
         print(request.META)
         pg = RewritePageNumberPagination()
-        query = Permission.objects.all().order_by('id')
+        query = Permission.objects.all()
         page_roles = pg.paginate_queryset(queryset=query, request=request, view=self)
         data = PermissionSerializer(instance=page_roles, many=True)
         return pg.get_paginated_response(data=data.data, msg="获取权限列表成功", code='00000')

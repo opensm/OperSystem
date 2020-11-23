@@ -276,6 +276,7 @@ class RewritePageNumberPagination(PageNumberPagination):
                 else:
                     params[key] = value
         # if len(params) > 0:
+        print(params)
         queryset = queryset.filter(**params)
         sort_by = request.query_params.get(self.sort_query_param, '+id').strip('+')
         if not hasattr(queryset, sort_by.strip('-')) and sort_by.strip('-') != 'id':

@@ -260,7 +260,6 @@ class RewritePageNumberPagination(PageNumberPagination):
 
     def paginate_queryset(self, queryset, request, view=None):
         """
-
         :param queryset:
         :param request:
         :param view:
@@ -276,9 +275,8 @@ class RewritePageNumberPagination(PageNumberPagination):
                     params["{0}__contains".format(key)] = value
                 else:
                     params[key] = value
-        print(params)
-        if len(params) > 0:
-            queryset = queryset.filter(**params)
+        # if len(params) > 0:
+        queryset = queryset.filter(**params)
         sort_by = request.query_params.get(self.sort_query_param, '+id').strip('+')
         if not hasattr(queryset, sort_by.strip('-')) and sort_by.strip('-') != 'id':
             raise ValueError(

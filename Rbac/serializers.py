@@ -8,6 +8,7 @@ from rest_framework import serializers
 from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 from rest_framework.response import Response
 from Rbac.models import Role, Permission, UserInfo
+from copy import deepcopy
 
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -260,8 +261,9 @@ class RewritePageNumberPagination(PageNumberPagination):
     def paginate_queryset(self, queryset, request, view=None):
         print(queryset[0])
         print(request.query_params)
+        models_queryset = deepcopy(queryset[0])
         for key, value in request.query_params.items():
-            if hasattr(queryset[0], key):
+            if hasattr(models_queryset, key):
                 queryset = queryset.filter(**{"{0}__contains".format(key): value})
                 print(key, value)
         sort_by = request.query_params.get(self.sort_query_param, '+id').strip('+')

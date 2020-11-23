@@ -260,6 +260,10 @@ class RewritePageNumberPagination(PageNumberPagination):
     def paginate_queryset(self, queryset, request, view=None):
         print(queryset[0])
         print(request.query_params)
+        for key, value in request.query_params.items():
+            if hasattr(queryset[0], key):
+                queryset = queryset.filter(key=value)
+                print(key, value)
         sort_by = request.query_params.get(self.sort_query_param, '+id').strip('+')
         if not hasattr(queryset, sort_by.strip('-')) and sort_by.strip('-') != 'id':
             raise ValueError(

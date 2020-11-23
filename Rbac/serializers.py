@@ -269,10 +269,11 @@ class RewritePageNumberPagination(PageNumberPagination):
                 if field.name != key:
                     continue
                 if type(field).__name__ in ['CharField', 'Textfield']:
-                    params.update({"{0}__contains".format(key): value})
+                    # params.update({"{0}__contains".format(key): value})
+                    params.setdefault("{0}__contains".format(key), value)
                     # queryset = queryset.filter(**{"{0}__contains".format(key): value})
                 else:
-                    params.update({key: value})
+                    params.setdefault(key, value)
                     # queryset = queryset.filter(**{key: value})
         print(params)
         sort_by = request.query_params.get(self.sort_query_param, '+id').strip('+')

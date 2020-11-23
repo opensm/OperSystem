@@ -259,10 +259,14 @@ class RewritePageNumberPagination(PageNumberPagination):
         ]))
 
     def paginate_queryset(self, queryset, request, view=None):
-        print(queryset[0])
-        print(request.query_params)
+        """
+
+        :param queryset:
+        :param request:
+        :param view:
+        :return:
+        """
         models_queryset = deepcopy(queryset[0])
-        print(models_queryset._meta.fields)
         params = dict()
         for field in models_queryset._meta.fields:
             for key, value in request.query_params.items():

@@ -266,7 +266,7 @@ class RewritePageNumberPagination(PageNumberPagination):
         for field in models_queryset._meta.fields:
             for key, value in request.query_params.items():
                 if field.name != key:
-                    print(type(field))
+                    print(type(field).__name__)
                     continue
                 queryset = queryset.filter(**{"{0}__contains".format(key): value})
                 print(key, value)

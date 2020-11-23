@@ -262,6 +262,7 @@ class RewritePageNumberPagination(PageNumberPagination):
         print(queryset[0])
         print(request.query_params)
         models_queryset = deepcopy(queryset[0])
+        print(models_queryset._meta.fields)
         for key, value in request.query_params.items():
             if hasattr(models_queryset, key):
                 queryset = queryset.filter(**{"{0}__contains".format(key): value})

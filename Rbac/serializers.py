@@ -11,13 +11,6 @@ from Rbac.models import Role, Permission, UserInfo
 from copy import deepcopy
 
 
-class RoleSerializer(serializers.ModelSerializer):
-    class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
-        model = Role  # 指定需要序列化的模型表
-        # fields = ("__all__")
-        exclude = ('permissions',)
-
-
 class RecursiveField(serializers.Serializer):
     def to_representation(self, value):
         serializer = self.parent.parent.__class__(value, context=self.context)
@@ -80,6 +73,15 @@ class PermissionSerializer(serializers.ModelSerializer):
         fields = ['children', 'name', 'model', 'path', 'icon', 'level', 'component', 'id']
         # exclude = ('create_date',)
         read_only_fields = ['id']
+
+
+class RoleSerializer(serializers.ModelSerializer):
+    permissions = PermissionSerializer()
+
+    class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
+        model = Role  # 指定需要序列化的模型表
+        # fields = ("__all__")
+        exclude = ('permissions',)
 
 
 class UserInfoSerializer(serializers.ModelSerializer):

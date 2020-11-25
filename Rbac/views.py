@@ -138,6 +138,7 @@ class RolesView(APIView):
         print(request.data)
         data = RoleSerializer(data=request.data)
         if not data.is_valid():
+            print(data.errors)
             return DataResponse(
                 msg="添加角色参数异常:{0}".format(format_error(data=data.errors)),
                 code='00001'
@@ -575,12 +576,6 @@ class UserEditRoleView(APIView):
                 msg="获取用户角色信息失败,用户ID为:{0}!".format(userId),
                 code='00001'
             )
-        # if not query.roles.exists():
-        #     return DataResponse(
-        #         data=[],
-        #         msg="获取用户角色信息为空,用户ID为:{0}!".format(userId),
-        #         code='00000'
-        #     )
         data = RoleSerializer(instance=query.roles.all(), many=True)
         return DataResponse(
             data=data.data,

@@ -76,7 +76,7 @@ class PermissionSerializer(serializers.ModelSerializer):
 
 
 class RoleSerializer(serializers.ModelSerializer):
-    permissions = PermissionSerializer()
+    permissions = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Role  # 指定需要序列化的模型表

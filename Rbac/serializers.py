@@ -83,6 +83,8 @@ class RoleSerializer(serializers.ModelSerializer):
         fields = ("__all__")
         # exclude = ('permissions',)
 
+    def save(self, **kwargs):
+        print(**kwargs)
 
 class UserInfoSerializer(serializers.ModelSerializer):
     # permissions = serializers.PrimaryKeyRelatedField(

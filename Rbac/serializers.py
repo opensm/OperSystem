@@ -91,6 +91,7 @@ class RoleSerializer(serializers.ModelSerializer):
                 Permission.objects.get(id=permission['id'])
             )
         r.save()
+        return r
 
 
 class UserInfoSerializer(serializers.ModelSerializer):

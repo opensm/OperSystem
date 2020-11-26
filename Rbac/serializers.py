@@ -84,6 +84,7 @@ class RoleSerializer(serializers.ModelSerializer):
         # exclude = ('permissions',)
 
     def save(self, **kwargs):
+        print(kwargs)
         r = super(RoleSerializer, self).save(**kwargs)
         permissions = kwargs.pop('permissions')
         for permission in permissions:

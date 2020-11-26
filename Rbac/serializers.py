@@ -83,6 +83,9 @@ class RoleSerializer(serializers.ModelSerializer):
         fields = ("__all__")
         # exclude = ('permissions',)
 
+    def create(self, validated_data):
+        print(validated_data)
+
     def save(self, **kwargs):
         print(kwargs)
         r = super(RoleSerializer, self).save(**kwargs)

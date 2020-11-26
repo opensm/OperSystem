@@ -135,6 +135,7 @@ class RolesView(APIView):
         }
         :return:
         """
+        print(request.data)
         data = RoleSerializer(data=request.data)
         if not data.is_valid():
             print(data.errors)

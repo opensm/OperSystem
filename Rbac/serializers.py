@@ -83,20 +83,6 @@ class RoleSerializer(serializers.ModelSerializer):
         fields = ("__all__")
         # exclude = ('permissions',)
 
-    def create(self, validated_data):
-        print(validated_data)
-
-    def save(self, **kwargs):
-        print(kwargs)
-        r = super(RoleSerializer, self).save(**kwargs)
-        permissions = kwargs.pop('permissions')
-        for permission in permissions:
-            r.permissions.add(
-                Permission.objects.get(id=permission['id'])
-            )
-        r.save()
-        return r
-
 
 class UserInfoSerializer(serializers.ModelSerializer):
     # permissions = serializers.PrimaryKeyRelatedField(

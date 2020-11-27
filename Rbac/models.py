@@ -32,7 +32,7 @@ class Permission(models.Model):
         verbose_name="图标", null=True, blank=True, default="", max_length=2000
     )
     index = models.IntegerField(
-        verbose_name='菜单序列', max_length=255, null=False, blank=False, default=0, unique=True
+        verbose_name='菜单序列', null=False, blank=False, default=0, unique=True
     )
     hidden = models.BooleanField(verbose_name="是否显示", default=False)
     level = models.IntegerField(verbose_name="菜单级别", default=0, choices=menu_choice)

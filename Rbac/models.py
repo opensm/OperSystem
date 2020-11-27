@@ -31,9 +31,10 @@ class Permission(models.Model):
     icon = models.CharField(
         verbose_name="图标", null=True, blank=True, default="", max_length=2000
     )
-    component = models.CharField(
-        verbose_name='路径映射', max_length=255, null=False, blank=False, default="/", unique=True
+    index = models.IntegerField(
+        verbose_name='菜单序列', max_length=255, null=False, blank=False, default=0, unique=True
     )
+    hidden = models.BooleanField(verbose_name="是否显示", default=False)
     level = models.IntegerField(verbose_name="菜单级别", default=0, choices=menu_choice)
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
@@ -72,7 +73,6 @@ class ResourcePermission:
 
 class Role(models.Model):
     name = models.CharField(verbose_name='角色', max_length=32, blank=False, null=False, default="默认角色")
-    code = models.CharField(verbose_name='编码', max_length=32, blank=False, null=False, default="master")
     desc = models.TextField(verbose_name="角色描述", blank=True)
     permissions = models.ManyToManyField(
         Permission,

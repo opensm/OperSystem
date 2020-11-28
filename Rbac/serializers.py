@@ -13,6 +13,7 @@ from copy import deepcopy
 
 class RecursiveField(serializers.Serializer):
     def to_representation(self, value):
+        print(value)
         serializer = self.parent.parent.__class__(value, context=self.context)
         return serializer.data
 
@@ -33,7 +34,6 @@ class SubPermissionSerializer(serializers.ModelSerializer):
 class PermissionSerializer(serializers.ModelSerializer):
     children = RecursiveField(many=True, read_only=True, allow_null=True)
     parent = SubPermissionSerializer()
-
 
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Permission  # 指定需要序列化的模型表

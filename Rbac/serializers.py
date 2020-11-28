@@ -34,38 +34,32 @@ class SubPermissionSerializer(serializers.ModelSerializer):
 
 class PermissionSerializer(serializers.ModelSerializer):
     children = RecursiveField(many=True, read_only=True, allow_null=True)
+    parent = serializers.PrimaryKeyRelatedField(
+        many=True, required=True, queryset=Permission.objects.all(),
+    )
 
-    def validate(self, attrs):
-        """
-        :param attrs:
-        :return:
-        """
-        path_length = len(attrs['path'].split(os.sep))
-        # /api/v1/auth/login button post
-        if (attrs['path'].startswith(os.sep) and path_length > 1) and attrs['is_menu']:
-            raise serializers.ValidationError("当权限为完整的列表时，权限不能为menu,或者当权限为menu时，权限不能为完整列表")
-        # if attrs['permission_type'] in ('url', 'button') and not attrs['path']:
-        #     raise serializers.ValidationError("当权限类型为:url或者button,权限的地址必须存在")
-        # if attrs['path'].startswith(os.sep) and path_length < 2:
-        #     raise serializers.ValidationError("输入权限格式错误！")
-        # if path_length > 1 and attrs['parent'] is not None:
-        #     raise serializers.ValidationError("当权限为完整路径，则父权限应该为空")
-        # if path_length > 1 and attrs['permission_type'] != "other":
-        #     raise serializers.ValidationError("获取到权限为完整路径，权限等级应该为:999！")
-        # if path_length < 2 and attrs['permission_type'] == "other":
-        #     raise serializers.ValidationError("输入的权限等级，与权限不一致！")
-        # if attrs['permission_type'] != "other" and attrs['path'] is None:
-        #     raise serializers.ValidationError("权限等级不为：999，请输入权限")
-        return attrs
-
-    def validate_permission_type(self, attrs):
-        """
-        :param attrs:
-        :return:
-        """
-        if attrs not in ("button", "menu", "url"):
-            raise serializers.ValidationError("传入的权限类型错误，权限类型必须为:button,menu,url")
-        return attrs
+    # def validate(self, attrs):
+    #     """
+    #     :param attrs:
+    #     :return:
+    #     """
+    #     path_length = len(attrs['path'].split(os.sep))
+    #     # /api/v1/auth/login button post
+    #     if (attrs['path'].startswith(os.sep) and path_length > 1) and attrs['is_menu']:
+    #         raise serializers.ValidationError("当权限为完整的列表时，权限不能为menu,或者当权限为menu时，权限不能为完整列表")
+    #     # if attrs['permission_type'] in ('url', 'button') and not attrs['path']:
+    #     #     raise serializers.ValidationError("当权限类型为:url或者button,权限的地址必须存在")
+    #     # if attrs['path'].startswith(os.sep) and path_length < 2:
+    #     #     raise serializers.ValidationError("输入权限格式错误！")
+    #     # if path_length > 1 and attrs['parent'] is not None:
+    #     #     raise serializers.ValidationError("当权限为完整路径，则父权限应该为空")
+    #     # if path_length > 1 and attrs['permission_type'] != "other":
+    #     #     raise serializers.ValidationError("获取到权限为完整路径，权限等级应该为:999！")
+    #     # if path_length < 2 and attrs['permission_type'] == "other":
+    #     #     raise serializers.ValidationError("输入的权限等级，与权限不一致！")
+    #     # if attrs['permission_type'] != "other" and attrs['path'] is None:
+    #     #     raise serializers.ValidationError("权限等级不为：999，请输入权限")
+    #     return attrs
 
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Permission  # 指定需要序列化的模型表

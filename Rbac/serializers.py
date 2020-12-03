@@ -1,9 +1,7 @@
-import os
 import datetime
-
 from django.contrib import auth
 from django.contrib.auth import password_validation
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict
 from rest_framework import serializers
 from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 from rest_framework.response import Response
@@ -22,13 +20,6 @@ class SubPermissionSerializer(serializers.ModelSerializer):
         model = Permission  # 指定需要序列化的模型表
         fields = ('name', 'id')
 
-    # def get_fields(self):
-    #     fields = super(SubPermissionSerializer, self).get_fields()
-    #     print(fields)
-    #     fields['children'] = SubPermissionSerializer(many=True)
-    #     # print(fields['children'])
-    #     return fields
-
 
 class PermissionSerializer(serializers.ModelSerializer):
     children = RecursiveField(many=True, read_only=True, allow_null=True)
@@ -37,8 +28,6 @@ class PermissionSerializer(serializers.ModelSerializer):
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Permission  # 指定需要序列化的模型表
         fields = ("__all__")
-        # fields = ['children', 'name', 'model', 'path', 'icon', 'level', 'id', 'hidden', 'index']
-        # exclude = ('create_date',)
         read_only_fields = ['id']
 
 
@@ -48,21 +37,12 @@ class RoleSerializer(serializers.ModelSerializer):
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Role  # 指定需要序列化的模型表
         fields = ("__all__")
-        # exclude = ('permissions',)
-
-    # def create(self, validated_data):
-    #     print(validated_data)
 
 
 class UserInfoSerializer(serializers.ModelSerializer):
-    # permissions = serializers.PrimaryKeyRelatedField(
-    #     many=True, required=True, queryset=Permission.objects.all(),
-    # )
-
     class Meta:
         model = UserInfo
         exclude = ('password',)
-        # fields = '__all__'
 
 
 class SignInSerializer(serializers.Serializer):

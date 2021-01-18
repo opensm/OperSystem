@@ -30,6 +30,12 @@ class PermissionSerializer(serializers.ModelSerializer):
         fields = ("__all__")
         read_only_fields = ['id']
 
+    def update(self, instance, validated_data):
+        print(validated_data)
+        parent = validated_data.pop('parent')
+        instance.parent = parent
+        return instance
+
 
 class RoleSerializer(serializers.ModelSerializer):
     permissions = serializers.PrimaryKeyRelatedField(many=True, read_only=True)

@@ -43,11 +43,14 @@ class PermissionSerializer(serializers.ModelSerializer):
         # except Permission.DoesNotExist:
         #     serializers.ValidationError("{0} 父菜单不存在！".format(attrs['name']))
         return attrs
-    # def update(self, instance, validated_data):
-    #     print(validated_data)
-    #     parent = validated_data.pop('parent')
-    #     instance.parent = parent
-    #     return instance
+
+    def update(self, instance, validated_data):
+        print("-------------------------------")
+        print(validated_data)
+        print("-------------------------------")
+        # parent = validated_data.pop('parent')
+        # instance.parent = parent
+        return instance
 
 
 class RoleSerializer(serializers.ModelSerializer):

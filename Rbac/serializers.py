@@ -32,13 +32,15 @@ class PermissionSerializer(serializers.ModelSerializer):
 
     def validate_parent(self, attrs):
         """
-        :param attrs:
         :return:
         """
-        try:
-            Permission.objects.get(id=attrs['id'], name=attrs['name'])
-        except Permission.DoesNotExist:
-            serializers.ValidationError("{0} 父菜单不存在！".format(attrs['name']))
+        print("++++++++++++++++++++++++++++++++")
+        print(attrs)
+        print("++++++++++++++++++++++++++++++++")
+        # try:
+        #     Permission.objects.get(id=attrs['id'], name=attrs['name'])
+        # except Permission.DoesNotExist:
+        #     serializers.ValidationError("{0} 父菜单不存在！".format(attrs['name']))
         return attrs
     # def update(self, instance, validated_data):
     #     print(validated_data)

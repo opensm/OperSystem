@@ -30,7 +30,7 @@ class PermissionSerializer(serializers.ModelSerializer):
         fields = ("__all__")
         read_only_fields = ['id']
 
-    def validate_parent(self, attrs):
+    def validate(self, attrs):
         """
         :return:
         """

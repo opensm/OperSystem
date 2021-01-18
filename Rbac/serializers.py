@@ -30,10 +30,11 @@ class PermissionSerializer(serializers.ModelSerializer):
         fields = ("__all__")
         read_only_fields = ['id']
 
-    def validate(self, attrs):
+    def validate_parent(self, attrs):
         """
         :return:
         """
+        serializers.ValidationError("DDDDDD")
         print("++++++++++++++++++++++++++++++++")
         print(attrs)
         print("++++++++++++++++++++++++++++++++")

@@ -29,7 +29,6 @@ class PermissionSerializer(serializers.ModelSerializer):
         """
         :return:
         """
-        serializers.ValidationError("DDDDDD")
         print("++++++++++++++++++++++++++++++++")
         print(attrs)
         print("++++++++++++++++++++++++++++++++")

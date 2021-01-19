@@ -318,7 +318,7 @@ class PermissionView(APIView):
                 code='00001'
             )
         data = PermissionSerializer(instance=query, data=request.data)
-        if not data.is_valid():
+        if not data.is_valid(raise_exception=True):
             print("1111111111111111111111111111111111")
             print(data.errors)
             print("1111111111111111111111111111111111")

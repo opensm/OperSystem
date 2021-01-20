@@ -29,9 +29,6 @@ class PermissionSerializer(serializers.ModelSerializer):
         """
         :return:
         """
-        print("++++++++++++++++++++++++++++++++")
-        print(attrs)
-        print("++++++++++++++++++++++++++++++++")
         try:
             Permission.objects.get(id=attrs['id'], name=attrs['name'])
         except Permission.DoesNotExist:
@@ -44,11 +41,7 @@ class PermissionSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'parent']
 
     def update(self, instance, validated_data):
-        print("-------------------------------")
         print(validated_data)
-        print("-------------------------------")
-        # parent = validated_data.pop('parent')
-        # instance.parent = parent
         return instance
 
 

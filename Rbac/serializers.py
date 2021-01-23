@@ -29,6 +29,9 @@ class PermissionSerializer(serializers.ModelSerializer):
         """
         :return:
         """
+        print("ddddddddddddddddddd")
+        print(attrs)
+        print("ddddddddddddddddddd")
         try:
             Permission.objects.get(id=attrs['id'], name=attrs['name'])
         except Permission.DoesNotExist:

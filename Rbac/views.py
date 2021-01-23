@@ -323,7 +323,7 @@ class PermissionView(APIView):
             )
         data = PermissionSerializer(instance=query, data=request.data)
         if not data.is_valid():
-
+            print(data.errors)
             return DataResponse(
                 msg='修改权限失败，{0}！'.format(format_error(data=data.errors)),
                 code='00001'

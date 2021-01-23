@@ -23,7 +23,7 @@ class SubPermissionSerializer(serializers.ModelSerializer):
 
 class PermissionSerializer(serializers.ModelSerializer):
     children = RecursiveField(many=True, read_only=True, allow_null=True)
-    parent = serializers.PrimaryKeyRelatedField(allow_null=True)
+    parent = serializers.PrimaryKeyRelatedField()
 
     def validate_parent(self, attrs):
         """

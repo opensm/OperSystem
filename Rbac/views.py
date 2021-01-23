@@ -372,6 +372,7 @@ class UsersView(APIView):
         query = UserInfo.objects.all()
         page_users = pg.paginate_queryset(queryset=query, request=request, view=self)
         data = UserInfoSerializer(instance=page_users, many=True)
+        print(data)
         return pg.get_paginated_response(
             data=data.data,
             msg="获取权限列表成功",

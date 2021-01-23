@@ -21,7 +21,7 @@ class DataResponse(JsonResponse):
             )
         if code not in SYSTEM_CODE_DICT:
             params = {
-                'data': [],
+                'data': data,
                 'meta': {
                     'msg': SYSTEM_CODE_DICT['50001'],
                     'code': 50001

@@ -11,6 +11,8 @@ class Permission(models.Model):
         (0, "一级菜单"),
         (1, "二级菜单"),
         (2, "三级菜单"),
+        (3, "四级菜单"),
+        (4, "五级菜单"),
         (999, "按钮功能")
     )
     name = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
@@ -39,7 +41,7 @@ class Permission(models.Model):
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
     class Meta:
-        unique_together = (("model", "path"),)
+        unique_together = (("model", "path"), ('parent', 'index'))
         db_table = 'sys_permissions'
 
     def __str__(self):

@@ -310,7 +310,10 @@ class PermissionView(APIView):
         }
         :return: 修改权限信息
         """
+
+        print("1111111111111111111111111111111111")
         print(request.data)
+        print("1111111111111111111111111111111111")
         try:
             query = Permission.objects.get(id=permissionId)
         except Permission.DoesNotExist:
@@ -320,9 +323,7 @@ class PermissionView(APIView):
             )
         data = PermissionSerializer(instance=query, data=request.data)
         if not data.is_valid():
-            print("1111111111111111111111111111111111")
-            print(data.errors)
-            print("1111111111111111111111111111111111")
+
             return DataResponse(
                 msg='修改权限失败，{0}！'.format(format_error(data=data.errors)),
                 code='00001'

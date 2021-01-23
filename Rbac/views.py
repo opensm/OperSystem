@@ -311,9 +311,6 @@ class PermissionView(APIView):
         :return: 修改权限信息
         """
 
-        print("1111111111111111111111111111111111")
-        print(request.data)
-        print("1111111111111111111111111111111111")
         try:
             query = Permission.objects.get(id=permissionId)
         except Permission.DoesNotExist:

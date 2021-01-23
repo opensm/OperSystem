@@ -29,13 +29,12 @@ class PermissionSerializer(serializers.ModelSerializer):
         """
         :return:
         """
-        print("ddddddddddddddddddd")
-        print(attrs)
-        print("ddddddddddddddddddd")
+        pk = getattr(attrs,'id')
+        name = getattr(attrs,'name')
         try:
-            Permission.objects.get(id=attrs['id'], name=attrs['name'])
+            Permission.objects.get(id=pk, name=name)
         except Permission.DoesNotExist:
-            serializers.ValidationError("{0} 父菜单不存在！".format(attrs['name']))
+            serializers.ValidationError("{0} 父菜单不存在！".format(name))
         return attrs
 
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别

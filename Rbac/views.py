@@ -368,14 +368,11 @@ class UsersView(APIView):
         {}
         :return: 查看用户列表
         """
-        pg = RewritePageNumberPagination()
         query = UserInfo.objects.all()
-        page_users = pg.paginate_queryset(queryset=query, request=request, view=self)
-        data = UserInfoSerializer(instance=page_users, many=True)
-        print(data)
-        return pg.get_paginated_response(
+        data = UserInfoSerializer(instance=query, many=True)
+        return DataResponse(
             data=data.data,
-            msg="获取权限列表成功",
+            msg="获取用户列表成功",
             code='00000'
         )
 

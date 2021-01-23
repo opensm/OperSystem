@@ -43,7 +43,7 @@ class PermissionSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'parent']
 
     def update(self, instance, validated_data):
-        print(validated_data)
+        instance.parent = validated_data['parent']
         return instance
 
 

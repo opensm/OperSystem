@@ -23,12 +23,13 @@ class SubPermissionSerializer(serializers.ModelSerializer):
 
 class PermissionSerializer(serializers.ModelSerializer):
     children = RecursiveField(many=True, read_only=True, allow_null=True)
-    parent = serializers.PrimaryKeyRelatedField(queryset=Permission.objects.all(),allow_null=True)
+    parent = serializers.PrimaryKeyRelatedField(queryset=Permission.objects.all(), allow_null=True)
 
     def validate_parent(self, attrs):
         """
         :return:
         """
+        print(attrs)
         pk = getattr(attrs, 'id')
         name = getattr(attrs, 'name')
         try:

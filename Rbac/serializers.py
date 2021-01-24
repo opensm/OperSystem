@@ -29,7 +29,8 @@ class PermissionSerializer(serializers.ModelSerializer):
         """
         :return:
         """
-        print(attrs)
+        if attrs is None:
+            return attrs
         pk = getattr(attrs, 'id')
         name = getattr(attrs, 'name')
         try:

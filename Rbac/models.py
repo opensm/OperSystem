@@ -50,8 +50,11 @@ class Permission(models.Model):
 
 class DataPermission:
     model_name = models.ForeignKey(
-        to='Permission', to_field='model_name', on_delete=models.PROTECT,
+        to='Permission', on_delete=models.PROTECT,
     )
+
+    class Meta:
+        db_table = 'sys_data_permission'
 
 
 class ResourcePermission:
@@ -71,6 +74,9 @@ class ResourcePermission:
     )
     permission_code = models.CharField(verbose_name="权限编码", null=False, default='')
     permission_param = models.CharField(verbose_name="权限参数", null=True, default='')
+
+    class Meta:
+        db_table = 'sys_resource_permission'
 
 
 class Role(models.Model):

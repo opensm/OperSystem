@@ -28,21 +28,22 @@ class MiddlewareMixin(object):
         return response
 
 
+def check_token(request):
+    if 'HTTP_AUTHORIZATION' not in request.META:
+        return 'TOKEN_NOT_EXIST'
+    token = request.META.get('HTTP_AUTHORIZATION')
+    try:
+        token_object = UserToken.objects.get(token=token)
+    except UserToken.DoesNotExist:
+        return 'TOKEN_ERROR_AUTH'
+
+    if token_object.expiration_time < datetime.datetime.now():
+        return 'TOKEN_EXPIRATION'
+    else:
+        return 'TOKEN_SUCCESS_AUTH'
+
+
 class RbacMiddleware(MiddlewareMixin):
-
-    def check_token(self, request):
-        if 'HTTP_AUTHORIZATION' not in request.META:
-            return 'TOKEN_NOT_EXIST'
-        token = request.META.get('HTTP_AUTHORIZATION')
-        try:
-            token_object = UserToken.objects.get(token=token)
-        except UserToken.DoesNotExist:
-            return 'TOKEN_ERROR_AUTH'
-
-        if token_object.expiration_time < datetime.datetime.now():
-            return 'TOKEN_EXPIRATION'
-        else:
-            return 'TOKEN_SUCCESS_AUTH'
 
     def process_request(self, request):
         """
@@ -53,7 +54,7 @@ class RbacMiddleware(MiddlewareMixin):
         resolve_url_obj = resolve(request.path_info)
         if resolve_url_obj.url_name in ['login']:
             return None
-        token_status = self.check_token(request=request)
+        token_status = check_token(request=request)
         if token_status != 'TOKEN_SUCCESS_AUTH':
             return DataResponse(msg=RESPONSE_STATUS[token_status], code='00001')
         # if token_object.username.is_superuser:

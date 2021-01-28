@@ -51,10 +51,12 @@ class Permission(models.Model):
 
 
 class DataPermission(models.Model):
-    content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING)
+    # content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING)
+    tag = models.CharField(max_length=200, default="", unique=True, null=False)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
-    model_name = models.ForeignKey(to='Permission', on_delete=models.PROTECT)
+
+    # model_name = models.ForeignKey(to='Permission', on_delete=models.PROTECT)
 
     class Meta:
         db_table = 'sys_data_permission'

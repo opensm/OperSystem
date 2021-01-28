@@ -50,7 +50,7 @@ class Permission(models.Model):
         return self.name
 
 
-class DataPermission:
+class DataPermission(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING)
     content_object = GenericForeignKey('content_type', 'object_id')
     model_name = models.ForeignKey(
@@ -61,7 +61,7 @@ class DataPermission:
         db_table = 'sys_data_permission'
 
 
-class ResourcePermission:
+class ResourcePermission(models.Model):
     request = (
         ("POST", "添加"),
         ("GET", "查询"),

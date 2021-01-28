@@ -4,6 +4,8 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import UserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 
 
 class Permission(models.Model):
@@ -49,6 +51,8 @@ class Permission(models.Model):
 
 
 class DataPermission:
+    content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING)
+    content_object = GenericForeignKey('content_type', 'object_id')
     model_name = models.ForeignKey(
         to='Permission', on_delete=models.PROTECT,
     )

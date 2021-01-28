@@ -76,8 +76,8 @@ class ResourcePermission(models.Model):
         choices=request,
         null=True
     )
-    permission_code = models.CharField(verbose_name="权限编码", null=False, default='')
-    permission_param = models.CharField(verbose_name="权限参数", null=True, default='')
+    permission_code = models.CharField(verbose_name="权限编码", null=False, default='', max_length=50)
+    permission_param = models.CharField(verbose_name="权限参数", null=True, default='', max_length=200)
 
     class Meta:
         db_table = 'sys_resource_permission'

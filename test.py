@@ -51,4 +51,38 @@ def format_file(old_file, new_file, add_string="="):
             Pfaff.write(str_data)
 
 
-format_file(old_file='111.txt', new_file='222.txt')
+def add_achieve(added_achieve, add_file, size=1024 * 1024 * 1024):
+    """
+    :param added_achieve:
+    :param add_file:
+    :param size:
+    :return:
+    """
+    if not os.path.exists(add_file):
+        raise Exception("被加入的数据文件不存在")
+    fff = open(add_file, 'r')
+    i = 1
+    while True:
+        chunk_data = fff.read(size)
+        if not chunk_data:
+            break
+        else:
+            print("写入成功{0}次：总共大小为:{0}G".format(i))
+            write_newfile(achieve=added_achieve, data=chunk_data)
+        i = i + 1
+    fff.close()
+
+
+def write_newfile(achieve, data):
+    try:
+        with open(achieve, 'a') as fff:
+            fff.writelines(data)
+        print("写入成功!")
+    except Exception as error:
+        print(error)
+        assert False
+
+
+# format_file(old_file='111.txt', new_file='222.txt')
+
+add_achieve(add_file='111.txt', added_achieve="222.txt")

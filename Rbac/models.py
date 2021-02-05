@@ -36,7 +36,9 @@ class DataPermission(models.Model):
     )
     content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING)
     request_type = models.ManyToManyField(RequestType, verbose_name="请求类型", default='all', null=False)
-    data_check_type = models.CharField(verbose_name="校验数据权限类型", max_length=10, default='pk')
+    data_check_type = models.CharField(
+        verbose_name="校验数据权限类型", max_length=10, default='pk', choices=check
+    )
     check_field = models.CharField(verbose_name="校验的字段", max_length=20, default="", null=True)
 
     class Meta:

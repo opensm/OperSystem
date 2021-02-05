@@ -79,7 +79,7 @@ class Permission(models.Model):
         verbose_name='URL', max_length=255, null=False, blank=False, default="/", unique=True
     )
     icon = models.CharField(
-        verbose_name="图标", null=True, blank=True, default="", max_length=2000
+        verbose_name="图标", null=True, blank=True, default="", max_length=50
     )
     index = models.IntegerField(
         verbose_name='菜单序列', null=False, blank=False, default=0, unique=True

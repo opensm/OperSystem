@@ -35,7 +35,7 @@ class DataPermission(models.Model):
         ("field", "字段")
     )
     content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING)
-    request_type = models.ManyToManyField(RequestType, verbose_name="请求类型", default=0, null=False)
+    request_type = models.ManyToManyField(RequestType, verbose_name="请求类型", default=0)
     data_check_type = models.CharField(
         verbose_name="校验数据权限类型", max_length=10, default='pk', choices=check_type
     )
@@ -46,7 +46,7 @@ class DataPermission(models.Model):
 
 
 class DataPermissionList(models.Model):
-    model = models.ManyToManyField(DataPermission, null=False, default="all")
+    model = models.ManyToManyField(DataPermission, default="all")
     value = models.CharField(verbose_name="权限值对应的列表", default="", max_length=20)
 
 
@@ -71,7 +71,7 @@ class Permission(models.Model):
     # model = models.CharField(
     #     verbose_name='相关资源', max_length=255, null=False, blank=False, default="login", unique=True
     # )
-    model = models.ManyToManyField(DataPermission, null=True, default="", blank=True)
+    model = models.ManyToManyField(DataPermission, default="", blank=True)
     path = models.CharField(
         verbose_name='URL', max_length=255, null=False, blank=False, default="/", unique=True
     )

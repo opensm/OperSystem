@@ -49,6 +49,9 @@ class DataPermissionList(models.Model):
     model = models.ManyToManyField(DataPermission, default="all")
     value = models.CharField(verbose_name="权限值对应的列表", default="", max_length=20)
 
+    class Meta:
+        db_table = 'sys_data_permission_list'
+
 
 class Permission(models.Model):
     menu_choice = (

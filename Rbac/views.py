@@ -768,7 +768,6 @@ class DataPermissionsView(APIView):
         }
         :return:
         """
-        print(request.data)
         data = DataPermissionSerializer(data=request.data)
         if not data.is_valid():
             return DataResponse(

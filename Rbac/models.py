@@ -104,6 +104,7 @@ class Role(models.Model):
         verbose_name='permissions',
         blank=True,
     )
+    model = models.ManyToManyField(DataPermission, default="", blank=True)
 
     class Meta:
         db_table = 'sys_roles'

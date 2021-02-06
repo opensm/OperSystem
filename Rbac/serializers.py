@@ -5,7 +5,7 @@ from collections import OrderedDict
 from rest_framework import serializers
 from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 from rest_framework.response import Response
-from Rbac.models import Role, Permission, UserInfo
+from Rbac.models import Role, Permission, UserInfo, DataPermission
 from copy import deepcopy
 
 
@@ -198,6 +198,11 @@ class RolePermissionEditSerializer(serializers.ModelSerializer):
         return instance
 
 
+class DataPermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DataPermission
+
+
 # 自定义分页类
 class RewritePageNumberPagination(PageNumberPagination):
     # 每页显示多少个
@@ -248,9 +253,6 @@ class RewritePageNumberPagination(PageNumberPagination):
                     params["{0}__contains".format(key)] = value
                 else:
                     params[key] = value
-        # if len(params) > 0:
-        print(params)
-        print(queryset)
         queryset = queryset.filter(**params)
         sort_by = request.query_params.get(self.sort_query_param, '+id').strip('+')
         if not hasattr(queryset, sort_by.strip('-')) and sort_by.strip('-') != 'id':

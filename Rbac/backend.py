@@ -1,7 +1,8 @@
 from django.apps import apps as django_apps
 from KubernetesManagerWeb.settings import AUTH_USER_MODEL
 from Rbac.serializers import PermissionSerializer
-from Rbac.models import Permission
+from Rbac.models import Permission, UserInfo, DataPermissionList
+from django.contrib.contenttypes.models import ContentType
 from rest_framework.pagination import PageNumberPagination
 import time
 import hashlib
@@ -62,3 +63,30 @@ def make_token(username):
         "{0}{1}{2}".format(username, time.time(), SECRET_KEY).encode("utf8")
     )
     return md5.hexdigest()
+
+
+class BackendPermission:
+    def __init__(self):
+        pass
+
+    def get_user_permission(self, request):
+        """
+        :param request:
+        :return:
+        """
+        token = request.META.get('HTTP_AUTHORIZATION')
+        user = UserInfo.objects.get(usertoken__token=token)
+        data_permissions = DataPermissionList.objects.filter(
+            role__in=user.roles.objects.all()
+        )
+        for per in data_permissions:
+            print(per)
+
+    # user = ContentType.objects.get(app_label=app_label, model=user_obj).model_class()
+    # user.objects.get()
+
+    def check_user_permission(self, user_obj):
+        """
+        :param user_obj:
+        :return:
+        """

@@ -28,31 +28,6 @@ class RequestType(models.Model):
         db_table = 'sys_request_type'
 
 
-class DataPermission(models.Model):
-    check_type = (
-        ("all", "全部数据"),
-        ("pk", "唯一键"),
-        ("field", "字段")
-    )
-    content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING)
-    request_type = models.ManyToManyField(RequestType, verbose_name="请求类型", default=0)
-    data_check_type = models.CharField(
-        verbose_name="校验数据权限类型", max_length=10, default='pk', choices=check_type
-    )
-    check_field = models.CharField(verbose_name="校验的字段", max_length=20, default="pk", null=True)
-
-    class Meta:
-        db_table = 'sys_data_permission'
-
-
-class DataPermissionList(models.Model):
-    model = models.ManyToManyField(DataPermission, default="all")
-    value = models.CharField(verbose_name="权限值对应的列表", default="", max_length=20)
-
-    class Meta:
-        db_table = 'sys_data_permission_list'
-
-
 class Permission(models.Model):
     menu_choice = (
         (0, "一级菜单"),
@@ -96,6 +71,22 @@ class Permission(models.Model):
         return self.name
 
 
+class DataPermission(models.Model):
+    check_type = (
+        ("all", "全部数据"),
+        ("pk", "唯一键"),
+        ("field", "字段")
+    )
+    content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING)
+    data_check_type = models.CharField(
+        verbose_name="校验数据权限类型", max_length=10, default='pk', choices=check_type
+    )
+    check_field = models.CharField(verbose_name="校验的字段", max_length=20, default="pk", null=True)
+
+    class Meta:
+        db_table = 'sys_data_permission'
+
+
 class Role(models.Model):
     name = models.CharField(verbose_name='角色', max_length=32, blank=False, null=False, default="默认角色")
     desc = models.TextField(verbose_name="角色描述", blank=True)
@@ -104,10 +95,19 @@ class Role(models.Model):
         verbose_name='permissions',
         blank=True,
     )
-    model = models.ManyToManyField(DataPermission, default="", blank=True)
 
     class Meta:
         db_table = 'sys_roles'
+
+
+class DataPermissionList(models.Model):
+    model = models.ForeignKey(DataPermission, default="all", on_delete=models.DO_NOTHING)
+    value = models.CharField(verbose_name="权限值对应的列表", default="", max_length=20)
+    request_type = models.ManyToManyField(RequestType, verbose_name="请求类型", default=0)
+    role = models.ManyToManyField(Role, default=0)
+
+    class Meta:
+        db_table = 'sys_data_permission_list'
 
 
 class UserInfo(AbstractBaseUser, PermissionsMixin):

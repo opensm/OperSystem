@@ -108,6 +108,7 @@ class DataPermissionList(models.Model):
 
     class Meta:
         db_table = 'sys_data_permission_list'
+        unique_together = (('model', 'value', 'role', 'request_type'),)
 
 
 class UserInfo(AbstractBaseUser, PermissionsMixin):

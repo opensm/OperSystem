@@ -201,6 +201,7 @@ class RolePermissionEditSerializer(serializers.ModelSerializer):
 class DataPermissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = DataPermission
+        fields = ("__all__")
 
 
 # 自定义分页类

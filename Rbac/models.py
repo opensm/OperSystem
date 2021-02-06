@@ -74,7 +74,7 @@ class Permission(models.Model):
     # model = models.CharField(
     #     verbose_name='相关资源', max_length=255, null=False, blank=False, default="login", unique=True
     # )
-    model = models.ManyToManyField(DataPermission, default="", blank=True)
+    model = models.ManyToManyField(DataPermission, default=None, blank=True)
     path = models.CharField(
         verbose_name='URL', max_length=255, null=False, blank=False, default="/", unique=True
     )

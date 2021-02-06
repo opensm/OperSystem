@@ -11,8 +11,10 @@ from Rbac.views import AuthView, \
     UserEditRoleView, \
     RolePermissionEditView, \
     UserMenu, \
-    CurrentUser,\
-    LogoutView
+    CurrentUser, \
+    LogoutView, \
+    DataPermissionsView, \
+    DataPermissionView
 
 app_name = 'rbac'
 
@@ -27,6 +29,9 @@ urlpatterns = [
     # 权限管理
     re_path('^permissions$', PermissionsView.as_view(), name='permission_list_manage'),
     path('permission/<int:permissionId>', PermissionView.as_view(), name='each_permission_manage'),
+    # 数据权限管理
+    re_path('^data_permissions$', DataPermissionsView.as_view(), name='data_permission_list_manage'),
+    path('data_permission/<int:permissionId>', DataPermissionView.as_view(), name='each_data_permission_manage'),
     # 用户管理
     re_path('^users$', UsersView.as_view(), name='users'),
     re_path('^user/(?P<userId>[0-9])$', UserView.as_view(), name='user'),

@@ -15,7 +15,8 @@ from Rbac.serializers import \
     UserEditRoleSerializer, \
     UserStatusEditSerializer, \
     RolePermissionEditSerializer, \
-    RewritePageNumberPagination
+    RewritePageNumberPagination, \
+    DataPermissionSerializer
 
 
 def format_error(data):
@@ -731,3 +732,142 @@ class UserMenu(APIView):
             code='00000',
             msg='获取菜单列表成功!'
         )
+
+
+class DataPermissionsView(APIView):
+    def get(self, request, *args, **kwargs):
+        """
+        :param request:
+        :url /api/v1/DataPermissions
+        :parameter:
+        {}
+        :return:
+        """
+        pg = RewritePageNumberPagination()
+        query = DataPermission.objects.all()
+        page_roles = pg.paginate_queryset(queryset=query, request=request, view=self)
+        data = DataPermissionSerializer(instance=page_roles, many=True)
+        return pg.get_paginated_response(
+            data=data.data,
+            msg="获取数据权限列表成功",
+            code='00000'
+        )
+
+    def post(self, request):
+        """
+        :param request:
+        :url /api/v1/DataPermission
+        :parameter:
+        {
+            "auth_name": "auth_name",
+            "parent": "parent",
+            "path": "path",
+            "css_style": "css_style",
+            "DataPermission_type": "DataPermission_type",
+            "request_type": "request_type"
+        }
+        :return:
+        """
+        print(request.data)
+        data = DataPermissionSerializer(data=request.data)
+        if not data.is_valid():
+            return DataResponse(
+                msg='数据权限添加数据异常，{0}！'.format(format_error(data=data.errors)),
+                code='00001'
+            )
+        else:
+            data.save()
+            return DataResponse(
+                data=data.data,
+                msg='数据权限数据保存成功！',
+                code='00000'
+            )
+
+
+class DataPermissionView(APIView):
+
+    def get(self, request, DataPermissionId):
+        """
+        :param request:
+        :param DataPermissionId:
+        :url /api/v1/DataPermission/<int:DataPermissionId>
+        :parameter:
+        {}
+        :return: 查看权限信息
+        """
+        try:
+            query = DataPermission.objects.get(id=DataPermissionId)
+        except DataPermission.DoesNotExist:
+            return DataResponse(
+                msg='查看数据权限信息失败,DataPermissionId:{0},原因:不存在！'.format(DataPermissionId),
+                code='00001'
+            )
+        data = DataPermissionSerializer(instance=query)
+        return DataResponse(
+            data=data.data,
+            msg='查看数据权限信息成功！',
+            code='00000'
+        )
+
+    def put(self, request, DataPermissionId):
+        """
+        :param request:
+        :param DataPermissionId:
+        :url /api/v1/DataPermission/<int:DataPermissionId>
+        :parameter:
+        {
+            "auth_name": "auth_name",
+            "parent": "parent",
+            "path": "path",
+            "css_style": "css_style",
+            "DataPermission_type": "DataPermission_type",
+            "request_type": "request_type"
+        }
+        :return: 修改权限信息
+        """
+
+        try:
+            query = DataPermission.objects.get(id=DataPermissionId)
+        except DataPermission.DoesNotExist:
+            return DataResponse(
+                msg='修改权限失败,权限Id:{0}！'.format(DataPermissionId),
+                code='00001'
+            )
+        data = DataPermissionSerializer(instance=query, data=request.data)
+        if not data.is_valid():
+            print(data.errors)
+            return DataResponse(
+                msg='修改数据权限失败，{0}！'.format(format_error(data=data.errors)),
+                code='00001'
+            )
+        else:
+            data.save()
+            return DataResponse(
+                data=data.data, msg='修改权限成功！', code='00000'
+            )
+
+    def delete(self, request, DataPermissionId):
+        """
+        :param request:
+        :param DataPermissionId:
+        :url /api/v1/DataPermission/<int:DataPermissionId>
+        :parameter:
+        {}
+        :return: 删除角色
+        """
+        if not DataPermission.objects.filter(id=DataPermissionId).exists():
+            return DataResponse(
+                msg='数据权限信息不存在！',
+                code='00001'
+            )
+        try:
+            DataPermission.objects.get(id=DataPermissionId).delete()
+            return DataResponse(
+                msg='删除数据权限成功！',
+                code='00000'
+            )
+        except Exception as error:
+            return DataResponse(
+                msg="删除数据权限失败:{0}".format(error),
+                code='00001'
+            )

@@ -76,17 +76,25 @@ class BackendPermission:
         """
         token = request.META.get('HTTP_AUTHORIZATION')
         user = UserInfo.objects.get(usertoken__token=token)
-        data_permissions = DataPermissionList.objects.filter(
+        return [data.content_object for data in DataPermissionList.objects.filter(
             role__in=user.roles.objects.all()
-        )
-        for per in data_permissions:
-            print(per)
+        )]
 
     # user = ContentType.objects.get(app_label=app_label, model=user_obj).model_class()
     # user.objects.get()
 
-    def check_user_permission(self, user_obj):
+    def check_user_permission(self, request, model_obj):
         """
-        :param user_obj:
+        :param request:
+        :param model_obj:
         :return:
         """
+        check_status = False
+        data_permission = self.get_user_permission(request=request)
+        for data in data_permission:
+            if model_obj != data:
+                continue
+            else:
+                check_status = True
+                break
+        return check_status

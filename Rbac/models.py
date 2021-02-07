@@ -114,7 +114,7 @@ class DataPermissionList(models.Model):
     data_check_type = models.CharField(
         verbose_name="校验数据权限类型", max_length=10, default='pk', choices=check_type
     )
-    object_id = models.PositiveIntegerField()
+    object_id = models.PositiveIntegerField(default=0)
     check_field = models.CharField(verbose_name="校验的字段", max_length=20, default="pk", null=True)
     content_object = GenericForeignKey('content_type', 'object_id')
 

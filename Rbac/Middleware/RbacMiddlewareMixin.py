@@ -74,4 +74,5 @@ class RbacMiddleware(MiddlewareMixin):
 
     def process_response(self, request, response):
         print(response)
+        print(dir(response))
         return response

@@ -66,31 +66,28 @@ def make_token(username):
 
 
 class BackendPermission:
-    def __init__(self):
-        pass
+    def __init__(self, request):
+        token = request.META.get('HTTP_AUTHORIZATION')
+        self.user = UserInfo.objects.get(usertoken__token=token)
 
-    def get_user_permission(self, request):
+    def get_user_data_permission(self):
         """
-        :param request:
         :return:
         """
-        token = request.META.get('HTTP_AUTHORIZATION')
-        user = UserInfo.objects.get(usertoken__token=token)
         return [data.content_object for data in DataPermissionList.objects.filter(
-            role__in=user.roles.objects.all()
+            role__in=self.user.roles.objects.all()
         )]
 
     # user = ContentType.objects.get(app_label=app_label, model=user_obj).model_class()
     # user.objects.get()
 
-    def check_user_permission(self, request, model_obj):
+    def check_user_permission(self, model_obj):
         """
-        :param request:
         :param model_obj:
         :return:
         """
         check_status = False
-        data_permission = self.get_user_permission(request=request)
+        data_permission = self.get_user_data_permission()
         for data in data_permission:
             if model_obj != data:
                 continue
@@ -98,3 +95,13 @@ class BackendPermission:
                 check_status = True
                 break
         return check_status
+
+    def get_user_model_obj(self, models, *args, **kwargs):
+        """
+        :param models:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        if not isinstance(models, list):
+            raise TypeError("models type error!")

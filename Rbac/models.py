@@ -121,19 +121,18 @@ class DataPermissionList(models.Model):
 
     class Meta:
         db_table = 'sys_data_permission_list'
-        unique_together = (('content_type', 'value'),)
+        unique_together = (('content_type', 'value', 'role'),)
 
 
 class UserInfo(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(verbose_name='用户名', max_length=50, null=False, unique=True)
     name = models.CharField(verbose_name="姓名", max_length=50, default='')
     mobile = models.CharField(verbose_name="手机", max_length=12, null=False, default="186000000000")
-    roles = models.ForeignKey(
+    roles = models.ManyToManyField(
         Role,
         verbose_name='角色',
         blank=True,
-        null=True,
-        on_delete=models.CASCADE
+        null=True
     )
     email = models.EmailField(verbose_name="邮箱地址", unique=True, null=False)
     is_active = models.BooleanField(verbose_name="有效", default=True)

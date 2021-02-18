@@ -77,7 +77,7 @@ class BackendPermission:
         if not self.user.usertoken.expiration_time > datetime.datetime.now() or not self.user.is_active:
             return []
         return [data.content_object for data in DataPermissionList.objects.filter(
-            role__in=self.user.roles.objects.all()
+            role__in=self.user.roles.all()
         )]
 
     def get_user_model_data_permission(self, model_name):
@@ -117,5 +117,3 @@ class BackendPermission:
     #     """
     #     if not isinstance(models, list):
     #         raise TypeError("models type error!")
-
-

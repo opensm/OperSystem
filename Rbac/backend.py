@@ -101,8 +101,15 @@ class BackendPermission:
             except TypeError:
                 value = data.value
             params.setdefault(data.check_field, []).append(value)
-        print(params)
-        print(model.model_class().objects.filter(**params))
+        filter_dict = dict()
+        for key, value in params.items():
+            if len(value) == 0:
+                continue
+            elif len(value) == 1:
+                filter_dict = {key: value}
+            else:
+                filter_dict = {"{0}__contains": value}
+        print(model.model_class().objects.filter(**filter_dict))
 
     # user = ContentType.objects.get(app_label=app_label, model=user_obj).model_class()
     # user.objects.get()

@@ -76,7 +76,7 @@ class BackendPermission:
         """
         if not self.user.usertoken.expiration_time > datetime.datetime.now() or not self.user.is_active:
             return []
-        return [data.content_object for data in DataPermissionList.objects.filter(
+        return [data for data in DataPermissionList.objects.filter(
             role__in=self.user.roles.all()
         )]
 

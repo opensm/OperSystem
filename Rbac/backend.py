@@ -91,9 +91,6 @@ class BackendPermission:
         params = dict()
         model = ContentType.objects.get(app_label=app_label, model=model_name)
         for data in self.get_user_data_permission():
-            print("++++++++++++++++++++++++++++")
-            print(data.content_type.model)
-            print("+++++++++++++++++++++++++++-")
             if data.content_type != model:
                 continue
             try:
@@ -109,6 +106,7 @@ class BackendPermission:
                 filter_dict = {key: value}
             else:
                 filter_dict = {"{0}__contains": value}
+        print(filter_dict)
         print(model.model_class().objects.filter(**filter_dict))
 
     # user = ContentType.objects.get(app_label=app_label, model=user_obj).model_class()

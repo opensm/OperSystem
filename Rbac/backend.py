@@ -85,13 +85,15 @@ class BackendPermission:
         :param model_name:
         :return:
         """
+        if not isinstance(model_name, str):
+            return []
         for data in self.get_user_data_permission():
             print("++++++++++++++++++++++++++++")
             print(data.content_type.name)
             print(data.content_type.app_label)
             print(model_name)
             print("+++++++++++++++++++++++++++-")
-            if data.content_type.name != model_name:
+            if data.content_type.name != model_name.lower():
                 continue
             print(data.content_type.name)
 

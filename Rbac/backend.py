@@ -80,20 +80,22 @@ class BackendPermission:
             role__in=self.user.roles.all()
         )]
 
-    def get_user_model_data_permission(self, model_name):
+    def get_user_model_data_permission(self, app_label, model_name):
         """
+        :param app_label:
         :param model_name:
         :return:
         """
         if not isinstance(model_name, str):
             return []
+        model = ContentType.objects.get(app_label=app_label, model=model_name)
         for data in self.get_user_data_permission():
             print("++++++++++++++++++++++++++++")
             print(data.content_type.name)
             print(data.content_type.app_label)
             print(model_name)
             print("+++++++++++++++++++++++++++-")
-            if data.content_type.name != model_name.lower():
+            if data.content_type.model != model:
                 continue
             print(data.content_type.name)
 

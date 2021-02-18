@@ -105,7 +105,7 @@ class BackendPermission:
             elif len(value) == 1:
                 filter_dict = {key: value}
             else:
-                filter_dict = {"{0}__contains": value}
+                filter_dict = {"{0}__contains".format(key): value}
         print(filter_dict)
         print(model.model_class().objects.filter(**filter_dict))
 

@@ -116,11 +116,12 @@ class DataPermissionList(models.Model):
     )
     object_id = models.PositiveIntegerField(default=0)
     check_field = models.CharField(verbose_name="校验的字段", max_length=20, default="pk", null=True)
-    content_object = GenericForeignKey('content_type', 'object_id')
+
+    # content_object = GenericForeignKey('content_type', 'object_id')
 
     class Meta:
         db_table = 'sys_data_permission_list'
-        # unique_together = (('content_type', 'content_object', 'role', 'request_type'),)
+        unique_together = (('content_type', 'role', 'request_type', 'value'),)
 
 
 class UserInfo(AbstractBaseUser, PermissionsMixin):

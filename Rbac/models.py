@@ -110,7 +110,7 @@ class DataPermissionList(models.Model):
     # model = models.ForeignKey(DataPermission, default="all", on_delete=models.DO_NOTHING)
     value = models.CharField(verbose_name="权限值对应的列表", default="", max_length=20)
     request_type = models.ManyToManyField(RequestType, verbose_name="请求类型", default=0)
-    role = models.ManyToManyField(Role, default=0)
+    role = models.ForeignKey(Role, default=0, on_delete=models.DO_NOTHING)
     data_check_type = models.CharField(
         verbose_name="校验数据权限类型", max_length=10, default='pk', choices=check_type
     )

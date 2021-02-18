@@ -80,6 +80,14 @@ class BackendPermission:
             role__in=self.user.roles.objects.all()
         )]
 
+    def get_user_model_data_permission(self, model_name):
+        """
+        :param model_name:
+        :return:
+        """
+        for data in self.get_user_data_permission():
+            print(data)
+
     # user = ContentType.objects.get(app_label=app_label, model=user_obj).model_class()
     # user.objects.get()
 
@@ -91,6 +99,7 @@ class BackendPermission:
         check_status = False
         data_permission = self.get_user_data_permission()
         for data in data_permission:
+            print(data.content_type)
             if model_obj != data:
                 continue
             else:
@@ -98,13 +107,16 @@ class BackendPermission:
                 break
         return check_status
 
-    @staticmethod
-    def get_user_model_obj(models, *args, **kwargs):
-        """
-        :param models:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        if not isinstance(models, list):
-            raise TypeError("models type error!")
+    # @staticmethod
+    # def get_user_model_obj(models, *args, **kwargs):
+    #     """
+    #     :param models:
+    #     :param args:
+    #     :param kwargs:
+    #     :return:
+    #     """
+    #     if not isinstance(models, list):
+    #         raise TypeError("models type error!")
+
+
+backend = BackendPermission()

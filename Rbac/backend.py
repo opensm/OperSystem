@@ -86,7 +86,7 @@ class BackendPermission:
         :return:
         """
         for data in self.get_user_data_permission():
-            print(data)
+            print(data.content_type)
 
     # user = ContentType.objects.get(app_label=app_label, model=user_obj).model_class()
     # user.objects.get()

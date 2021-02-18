@@ -119,4 +119,3 @@ class BackendPermission:
     #         raise TypeError("models type error!")
 
 
-backend = BackendPermission()

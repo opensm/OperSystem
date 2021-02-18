@@ -4,7 +4,7 @@ from Rbac.models import *
 from Rbac.backend import ObjectUserInfo
 from lib.response import DataResponse
 from django.utils import timezone
-from Rbac.backend import backend
+from Rbac.backend import BackendPermission
 import datetime
 from Rbac.backend import make_token
 from Rbac.serializers import \
@@ -118,6 +118,7 @@ class RolesView(APIView):
         :return:
         """
         query = Role.objects.all()
+        backend = BackendPermission(request=request)
         backend.get_user_model_data_permission(model_name='Role')
         data = RoleSerializer(instance=query, many=True)
         return DataResponse(

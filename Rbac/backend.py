@@ -4,7 +4,7 @@ from Rbac.serializers import PermissionSerializer
 from Rbac.models import Permission, UserInfo, DataPermissionList
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.pagination import PageNumberPagination
-import time
+import time, datetime
 import hashlib
 from KubernetesManagerWeb.settings import SECRET_KEY
 
@@ -74,6 +74,8 @@ class BackendPermission:
         """
         :return:
         """
+        if not self.user.usertoken.expiration_time > datetime.datetime.now() or not self.user.is_active:
+            return []
         return [data.content_object for data in DataPermissionList.objects.filter(
             role__in=self.user.roles.objects.all()
         )]
@@ -96,7 +98,8 @@ class BackendPermission:
                 break
         return check_status
 
-    def get_user_model_obj(self, models, *args, **kwargs):
+    @staticmethod
+    def get_user_model_obj(models, *args, **kwargs):
         """
         :param models:
         :param args:

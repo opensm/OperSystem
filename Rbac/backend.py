@@ -86,6 +86,10 @@ class BackendPermission:
         :return:
         """
         for data in self.get_user_data_permission():
+            print("++++++++++++++++++++++++++++")
+            print(data.content_type.name)
+            print(model_name)
+            print("+++++++++++++++++++++++++++-")
             if data.content_type.name != model_name:
                 continue
             print(data.content_type.name)

@@ -91,9 +91,9 @@ class BackendPermission:
         model = ContentType.objects.get(app_label=app_label, model=model_name)
         for data in self.get_user_data_permission():
             print("++++++++++++++++++++++++++++")
-            print(data.content_type.model)
+            print(data.content_type)
             print("+++++++++++++++++++++++++++-")
-            if data.content_type.model != model:
+            if data.content_type != model:
                 continue
             print(data.content_type.name)
 

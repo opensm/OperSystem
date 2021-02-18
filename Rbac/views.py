@@ -703,6 +703,8 @@ class CurrentUser(APIView):
     def get(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
         token_object = UserToken.objects.get(token=token)
+        backend = BackendPermission(request=request)
+        backend.get_user_model_data_permission(model_name='Role')
         data = UserInfoSerializer(token_object.username)
         user = ObjectUserInfo()
         menu = data.data

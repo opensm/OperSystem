@@ -88,6 +88,7 @@ class BackendPermission:
         """
         if not isinstance(model_name, str):
             return []
+        params = dict()
         model = ContentType.objects.get(app_label=app_label, model=model_name)
         for data in self.get_user_data_permission():
             print("++++++++++++++++++++++++++++")
@@ -95,10 +96,8 @@ class BackendPermission:
             print("+++++++++++++++++++++++++++-")
             if data.content_type != model:
                 continue
-            print(data.content_type.name)
-            print(data.check_field)
-            print(data.value)
-            print(data.request_type.all())
+            params.setdefault(data.check_field, []).append(data.value)
+        print(params)
 
     # user = ContentType.objects.get(app_label=app_label, model=user_obj).model_class()
     # user.objects.get()

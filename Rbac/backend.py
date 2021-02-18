@@ -96,6 +96,9 @@ class BackendPermission:
             if data.content_type != model:
                 continue
             print(data.content_type.name)
+            print(data.check_field)
+            print(data.value)
+            print(data.request_type.all())
 
     # user = ContentType.objects.get(app_label=app_label, model=user_obj).model_class()
     # user.objects.get()

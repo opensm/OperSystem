@@ -98,6 +98,7 @@ class BackendPermission:
                 continue
             params.setdefault(data.check_field, []).append(data.value)
         print(params)
+        print(model.objects.filter(**params))
 
     # user = ContentType.objects.get(app_label=app_label, model=user_obj).model_class()
     # user.objects.get()

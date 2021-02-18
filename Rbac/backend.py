@@ -100,7 +100,7 @@ class BackendPermission:
                 value = int(data.value)
             except TypeError:
                 value = data.value
-            params.setdefault(data.check_field, []).append(data.value)
+            params.setdefault(data.check_field, []).append(value)
         print(params)
         print(model.model_class().objects.filter(**params))
 

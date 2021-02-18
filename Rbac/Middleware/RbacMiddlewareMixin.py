@@ -73,7 +73,4 @@ class RbacMiddleware(MiddlewareMixin):
             return DataResponse(msg="没有权限：Error Code 401", code='00001')
 
     def process_response(self, request, response):
-        print(response)
-        print(dir(response))
-        print(type(response))
         return response

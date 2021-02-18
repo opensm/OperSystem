@@ -130,9 +130,7 @@ class UserInfo(AbstractBaseUser, PermissionsMixin):
     mobile = models.CharField(verbose_name="手机", max_length=12, null=False, default="186000000000")
     roles = models.ManyToManyField(
         Role,
-        verbose_name='角色',
-        blank=True,
-        null=True
+        verbose_name='角色'
     )
     email = models.EmailField(verbose_name="邮箱地址", unique=True, null=False)
     is_active = models.BooleanField(verbose_name="有效", default=True)

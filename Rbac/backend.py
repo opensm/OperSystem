@@ -106,8 +106,7 @@ class BackendPermission:
                 filter_dict = {key: value}
             else:
                 filter_dict = {"{0}__in".format(key): value}
-        print(filter_dict)
-        print(model.model_class().objects.filter(**filter_dict))
+        return model.model_class().objects.filter(**filter_dict)
 
     # user = ContentType.objects.get(app_label=app_label, model=user_obj).model_class()
     # user.objects.get()

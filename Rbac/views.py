@@ -117,9 +117,9 @@ class RolesView(APIView):
         {}
         :return:
         """
-        query = Role.objects.all()
+        # query = Role.objects.all()
         backend = BackendPermission(request=request)
-        backend.get_user_model_data_permission(model_name='Role')
+        query = backend.get_user_model_data_permission(model_name='role', app_label='Rbac')
         data = RoleSerializer(instance=query, many=True)
         return DataResponse(
             data=data.data,
@@ -703,8 +703,6 @@ class CurrentUser(APIView):
     def get(self, request):
         token = request.META.get('HTTP_AUTHORIZATION')
         token_object = UserToken.objects.get(token=token)
-        backend = BackendPermission(request=request)
-        backend.get_user_model_data_permission(model_name='role', app_label='Rbac')
         data = UserInfoSerializer(token_object.username)
         user = ObjectUserInfo()
         menu = data.data

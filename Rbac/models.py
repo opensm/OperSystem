@@ -35,8 +35,12 @@ class Menu(models.Model):
         (2, "三级菜单"),
         (999, "按钮功能")
     )
-    name = models.CharField(verbose_name="菜单名称", null=False, blank=False, unique=True)
-    path = models.CharField(verbose_name="URL", null=False, blank=False, unique=True)
+    name = models.CharField(
+        verbose_name="菜单名称", null=False, blank=False, unique=True, max_length=50
+    )
+    path = models.CharField(
+        verbose_name="URL", null=False, blank=False, unique=True, max_length=200
+    )
     parent = models.ForeignKey(
         'self',
         verbose_name='父级菜单',

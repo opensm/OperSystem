@@ -55,9 +55,8 @@ class Menu(models.Model):
     index = models.IntegerField(
         verbose_name='菜单序列', null=False, blank=False, default=0
     )
-    permission = models.ForeignKey(
-        verbose_name="使用权限", null=True, default=None, on_delete=models.DO_NOTHING,
-        to="Permission"
+    permission = models.ManyToManyField(
+        verbose_name="使用权限", default=None, to="Permission"
     )
     level = models.IntegerField(verbose_name="菜单级别", default=0, choices=menu_choice)
 

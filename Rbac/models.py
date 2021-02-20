@@ -28,16 +28,15 @@ class RequestType(models.Model):
         db_table = 'sys_request_type'
 
 
-class Permission(models.Model):
+class Menu(models.Model):
     menu_choice = (
         (0, "一级菜单"),
         (1, "二级菜单"),
         (2, "三级菜单"),
-        (3, "四级菜单"),
-        (4, "五级菜单"),
         (999, "按钮功能")
     )
-    name = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
+    name = models.CharField(verbose_name="菜单名称", null=False, blank=False, unique=True)
+    path = models.CharField(verbose_name="URL", null=False, blank=False, unique=True)
     parent = models.ForeignKey(
         'self',
         verbose_name='父级菜单',
@@ -46,25 +45,60 @@ class Permission(models.Model):
         related_name='children',
         on_delete=models.DO_NOTHING
     )
-    # model = models.CharField(
-    #     verbose_name='相关资源', max_length=255, null=False, blank=False, default="login", unique=True
-    # )
-    model = models.ManyToManyField('DataPermission', default=None, blank=True)
-    path = models.CharField(
-        verbose_name='URL', max_length=255, null=False, blank=False, default="/", unique=True
-    )
     icon = models.CharField(
         verbose_name="图标", null=True, blank=True, default="", max_length=50
     )
     index = models.IntegerField(
-        verbose_name='菜单序列', null=False, blank=False, default=0, unique=True
+        verbose_name='菜单序列', null=False, blank=False, default=0
     )
-    hidden = models.BooleanField(verbose_name="是否显示", default=False)
+    permission = models.ForeignKey(
+        verbose_name="使用权限", null=True, default=None, on_delete=models.DO_NOTHING,
+        to="Permission"
+    )
     level = models.IntegerField(verbose_name="菜单级别", default=0, choices=menu_choice)
-    create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
     class Meta:
         unique_together = (('parent', 'index'),)
+        db_table = 'sys_menus'
+
+
+class Permission(models.Model):
+    # menu_choice = (
+    #     (0, "一级菜单"),
+    #     (1, "二级菜单"),
+    #     (2, "三级菜单"),
+    #     (3, "四级菜单"),
+    #     (4, "五级菜单"),
+    #     (999, "按钮功能")
+    # )
+    name = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
+    # parent = models.ForeignKey(
+    #     'self',
+    #     verbose_name='父级菜单',
+    #     null=True,
+    #     blank=True,
+    #     related_name='children',
+    #     on_delete=models.DO_NOTHING
+    # )
+    # model = models.CharField(
+    #     verbose_name='相关资源', max_length=255, null=False, blank=False, default="login", unique=True
+    # )
+    model = models.OneToOneField('DataPermission', default=None, blank=True, on_delete=models.DO_NOTHING)
+    path = models.CharField(
+        verbose_name='URL', max_length=255, null=False, blank=False, default="/", unique=True
+    )
+    # icon = models.CharField(
+    #     verbose_name="图标", null=True, blank=True, default="", max_length=50
+    # )
+    # index = models.IntegerField(
+    #     verbose_name='菜单序列', null=False, blank=False, default=0, unique=True
+    # )
+    # hidden = models.BooleanField(verbose_name="是否显示", default=False)
+    # level = models.IntegerField(verbose_name="菜单级别", default=0, choices=menu_choice)
+    create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
+
+    class Meta:
+        # unique_together = (('parent', 'index'),)
         db_table = 'sys_permissions'
 
     def __str__(self):

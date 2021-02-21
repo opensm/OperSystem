@@ -21,10 +21,7 @@ class SubPermissionSerializer(serializers.ModelSerializer):
         fields = ('name', 'id')
 
 
-class PermissionSerializer(serializers.ModelSerializer):
-    children = RecursiveField(many=True, read_only=True, allow_null=True)
-    parent = serializers.PrimaryKeyRelatedField(queryset=Permission.objects.all(), allow_null=True)
-
+class MenuSerializer(serializers.ModelSerializer):
     def validate_parent(self, attrs):
         """
         :return:
@@ -42,14 +39,37 @@ class PermissionSerializer(serializers.ModelSerializer):
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Permission  # 指定需要序列化的模型表
         fields = ("__all__")
-        read_only_fields = ['id', 'parent']
 
-    def update(self, instance, validated_data):
-        print(validated_data)
-        for key, value in validated_data.items():
-            setattr(instance, key, value)
-        instance.save()
-        return instance
+
+class PermissionSerializer(serializers.ModelSerializer):
+    # children = RecursiveField(many=True, read_only=True, allow_null=True)
+    # parent = serializers.PrimaryKeyRelatedField(queryset=Permission.objects.all(), allow_null=True)
+
+    # def validate_parent(self, attrs):
+    #     """
+    #     :return:
+    #     """
+    #     if attrs is None:
+    #         return attrs
+    #     pk = getattr(attrs, 'id')
+    #     name = getattr(attrs, 'name')
+    #     try:
+    #         Permission.objects.get(id=pk, name=name)
+    #     except Permission.DoesNotExist:
+    #         serializers.ValidationError("{0} 父菜单不存在！".format(name))
+    #     return attrs
+
+    class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
+        model = Permission  # 指定需要序列化的模型表
+        fields = ("__all__")
+        # read_only_fields = ['id', 'parent']
+
+    # def update(self, instance, validated_data):
+    #     print(validated_data)
+    #     for key, value in validated_data.items():
+    #         setattr(instance, key, value)
+    #     instance.save()
+    #     return instance
 
 
 class RoleSerializer(serializers.ModelSerializer):

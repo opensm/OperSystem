@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from rest_framework.views import APIView
 from Rbac.models import *
-from Rbac.backend import ObjectUserInfo
 from lib.response import DataResponse
 from django.utils import timezone
 from Rbac.backend import BackendPermission
@@ -18,7 +17,6 @@ from Rbac.serializers import \
     RolePermissionEditSerializer, \
     RewritePageNumberPagination, \
     DataPermissionSerializer
-
 
 def format_error(data):
     if not isinstance(data, dict):
@@ -704,9 +702,9 @@ class CurrentUser(APIView):
         token = request.META.get('HTTP_AUTHORIZATION')
         token_object = UserToken.objects.get(token=token)
         data = UserInfoSerializer(token_object.username)
-        user = ObjectUserInfo()
+        user = BackendPermission(request=request)
         menu = data.data
-        menu['user_permissions'] = user.get_menu(user_obj=token_object.username)
+        menu['user_permissions'] = user.get_menu()
         return DataResponse(
             data=menu,
             msg="获取当前用户信息成功！",
@@ -721,15 +719,14 @@ class UserMenu(APIView):
         :param request:
         :return:
         """
-        token = request.META.get('HTTP_AUTHORIZATION')
-        user = ObjectUserInfo()
-        user_obj = user.get_user_object(token=token)
+        user = BackendPermission(request=request)
+        user_obj = user.get_user_model()
         if not user_obj:
             return DataResponse(
                 code='00001',
                 msg='Token校验失败!'
             )
-        menu = user.get_menu(user_obj=user_obj)
+        menu = user.get_menu()
         return DataResponse(
             data=menu,
             code='00000',

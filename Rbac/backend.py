@@ -74,7 +74,7 @@ class DataQueryPermission(ObjectUserInfo):
         self.__model = django_apps.get_model("{0}.{1}".format(app_label, model_name))
         # 超级管理员直接返回结果
         if self.user.is_superuser and self.user.is_active:
-            self.__object = self.__model.model_class().objects.all()
+            self.__object = self.__model.objects.all()
             return self.__object
         # 用户状态为不生效，返回空
         elif not self.user.is_active:

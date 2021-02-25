@@ -22,6 +22,9 @@ class SubPermissionSerializer(serializers.ModelSerializer):
 
 
 class MenuSerializer(serializers.ModelSerializer):
+    children = RecursiveField(many=True, read_only=True, allow_null=True)
+    parent = serializers.PrimaryKeyRelatedField(queryset=Menu.objects.all(), allow_null=True)
+
     def validate_parent(self, attrs):
         """
         :return:

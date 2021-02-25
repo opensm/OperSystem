@@ -117,9 +117,10 @@ class DataQueryPermission(ObjectUserInfo):
             return []
         return list(set([getattr(x, field) for x in self.__object]))
 
-    def check_user_permission(self, model_obj):
+    def check_user_permission(self, model_obj, request_type='POST'):
         """
         :param model_obj:
+        :param request_type:
         :return:
         """
         check_status = False
@@ -127,7 +128,7 @@ class DataQueryPermission(ObjectUserInfo):
         for data in data_permission:
             if model_obj != data:
                 continue
-            else:
+            if data.request_type.filter(method=request_type):
                 check_status = True
                 break
         return check_status

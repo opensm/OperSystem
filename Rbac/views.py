@@ -192,6 +192,11 @@ class RoleView(APIView):
             query = Role.objects.get(id=roleId)
         except Role.DoesNotExist:
             return DataResponse(msg="修改角色信息失败,RoleID:{0}！".format(roleId), code='00001')
+        backend = DataQueryPermission(request=request)
+        if not backend.check_user_permission(model_obj=query):
+            return DataResponse(
+                msg="不存在该角色的修改权限,RoleID:{0}！".format(roleId), code='00001'
+            )
         data = RoleSerializer(instance=query, data=request.data)
         if not data.is_valid():
             return DataResponse(msg="修改角色信息失败,RoleID:{0}，{1}！".format(

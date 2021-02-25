@@ -3,20 +3,11 @@ from rest_framework.views import APIView
 from Rbac.models import *
 from lib.response import DataResponse
 from django.utils import timezone
-from Rbac.backend import BackendPermission
+from Rbac.backend import DataQueryPermission, UserResourceQuery
 import datetime
 from Rbac.backend import make_token
-from Rbac.serializers import \
-    RoleSerializer, \
-    PermissionSerializer, \
-    SignInSerializer, \
-    UserInfoSerializer, \
-    ResetPasswordSerializer, \
-    UserEditRoleSerializer, \
-    UserStatusEditSerializer, \
-    RolePermissionEditSerializer, \
-    RewritePageNumberPagination, \
-    DataPermissionSerializer
+from Rbac.serializers import *
+
 
 def format_error(data):
     if not isinstance(data, dict):
@@ -115,9 +106,10 @@ class RolesView(APIView):
         {}
         :return:
         """
-        # query = Role.objects.all()
-        backend = BackendPermission(request=request)
-        query = backend.get_user_model_data_permission(model_name='role', app_label='Rbac')
+        backend = DataQueryPermission(request=request)
+        query = backend.get_user_model_data_permission(
+            model_name='Role', app_label='Rbac'
+        )
         data = RoleSerializer(instance=query, many=True)
         return DataResponse(
             data=data.data,
@@ -137,10 +129,8 @@ class RolesView(APIView):
         }
         :return:
         """
-        print(request.data)
         data = RoleSerializer(data=request.data)
         if not data.is_valid():
-            print(data.errors)
             return DataResponse(
                 msg="添加角色参数异常:{0}".format(format_error(data=data.errors)),
                 code='00001'
@@ -172,7 +162,12 @@ class RoleView(APIView):
                 msg="获取到角色信息失败,角色ID:{0}".format(roleId),
                 code='00001'
             )
-
+        backend = DataQueryPermission(request=request)
+        if not backend.check_user_permission(model_obj=query):
+            return DataResponse(
+                msg="没有对应角色的权限,角色ID:{0}".format(roleId),
+                code='00001'
+            )
         data = RoleSerializer(instance=query)
         return DataResponse(
             data=data.data,
@@ -702,7 +697,7 @@ class CurrentUser(APIView):
         token = request.META.get('HTTP_AUTHORIZATION')
         token_object = UserToken.objects.get(token=token)
         data = UserInfoSerializer(token_object.username)
-        user = BackendPermission(request=request)
+        user = UserResourceQuery(request=request)
         menu = data.data
         menu['user_permissions'] = user.get_menu()
         return DataResponse(
@@ -719,7 +714,7 @@ class UserMenu(APIView):
         :param request:
         :return:
         """
-        user = BackendPermission(request=request)
+        user = UserResourceQuery(request=request)
         user_obj = user.get_user_model()
         if not user_obj:
             return DataResponse(

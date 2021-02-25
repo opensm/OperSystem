@@ -5,7 +5,7 @@ from collections import OrderedDict
 from rest_framework import serializers
 from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 from rest_framework.response import Response
-from Rbac.models import Role, Permission, UserInfo, DataPermission
+from Rbac.models import Role, Permission, UserInfo, DataPermission, Menu
 from copy import deepcopy
 
 
@@ -31,13 +31,13 @@ class MenuSerializer(serializers.ModelSerializer):
         pk = getattr(attrs, 'id')
         name = getattr(attrs, 'name')
         try:
-            Permission.objects.get(id=pk, name=name)
-        except Permission.DoesNotExist:
+            Menu.objects.get(id=pk, name=name)
+        except Menu.DoesNotExist:
             serializers.ValidationError("{0} 父菜单不存在！".format(name))
         return attrs
 
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
-        model = Permission  # 指定需要序列化的模型表
+        model = Menu  # 指定需要序列化的模型表
         fields = ("__all__")
 
 

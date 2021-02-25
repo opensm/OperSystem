@@ -95,7 +95,7 @@ class DataQueryPermission(ObjectUserInfo):
                 filter_dict = {key: value}
             else:
                 filter_dict = {"{0}__in".format(key): value}
-        self.__object = self.__model.model_class().objects.filter(**filter_dict)
+        self.__object = self.__model.objects.filter(**filter_dict)
         return self.__object
 
     def get_model_fields(self):

@@ -163,7 +163,7 @@ class RoleView(APIView):
                 code='00001'
             )
         backend = DataQueryPermission(request=request)
-        if not backend.check_user_permission(model_obj=query):
+        if not backend.check_user_permission(model_obj=query, request_type='GET'):
             return DataResponse(
                 msg="没有对应角色的权限,角色ID:{0}".format(roleId),
                 code='00001'
@@ -193,7 +193,7 @@ class RoleView(APIView):
         except Role.DoesNotExist:
             return DataResponse(msg="修改角色信息失败,RoleID:{0}！".format(roleId), code='00001')
         backend = DataQueryPermission(request=request)
-        if not backend.check_user_permission(model_obj=query):
+        if not backend.check_user_permission(model_obj=query, request_type='PUT'):
             return DataResponse(
                 msg="不存在该角色的修改权限,RoleID:{0}！".format(roleId), code='00001'
             )

@@ -149,30 +149,3 @@ class UserResourceQuery(DataQueryPermission):
         instance = self.get_user_model_data_permission(app_label='Rbac', model_name='Menu')
         data = MenuSerializer(many=True, instance=instance)
         return data.data
-
-
-ddd = {
-    "data": {
-        "id": 1, "is_superuser": true,
-        "username": "admin",
-        "name": "",
-        "mobile": "18602841836",
-        "email": "1112@qq.com",
-        "is_active": true,
-        "is_staff": true,
-        "create_date": "2021-02-18T07:13:55.060640",
-        "update_date": "2021-02-18T07:13:55.060668",
-        "last_login": "2021-02-18T07:13:55.060674",
-        "groups": [], "user_permissions": [
-            {
-                "id": 1, "name": "\u9996\u9875", "path": "/", "icon": "dashboard", "index": 0, "level": 0,
-                "parent": null,
-                "permission": []
-            }, {
-                "id": 2, "name": "\u7528\u6237\u7ba1\u7406", "path": "users", "icon": "peoples", "index": 0, "level": 0,
-                "parent": 3, "permission": []
-            }, {
-                "id": 3, "name": "\u6743\u9650\u4e2d\u5fc3", "path": "auth", "icon": "lock", "index": 0, "level": 1,
-                "parent": null, "permission": []}], "roles": [1]
-    },
-    "meta": {"msg": "\u83b7\u53d6\u5f53\u524d\u7528\u6237\u4fe1\u606f\u6210\u529f\uff01", "code": "00000"}}

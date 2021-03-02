@@ -101,6 +101,7 @@ class RolesView(BaseDetailView):
     serializer_class = RoleSerializer
     model_name = 'Role'
     app_label = 'Rbac'
+    content_type = 'GET'
 
     # def get(self, request):
     #     """

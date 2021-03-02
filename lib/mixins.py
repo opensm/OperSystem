@@ -142,6 +142,6 @@ class DataQueryPermission(ObjectUserInfo):
         """
         :return:
         """
-        self.get_user_object(request=request)
+        self.user = self.get_user_object(request=request)
         self.get_user_model_data_permission()
         return self.get_request_filter(request=request)

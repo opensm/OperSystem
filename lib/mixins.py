@@ -136,7 +136,7 @@ class DataQueryPermission(ObjectUserInfo):
             if len(value) == 0:
                 continue
             elif len(value) == 1:
-                filter_dict = {key: value[0]}
+                filter_dict = {key: int(value[0])}
             else:
                 filter_dict = {"{0}__in".format(key): value}
         print(filter_dict)

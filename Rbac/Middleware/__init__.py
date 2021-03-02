@@ -1,2 +1,2 @@
 # -*- coding: utf-8 -*-
-from .error import *
+from lib.code.error import *

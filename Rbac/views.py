@@ -7,6 +7,7 @@ from Rbac.backend import DataQueryPermission, UserResourceQuery
 import datetime
 from Rbac.backend import make_token
 from Rbac.serializers import *
+from lib.views import BaseDetailView
 
 
 def format_error(data):
@@ -96,26 +97,29 @@ class LogoutView(APIView):
             )
 
 
-class RolesView(APIView):
+class RolesView(BaseDetailView):
+    serializer_class = RoleSerializer
+    model_name = 'Role'
+    app_label = 'Rbac'
 
-    def get(self, request):
-        """
-        :param request:
-        :url /api/v1/role
-        :parameter
-        {}
-        :return:
-        """
-        backend = DataQueryPermission(request=request)
-        query = backend.get_user_model_data_permission(
-            model_name='Role', app_label='Rbac'
-        )
-        data = RoleSerializer(instance=query, many=True)
-        return DataResponse(
-            data=data.data,
-            msg='获取角色成功！',
-            code='00000'
-        )
+    # def get(self, request):
+    #     """
+    #     :param request:
+    #     :url /api/v1/role
+    #     :parameter
+    #     {}
+    #     :return:
+    #     """
+    #     backend = DataQueryPermission(request=request)
+    #     query = backend.get_user_model_data_permission(
+    #         model_name='Role', app_label='Rbac'
+    #     )
+    #     data = RoleSerializer(instance=query, many=True)
+    #     return DataResponse(
+    #         data=data.data,
+    #         msg='获取角色成功！',
+    #         code='00000'
+    #     )
 
     def post(self, request):
         """

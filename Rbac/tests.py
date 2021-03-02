@@ -1,6 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
-from Rbac.models import DataPermission
-
+from Rbac.models import DataPermission,Menu
+sss = Menu.objects.all()
 user_type = ContentType.objects.get(app_label='Rbac', model='userinfo')
 user_type.get_object_for_this_type(username='admin1')
 

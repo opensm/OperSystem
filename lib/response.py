@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from lib.code import SYSTEM_CODE_DICT
+from lib.codes import SYSTEM_CODE_DICT
 
 
 class DataResponse(JsonResponse):

@@ -13,6 +13,7 @@ class BaseDetailView(DataQueryPermission, APIView):
             raise TypeError("serializer_class type error!")
         data = self.serializer_class(data=self.get_user_data_objects(request=request))
         if not data.is_valid():
+            print(data.errors)
             return DataResponse(
                 code='00001',
                 msg="内部错误！"

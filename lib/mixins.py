@@ -127,8 +127,7 @@ class DataQueryPermission(ObjectUserInfo):
         filter_dict = dict()
         kwargs = getattr(request, self.content_type)
         fields = self.get_model_fields()
-        if len(kwargs) == 0:
-            return self.__object
+
         print(kwargs)
         for key, value in kwargs.items():
             if key not in fields:
@@ -139,6 +138,8 @@ class DataQueryPermission(ObjectUserInfo):
                 filter_dict = {key: int(value[0])}
             else:
                 filter_dict = {"{0}__in".format(key): value}
+        if len(filter_dict) == 0:
+            return self.__object
         print(filter_dict)
         print(self.__object)
         return self.__object.filter(**filter_dict)

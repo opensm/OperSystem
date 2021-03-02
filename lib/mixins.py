@@ -136,7 +136,7 @@ class DataQueryPermission(ObjectUserInfo):
                 filter_dict = {key: value}
             else:
                 filter_dict = {"{0}__in".format(key): value}
-        return self.__object.objects.filter(**filter_dict)
+        return self.__object.filter(**filter_dict)
 
     def get_user_data_objects(self, request):
         """

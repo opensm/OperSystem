@@ -127,6 +127,7 @@ class DataQueryPermission(ObjectUserInfo):
         filter_dict = dict()
         kwargs = getattr(request, self.content_type)
         fields = self.get_model_fields()
+        print(kwargs)
         for key, value in kwargs.items():
             if key not in fields:
                 continue

@@ -10,7 +10,6 @@ class BaseDetailView(DataQueryPermission, APIView, RewritePageNumberPagination):
     serializer_class = None
 
     def get(self, request):
-        print(request.method)
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         model_obj = self.get_user_data_objects(request=request)
@@ -36,7 +35,7 @@ class BaseDeleteView(DataQueryPermission, APIView, RewritePageNumberPagination):
                 code="00001",
                 msg="删除数据异常，获取到删除数据失败！"
             )
-        if not self.check_user_permission(model_obj=model_obj, request_type=self.content_type):
+        if not self.check_user_permission(model_obj=model_obj, request_type=request.method):
             return DataResponse(
                 code="00001",
                 msg="没有删除权限"

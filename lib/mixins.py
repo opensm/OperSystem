@@ -25,7 +25,6 @@ class ObjectUserInfo:
 class DataQueryPermission(ObjectUserInfo):
     model_name = None
     app_label = None
-    content_type = None
     error_message = {}
 
     def __init__(self):

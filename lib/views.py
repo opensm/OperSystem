@@ -22,6 +22,6 @@ class BaseDetailView(DataQueryPermission, APIView, RewritePageNumberPagination):
         return self.get_paginated_response(
             data=data,
             msg="获取数据成功",
-            code=00000
+            code="00000"
         )
         # return DataResponse(code="00000", data=data.data, msg="获取数据成功")

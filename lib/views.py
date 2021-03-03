@@ -83,7 +83,7 @@ class BaseListView(DataQueryPermission, APIView, RewritePageNumberPagination):
                 msg=self.error_message
             )
         if not data.is_valid():
-            return DataResponse(data=request.data, msg="数据输入格式不匹配", code="00001")
+            return DataResponse(data=request.data, msg="数据输入格式不匹配:{0}".format(data.errors), code="00001")
         try:
             data.save()
             return DataResponse(msg="数据保存成功", code="00000")

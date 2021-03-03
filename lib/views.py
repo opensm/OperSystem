@@ -34,8 +34,17 @@ class BaseDetailView(DataQueryPermission, APIView, RewritePageNumberPagination):
         )
 
 
-class BaseDeleteView(DataQueryPermission, APIView, RewritePageNumberPagination):
+class BaseListView(DataQueryPermission, APIView, RewritePageNumberPagination):
     serializer_class = None
+
+    def get_user_data_objects(self, request):
+        if self.page_size_query_param in self.kwargs:
+            self.kwargs.pop(self.page_size_query_param)
+        if self.page_query_param in self.kwargs:
+            self.kwargs.pop(self.page_query_param)
+        if self.sort_query_param in self.kwargs:
+            self.kwargs.pop(self.sort_query_param)
+        return super().get_user_data_objects(request)
 
     def delete(self, request):
         model_obj = self.get_user_data_objects(request=request)
@@ -45,10 +54,9 @@ class BaseDeleteView(DataQueryPermission, APIView, RewritePageNumberPagination):
                 msg="删除数据异常，获取到删除数据失败！"
             )
         if not self.check_user_permissions(model_objects=model_obj, request_method=request.method):
-            message = ','.join(list(set(self.error_message.values()))).rstrip(',')
             return DataResponse(
                 code="00001",
-                msg=message
+                msg=self.error_message
             )
         else:
             return DataResponse(
@@ -69,7 +77,11 @@ class BaseDeleteView(DataQueryPermission, APIView, RewritePageNumberPagination):
             many=True,
             data=request.data
         )
-
+        if not self.check_user_permissions(model_objects=model_objs, request_method=request.method):
+            return DataResponse(
+                code="00001",
+                msg=self.error_message
+            )
         if not data.is_valid():
             return DataResponse(data=request.data, msg="数据输入格式不匹配", code="00001")
         try:

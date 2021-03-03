@@ -125,11 +125,14 @@ class DataQueryPermission(ObjectUserInfo):
         :param request_method:
         :return:
         """
+        errors = list()
         if not isinstance(model_objects, list):
             raise TypeError("model_objects type error!")
         for s in model_objects:
             if not self.check_user_permission(model_obj=s, request_type=request_method):
-                self.error_message = {"permission": "ID:{0},权限不存在!".format(s.id)}
+                errors.append("ID:{0},权限不存在!".format(s.id))
+        if errors:
+            self.error_message = ','.join(list(set(errors))).rstrip(',')
         if self.error_message:
             return False
         else:

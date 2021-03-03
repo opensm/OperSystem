@@ -234,7 +234,5 @@ __all__ = [
     'UserEditRoleSerializer',
     'UserStatusEditSerializer',
     'RolePermissionEditSerializer',
-    'DataPermissionSerializer',
-    'RewritePageNumberPagination',
-    'LimitRewritePageNumberPagination'
+    'DataPermissionSerializer'
 ]

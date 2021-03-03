@@ -26,6 +26,7 @@ class DataQueryPermission(ObjectUserInfo):
     model_name = None
     app_label = None
     content_type = None
+    error_message = {}
 
     def __init__(self):
         ObjectUserInfo.__init__(self)
@@ -140,8 +141,6 @@ class DataQueryPermission(ObjectUserInfo):
                 filter_dict = {"{0}__in".format(key): value}
         if len(filter_dict) == 0:
             return self.__object
-        print(filter_dict)
-        print(self.__object)
         return self.__object.filter(**filter_dict)
 
     def get_user_data_objects(self, request):
@@ -151,3 +150,4 @@ class DataQueryPermission(ObjectUserInfo):
         self.user = self.get_user_object(request=request)
         self.get_user_model_data_permission()
         return self.get_request_filter(request=request)
+

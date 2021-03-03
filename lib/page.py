@@ -94,3 +94,6 @@ class LimitRewritePageNumberPagination(LimitOffsetPagination):
             ('data', data),
             ('meta', meta)
         ]))
+
+
+__all__ = ['RewritePageNumberPagination', 'LimitRewritePageNumberPagination']

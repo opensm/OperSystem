@@ -129,7 +129,6 @@ class DataQueryPermission(ObjectUserInfo):
         kwargs = getattr(request, self.content_type)
         fields = self.get_model_fields()
 
-        print(kwargs)
         for key, value in kwargs.items():
             if key not in fields:
                 continue
@@ -150,4 +149,3 @@ class DataQueryPermission(ObjectUserInfo):
         self.user = self.get_user_object(request=request)
         self.get_user_model_data_permission()
         return self.get_request_filter(request=request)
-

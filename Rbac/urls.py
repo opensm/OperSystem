@@ -24,8 +24,10 @@ urlpatterns = [
     path('logout', LogoutView.as_view(), name='logout'),
     # 角色管理
     re_path('^roles$', RolesView.as_view(), name='roles'),
-    re_path('^role/(?P<roleId>[0-9])$', RoleView.as_view()),
-    re_path('^role/(?P<roleId>[0-9])/permission$', RolePermissionEditView.as_view()),
+    # re_path('^role/(?P<roleId>[0-9])$', RoleView.as_view()),
+    # re_path('^role/(?P<roleId>[0-9])/permission$', RolePermissionEditView.as_view()),
+    re_path('^role$', RoleView.as_view()),
+    re_path('^role/permission$', RolePermissionEditView.as_view()),
     # 权限管理
     re_path('^permissions$', PermissionsView.as_view(), name='permission_list_manage'),
     path('permission/<int:permissionId>', PermissionView.as_view(), name='each_permission_manage'),

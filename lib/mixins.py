@@ -111,7 +111,9 @@ class DataQueryPermission(ObjectUserInfo):
         :return:
         """
         check_status = False
-        data_permission = self.get_user_data_permission()
+        data_permission = self.get_user_model_data_permission()
+        if self.user.is_superuser and self.user.is_active:
+            return True
         for data in data_permission:
             if model_obj != data:
                 continue

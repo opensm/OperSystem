@@ -14,7 +14,6 @@ class BaseDetailView(DataQueryPermission, APIView, RewritePageNumberPagination):
             raise TypeError("serializer_class type error!")
         model_obj = self.get_user_data_objects(request=request)
         page_obj = self.paginate_queryset(queryset=model_obj, request=request, view=self)
-        print(page_obj)
         data = self.serializer_class(
             instance=page_obj,
             many=True

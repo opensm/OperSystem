@@ -15,5 +15,4 @@ class BaseDetailView(DataQueryPermission, APIView):
             instance=self.get_user_data_objects(request=request),
             many=True
         )
-        print(data)
         return DataResponse(code="00000", data=data.data, msg="获取数据成功")

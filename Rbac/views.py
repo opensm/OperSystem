@@ -8,7 +8,7 @@ import datetime
 from Rbac.backend import make_token
 from Rbac.serializers import *
 from lib.page import RewritePageNumberPagination
-from lib.views import BaseDetailView, BaseDeleteView
+from lib.views import BaseDetailView, BaseListView
 
 
 def format_error(data):
@@ -149,82 +149,85 @@ class RolesView(BaseDetailView):
             )
 
 
-class RoleView(APIView):
+class RoleView(BaseListView):
+    model_name = 'Role'
+    app_label = 'Rbac'
+    serializer_class = RoleSerializer
 
-    def get(self, request, roleId):
-        """
-        :param request:
-        :param roleId:
-        :url /api/v1/role/(?P<roleId>[0-9])$
-        :parameter:
-        {}
-        :return: 查看具体角色信息
-        """
-        try:
-            query = Role.objects.get(id=roleId)
-        except Role.DoesNotExist:
-            return DataResponse(
-                msg="获取到角色信息失败,角色ID:{0}".format(roleId),
-                code='00001'
-            )
-        backend = DataQueryPermission(request=request)
-        if not backend.check_user_permission(model_obj=query, request_type='GET'):
-            return DataResponse(
-                msg="没有对应角色的权限,角色ID:{0}".format(roleId),
-                code='00001'
-            )
-        data = RoleSerializer(instance=query)
-        return DataResponse(
-            data=data.data,
-            msg='查看角色信息成功',
-            code='00000'
-        )
-
-    def put(self, request, roleId):
-        """
-        :param request:
-        :param roleId:
-        :url /api/v1/role/(?P<roleId>[0-9])$
-        :parameter:
-        {
-            "name": "name",
-            "code": "code",
-            "desc": "desc"
-        }
-        :return: 修改角色信息
-        """
-        try:
-            query = Role.objects.get(id=roleId)
-        except Role.DoesNotExist:
-            return DataResponse(msg="修改角色信息失败,RoleID:{0}！".format(roleId), code='00001')
-        backend = DataQueryPermission(request=request)
-        if not backend.check_user_permission(model_obj=query, request_type='PUT'):
-            return DataResponse(
-                msg="不存在该角色的修改权限,RoleID:{0}！".format(roleId), code='00001'
-            )
-        data = RoleSerializer(instance=query, data=request.data)
-        if not data.is_valid():
-            return DataResponse(msg="修改角色信息失败,RoleID:{0}，{1}！".format(
-                roleId, format_error(data=data.errors)
-            ), code='00001')
-        else:
-            data.save()
-        return DataResponse(data=data.data, msg='修改角色信息成功', code='00000')
-
-    def delete(self, request, roleId):
-        """
-        :param request:
-        :param roleId:
-        :url /api/v1/role/(?P<roleId>[0-9])$
-        :parameter:
-        {}
-        :return: 删除角色
-        """
-        try:
-            Role.objects.get(id=roleId).delete()
-            return DataResponse(msg='删除信息成功!', code='00000')
-        except Role.DoesNotExist:
-            return DataResponse(msg='删除角色失败!', code='00001')
+    # def get(self, request, roleId):
+    #     """
+    #     :param request:
+    #     :param roleId:
+    #     :url /api/v1/role/(?P<roleId>[0-9])$
+    #     :parameter:
+    #     {}
+    #     :return: 查看具体角色信息
+    #     """
+    #     try:
+    #         query = Role.objects.get(id=roleId)
+    #     except Role.DoesNotExist:
+    #         return DataResponse(
+    #             msg="获取到角色信息失败,角色ID:{0}".format(roleId),
+    #             code='00001'
+    #         )
+    #     backend = DataQueryPermission(request=request)
+    #     if not backend.check_user_permission(model_obj=query, request_type='GET'):
+    #         return DataResponse(
+    #             msg="没有对应角色的权限,角色ID:{0}".format(roleId),
+    #             code='00001'
+    #         )
+    #     data = RoleSerializer(instance=query)
+    #     return DataResponse(
+    #         data=data.data,
+    #         msg='查看角色信息成功',
+    #         code='00000'
+    #     )
+    #
+    # def put(self, request, roleId):
+    #     """
+    #     :param request:
+    #     :param roleId:
+    #     :url /api/v1/role/(?P<roleId>[0-9])$
+    #     :parameter:
+    #     {
+    #         "name": "name",
+    #         "code": "code",
+    #         "desc": "desc"
+    #     }
+    #     :return: 修改角色信息
+    #     """
+    #     try:
+    #         query = Role.objects.get(id=roleId)
+    #     except Role.DoesNotExist:
+    #         return DataResponse(msg="修改角色信息失败,RoleID:{0}！".format(roleId), code='00001')
+    #     backend = DataQueryPermission(request=request)
+    #     if not backend.check_user_permission(model_obj=query, request_type='PUT'):
+    #         return DataResponse(
+    #             msg="不存在该角色的修改权限,RoleID:{0}！".format(roleId), code='00001'
+    #         )
+    #     data = RoleSerializer(instance=query, data=request.data)
+    #     if not data.is_valid():
+    #         return DataResponse(msg="修改角色信息失败,RoleID:{0}，{1}！".format(
+    #             roleId, format_error(data=data.errors)
+    #         ), code='00001')
+    #     else:
+    #         data.save()
+    #     return DataResponse(data=data.data, msg='修改角色信息成功', code='00000')
+    #
+    # def delete(self, request, roleId):
+    #     """
+    #     :param request:
+    #     :param roleId:
+    #     :url /api/v1/role/(?P<roleId>[0-9])$
+    #     :parameter:
+    #     {}
+    #     :return: 删除角色
+    #     """
+    #     try:
+    #         Role.objects.get(id=roleId).delete()
+    #         return DataResponse(msg='删除信息成功!', code='00000')
+    #     except Role.DoesNotExist:
+    #         return DataResponse(msg='删除角色失败!', code='00001')
 
 
 class PermissionsView(APIView):

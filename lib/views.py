@@ -9,6 +9,15 @@ class BaseDetailView(DataQueryPermission, APIView, RewritePageNumberPagination):
     """A base view for displaying a single object."""
     serializer_class = None
 
+    def get_user_data_objects(self, request):
+        if self.page_size_query_param in self.kwargs:
+            self.kwargs.pop(self.page_size_query_param)
+        if self.page_query_param in self.kwargs:
+            self.kwargs.pop(self.page_query_param)
+        if self.sort_query_param in self.kwargs:
+            self.kwargs.pop(self.sort_query_param)
+        return super().get_user_data_objects(request)
+
     def get(self, request):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")

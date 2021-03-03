@@ -26,15 +26,17 @@ class DataQueryPermission(ObjectUserInfo):
     model_name = None
     app_label = None
     error_message = {}
+    kwargs = None
 
     def __init__(self):
         ObjectUserInfo.__init__(self)
         self.user = None
         self.__object = None
-        self.__model = None
-        # self.model_name = None
-        # self.app_label = None
-        # self.content_type = None
+        self.__model = django_apps.get_model(
+            "{0}.{1}".format(
+                self.app_label, self.model_name
+            )
+        )
 
     def get_user_data_permission(self):
         """
@@ -55,9 +57,7 @@ class DataQueryPermission(ObjectUserInfo):
             return []
         params = dict()
         if not self.__model:
-            self.__model = django_apps.get_model("{0}.{1}".format(
-                self.app_label, self.model_name
-            ))
+            raise ValueError("french model value error!")
         # 超级管理员直接返回结果
         if self.user.is_superuser and self.user.is_active:
             self.__object = self.__model.objects.all()
@@ -125,7 +125,7 @@ class DataQueryPermission(ObjectUserInfo):
         :return:
         """
         filter_dict = dict()
-        kwargs = getattr(request, self.content_type)
+        kwargs = getattr(request, request.method)
         fields = self.get_model_fields()
 
         for key, value in kwargs.items():
@@ -137,9 +137,8 @@ class DataQueryPermission(ObjectUserInfo):
                 filter_dict = {key: value[0]}
             else:
                 filter_dict = {"{0}__in".format(key): value}
-        if len(filter_dict) == 0:
-            return self.__object
-        return self.__object.filter(**filter_dict)
+        if len(filter_dict) != 0:
+            self.kwargs = filter_dict
 
     def get_user_data_objects(self, request):
         """
@@ -147,4 +146,9 @@ class DataQueryPermission(ObjectUserInfo):
         """
         self.user = self.get_user_object(request=request)
         self.get_user_model_data_permission()
-        return self.get_request_filter(request=request)
+        if not self.__object:
+            return self.__object
+        elif self.kwargs:
+            return self.__object.filter(**self.kwargs)
+        else:
+            return self.__object

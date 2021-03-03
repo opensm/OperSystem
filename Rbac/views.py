@@ -102,7 +102,6 @@ class RolesView(BaseDetailView):
     serializer_class = RoleSerializer
     model_name = 'Role'
     app_label = 'Rbac'
-    content_type = 'GET'
 
     # def get(self, request):
     #     """
@@ -283,7 +282,6 @@ class PermissionView(BaseDeleteView):
     model_name = 'Permission'
     app_label = 'Rbac'
     serializer_class = PermissionSerializer
-    content_type = ['GET', 'DELETE', 'PUT']
 
     # def get(self, request, permissionId):
     #     """

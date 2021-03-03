@@ -11,6 +11,8 @@ class BaseDetailView(DataQueryPermission, APIView):
     def get(self, request, *args, **kwargs):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
-        data = self.serializer_class(instance=self.get_user_data_objects(request=request))
+        data = self.serializer_class(
+            instance=self.get_user_data_objects(request=request)
+        )
         print(data)
         return DataResponse(code="00000", data=data.data, msg="获取数据成功")

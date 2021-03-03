@@ -126,6 +126,8 @@ class DataQueryPermission(ObjectUserInfo):
         :return:
         """
         errors = list()
+        print(model_objects)
+        print(type(model_objects))
         if not isinstance(model_objects, list):
             raise TypeError("model_objects type error!")
         for s in model_objects:

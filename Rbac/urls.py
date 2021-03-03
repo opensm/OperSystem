@@ -23,7 +23,7 @@ urlpatterns = [
     path('login', AuthView.as_view(), name='login'),
     path('logout', LogoutView.as_view(), name='logout'),
     # 角色管理
-    re_path('^roles$', RolesView.as_view(), name='roles'),
+    # re_path('^roles$', RolesView.as_view(), name='roles'),
     # re_path('^role/(?P<roleId>[0-9])$', RoleView.as_view()),
     # re_path('^role/(?P<roleId>[0-9])/permission$', RolePermissionEditView.as_view()),
     re_path('^role$', RoleView.as_view()),

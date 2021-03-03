@@ -281,7 +281,7 @@ class PermissionsView(APIView):
             )
 
 
-class PermissionView(BaseDeleteView):
+class PermissionView(BaseListView):
     model_name = 'Permission'
     app_label = 'Rbac'
     serializer_class = PermissionSerializer

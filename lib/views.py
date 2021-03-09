@@ -5,7 +5,7 @@ from lib.response import DataResponse
 from lib.page import RewritePageNumberPagination
 
 
-class BaseDetailView(DataQueryPermission, APIView, RewritePageNumberPagination):
+class BaseListView(DataQueryPermission, APIView, RewritePageNumberPagination):
     """A base view for displaying a single object."""
     serializer_class = None
 
@@ -34,8 +34,9 @@ class BaseDetailView(DataQueryPermission, APIView, RewritePageNumberPagination):
         )
 
 
-class BaseListView(DataQueryPermission, APIView, RewritePageNumberPagination):
+class BaseDetailView(DataQueryPermission, APIView, RewritePageNumberPagination):
     serializer_class = None
+    pk = None
 
     def get_user_data_objects(self, request):
         if self.page_size_query_param in self.kwargs:
@@ -53,7 +54,9 @@ class BaseListView(DataQueryPermission, APIView, RewritePageNumberPagination):
                 code="00001",
                 msg="删除数据异常，获取到删除数据失败！"
             )
-        if not self.check_user_permissions(model_objects=model_obj, request_method=request.method):
+        if not self.check_user_permissions(
+                model_objects=model_obj, request_method=request.method
+        ):
             return DataResponse(
                 code="00001",
                 msg=self.error_message

@@ -110,17 +110,13 @@ class DataQueryPermission(ObjectUserInfo):
         :param request_type:
         :return:
         """
-        check_status = False
-        data_permission = self.get_user_model_data_permission()
-        if self.user.is_superuser and self.user.is_active:
-            return True
-        for data in data_permission:
-            if model_obj != data:
-                continue
-            if data.request_type.filter(method=request_type):
-                check_status = True
-                break
-        return check_status
+        for data in self.get_user_data_permission():
+            params = {data.check_field: data.value}
+            model_check = data.content_type.filter(**params)
+            method = [x.method for x in data.content_type.all()]
+            if model_obj in model_check and request_type in method:
+                return True
+        return False
 
     def check_user_permissions(self, model_objects, request_method):
         """

@@ -92,7 +92,7 @@ DATABASES = {
         'NAME': 'KubernetesWeb',
         'USER': 'root',
         'PASSWORD': '123456',
-        'HOST': 'mysql_host',
+        'HOST': 'mysqlhost',
         'OPTIONS': {
             "init_command": "SET foreign_key_checks = 0;",
         }

@@ -67,7 +67,7 @@ class Menu(models.Model):
 
 class Permission(models.Model):
     name = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
-    model = models.OneToOneField('DataPermission', default=None, blank=True, on_delete=models.DO_NOTHING)
+    model = models.OneToOneField('DataPermissionRule', default=None, blank=True, on_delete=models.DO_NOTHING)
     path = models.CharField(
         verbose_name='URL', max_length=255, null=False, blank=False, default="/", unique=True
     )
@@ -80,20 +80,13 @@ class Permission(models.Model):
         return self.name
 
 
-class DataPermission(models.Model):
-    check_type = (
-        ("all", "全部数据"),
-        ("pk", "唯一键"),
-        ("field", "字段")
+class DataPermissionRule(models.Model):
+    name = models.CharField(
+        verbose_name="规则名称", max_length=10, default='默认规则'
     )
-    content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING)
-    data_check_type = models.CharField(
-        verbose_name="校验数据权限类型", max_length=10, default='pk', choices=check_type
-    )
-    check_field = models.CharField(verbose_name="校验的字段", max_length=20, default="pk", null=True)
 
     class Meta:
-        db_table = 'sys_data_permission'
+        db_table = 'sys_permission_rule'
 
 
 class Role(models.Model):
@@ -105,7 +98,7 @@ class Role(models.Model):
         blank=True,
     )
     data_permission = models.ManyToManyField(
-        "DataPermissionList",
+        "DataPermissionRule",
         blank=True
     )
 
@@ -114,11 +107,15 @@ class Role(models.Model):
 
 
 class DataPermissionList(models.Model):
+    operate_choice = (
+        ("eq", "等于")
+    )
+    permission_rule = models.ForeignKey(verbose_name="数据权限规则", on_delete=models.DO_NOTHING, to="DataPermissionRule")
     content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING, default=0)
-    value = models.CharField(verbose_name="权限值对应的列表", default="", max_length=20)
     request_type = models.ManyToManyField(RequestType, verbose_name="请求类型", default=0)
-    operate_type = models.CharField(default="eq", max_length=20, null=False)
+    operate_type = models.CharField(default="eq", max_length=20, verbose_name="运算规则", null=False)
     object_id = models.PositiveIntegerField(default=0)
+    value = models.CharField(verbose_name="权限值对应的列表", default="", max_length=20)
     check_field = models.CharField(verbose_name="校验的字段", max_length=20, default="pk", null=True)
 
     class Meta:

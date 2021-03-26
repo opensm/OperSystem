@@ -114,21 +114,16 @@ class Role(models.Model):
 
 
 class DataPermissionList(models.Model):
-    check_type = (
-        ("all", "全部数据"),
-        ("pk", "唯一键"),
-        ("field", "字段")
-    )
     content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING, default=0)
-    # model = models.ForeignKey(DataPermission, default="all", on_delete=models.DO_NOTHING)
     value = models.CharField(verbose_name="权限值对应的列表", default="", max_length=20)
     request_type = models.ManyToManyField(RequestType, verbose_name="请求类型", default=0)
+    operate_type = models.CharField(default="eq", max_length=20, null=False)
     object_id = models.PositiveIntegerField(default=0)
     check_field = models.CharField(verbose_name="校验的字段", max_length=20, default="pk", null=True)
 
     class Meta:
         db_table = 'sys_data_permission_list'
-        unique_together = (('content_type', 'value', 'role'),)
+        unique_together = (('content_type', 'value'),)
 
 
 class UserInfo(AbstractBaseUser, PermissionsMixin):

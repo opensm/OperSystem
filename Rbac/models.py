@@ -115,7 +115,7 @@ class DataPermissionList(models.Model):
     request_type = models.ManyToManyField(RequestType, verbose_name="请求类型", default=0)
     operate_type = models.CharField(default="eq", max_length=20, verbose_name="运算规则", null=False)
     object_id = models.PositiveIntegerField(default=0)
-    value = models.CharField(verbose_name="权限值对应的列表", default="", max_length=20)
+    value = models.CharField(verbose_name="值", default="", max_length=20)
     check_field = models.CharField(verbose_name="校验的字段", max_length=20, default="pk", null=True)
 
     class Meta:

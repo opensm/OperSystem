@@ -80,15 +80,6 @@ class Permission(models.Model):
         return self.name
 
 
-class DataPermissionRule(models.Model):
-    name = models.CharField(
-        verbose_name="规则名称", max_length=10, default='默认规则'
-    )
-
-    class Meta:
-        db_table = 'sys_permission_rule'
-
-
 class Role(models.Model):
     name = models.CharField(verbose_name='角色', max_length=32, blank=False, null=False, default="默认角色")
     desc = models.TextField(verbose_name="角色描述", blank=True)
@@ -104,6 +95,15 @@ class Role(models.Model):
 
     class Meta:
         db_table = 'sys_roles'
+
+
+class DataPermissionRule(models.Model):
+    name = models.CharField(
+        verbose_name="规则名称", max_length=10, default='默认规则'
+    )
+
+    class Meta:
+        db_table = 'sys_permission_rule'
 
 
 class DataPermissionList(models.Model):

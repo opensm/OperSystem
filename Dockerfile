@@ -1,5 +1,6 @@
 FROM python:3.6-alpine
 WORKDIR KubernetesManagerWeb
+RUN yum -y install gcc
 RUN pip install pipenv -i https://pypi.douban.com/simple
 RUN pip install pymysql -i https://pypi.douban.com/simple
 RUN pip install django -i https://pypi.douban.com/simple

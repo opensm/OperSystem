@@ -1,4 +1,4 @@
-FROM python:3.6-alpine
+FROM python:3.6.13
 WORKDIR KubernetesManagerWeb
 RUN apk add gcc
 RUN pip install pipenv -i https://pypi.douban.com/simple

@@ -1,7 +1,7 @@
 import datetime
 from django.contrib import auth
 from django.contrib.auth import password_validation
-from Rbac.models import Role, Permission, UserInfo, DataPermission, Menu
+from Rbac.models import Role, Permission, UserInfo, DataPermissionRule, Menu
 from rest_framework import serializers
 
 
@@ -219,7 +219,7 @@ class RolePermissionEditSerializer(serializers.ModelSerializer):
 
 class DataPermissionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DataPermission
+        model = DataPermissionRule
         fields = ("__all__")
 
 

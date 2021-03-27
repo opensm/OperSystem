@@ -5,6 +5,7 @@ RUN pip install pymysql -i https://pypi.douban.com/simple
 RUN pip install django -i https://pypi.douban.com/simple
 RUN pip install djangorestframework -i https://pypi.douban.com/simple
 RUN pip install django-cors-headers -i https://pypi.douban.com/simple
+RUN pip install cryptography -i https://pypi.douban.com/simple
 WORKDIR api/
 COPY . .
 EXPOSE 8080

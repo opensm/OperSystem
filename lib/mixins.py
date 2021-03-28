@@ -46,9 +46,12 @@ class DataQueryPermission(ObjectUserInfo):
         model = django_apps.get_model("Rbac.DataPermissionList")
         if not self.user.usertoken.expiration_time > datetime.datetime.now() or not self.user.is_active:
             return []
-        return [data for data in model.objects.filter(
-            role__in=self.user.roles.all()
-        )]
+        permission_list = list()
+        for role in self.user.roles.all():
+            permission_list = model.objects.filter(
+                permission_rule__in=role.data_permission.all()
+            )
+        return permission_list
 
     def get_user_model_data_permission(self):
         """

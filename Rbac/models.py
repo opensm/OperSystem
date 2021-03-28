@@ -101,6 +101,8 @@ class DataPermissionRule(models.Model):
     name = models.CharField(
         verbose_name="规则名称", max_length=10, default='默认规则'
     )
+    content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING, verbose_name="关联模型", default=0)
+    request_type = models.ManyToManyField(RequestType, verbose_name="请求类型", default=0)
 
     class Meta:
         db_table = 'sys_permission_rule'
@@ -111,10 +113,7 @@ class DataPermissionList(models.Model):
         ("eq", "等于")
     )
     permission_rule = models.ManyToManyField(verbose_name="数据权限规则", to="DataPermissionRule")
-    content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING, verbose_name="关联模型", default=0)
-    request_type = models.ManyToManyField(RequestType, verbose_name="请求类型", default=0)
     operate_type = models.CharField(default="eq", max_length=20, verbose_name="运算规则", null=False)
-    # object_id = models.PositiveIntegerField(default=0)
     value = models.CharField(verbose_name="值", default="", max_length=20)
     check_field = models.CharField(verbose_name="校验的字段", max_length=20, default="pk", null=True)
 

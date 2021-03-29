@@ -1,5 +1,6 @@
 from django.apps import apps as django_apps
 from django.db.models import query
+from django.db.models import Q
 from KubernetesManagerWeb.settings import AUTH_USER_MODEL
 import datetime
 
@@ -48,9 +49,17 @@ class DataQueryPermission(ObjectUserInfo):
             return []
         permission_list = list()
         for role in self.user.roles.all():
-            permission_list = model.objects.filter(
-                permission_rule__in=role.data_permission.all()
-            )
+            for content in role.data_permission.filter(content_type=self.__model):
+                permission = model.objects.get(
+                    permission_rule=content,
+                )
+                if not permission:
+                    continue
+                permission_list.append((
+                    content.content_type,
+                    permission,
+                    content.request_type
+                ))
         return permission_list
 
     def get_user_model_data_permission(self):
@@ -70,23 +79,39 @@ class DataQueryPermission(ObjectUserInfo):
         elif not self.user.is_active:
             return self.__object
         for data in self.get_user_data_permission():
-            if data.content_type != self.__model:
-                continue
-            try:
-                value = int(data.value)
-            except TypeError:
-                value = data.value
-            params.setdefault(data.check_field, []).append(value)
-        filter_dict = dict()
+            self.get_permission_rule_q(data=data)
+
+    def get_permission_rule_q(self, data):
+        """
+        :param data:
+        :return:
+        """
+        params = dict()
+        if not isinstance(data, tuple):
+            raise TypeError("输入参数必须为元组:{0}，请检查".format(data))
+        query_set = data[1]
+        if len(query_set):
+            return []
+        content = data[0]
+        for x in query_set:
+            params.setdefault(
+                x.check_field,
+                []
+            ).append({
+                'operate': x.operate_choice,
+                'value': x.value
+            })
+        a = Q()
         for key, value in params.items():
-            if len(value) == 0:
-                continue
-            elif len(value) == 1:
-                filter_dict = {key: value}
-            else:
-                filter_dict = {"{0}__in".format(key): value}
-        self.__object = self.__model.objects.filter(**filter_dict)
-        return self.__object
+            a_t = Q()
+            a_t.connector = 'OR'
+            for v in value:
+                a_t.children.append((key, v))
+            a.add(a_t, 'ADD')
+        return (
+            content.objects.filter(a),
+            data[2]
+        )
 
     def get_model_fields(self):
         if not self.__object:

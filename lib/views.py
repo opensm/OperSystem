@@ -56,9 +56,7 @@ class BaseDetailView(DataQueryPermission, APIView, RewritePageNumberPagination):
                 code="00001",
                 msg="删除数据异常，获取到删除数据失败！"
             )
-        if not self.check_user_permissions(
-                model_objects=model_obj, request_method=request.method
-        ):
+        if not self.check_user_permissions(request=request):
             return DataResponse(
                 code="00001",
                 msg=self.error_message
@@ -76,17 +74,17 @@ class BaseDetailView(DataQueryPermission, APIView, RewritePageNumberPagination):
         """
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
+        if not self.check_user_permissions(request=request):
+            return DataResponse(
+                code="00001",
+                msg=self.error_message
+            )
         model_objs = self.get_user_data_objects(request=request)
         data = self.serializer_class(
             instance=model_objs,
             many=True,
             data=request.data
         )
-        if not self.check_user_permissions(model_objects=model_objs, request_method=request.method):
-            return DataResponse(
-                code="00001",
-                msg=self.error_message
-            )
         if not data.is_valid():
             return DataResponse(data=request.data, msg="数据输入格式不匹配:{0}".format(data.errors), code="00001")
         try:

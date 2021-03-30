@@ -56,7 +56,6 @@ class DataQueryPermission(ObjectUserInfo):
                 if not permission:
                     continue
                 permission_list.append((
-                    content.content_type,
                     permission,
                     content.request_type
                 ))
@@ -66,19 +65,37 @@ class DataQueryPermission(ObjectUserInfo):
         """
         :return:
         """
+        q_query = list()
+
         if not isinstance(self.model_name, str):
             return []
         if not self.__model:
             raise ValueError("french model value error!")
-        # 超级管理员直接返回结果
-        if self.user.is_superuser and self.user.is_active:
-            self.__object = self.__model.objects.all()
-            return self.__object
+
         # 用户状态为不生效，返回空
         elif not self.user.is_active:
-            return self.__object
+            return []
         for data in self.get_user_data_permission():
-            self.get_permission_rule_q(data=data)
+            obj, methods = self.get_permission_rule_q(data=data)
+            q_query.append(obj)
+        return q_query
+
+    def check_user_permissions(self, request):
+        """
+        :param request:
+        :return:
+        """
+        query_kwargs = self.get_request_filter(request=request)
+        status = False
+        for data in self.get_user_data_permission():
+            q = Q()
+            q.add(query_kwargs, 'ADD')
+            obj, methods = self.get_permission_rule_q(data=data)
+            q.add(obj, 'ADD')
+            if request.method in methods and self.__model.objects.filter(q):
+                status = True
+                break
+        return status
 
     def get_permission_rule_q(self, data):
         """
@@ -88,10 +105,12 @@ class DataQueryPermission(ObjectUserInfo):
         params = dict()
         if not isinstance(data, tuple):
             raise TypeError("输入参数必须为元组:{0}，请检查".format(data))
-        query_set = data[1]
+        query_set = data[0]
+        method = data[1]
+        if not method:
+            raise ValueError("没有相关的请求类型")
         if len(query_set):
             return []
-        content = data[0]
         for x in query_set:
             params.setdefault(
                 x.check_field,
@@ -108,8 +127,7 @@ class DataQueryPermission(ObjectUserInfo):
                 a_t.children.append((key, v))
             a.add(a_t, 'ADD')
         return (
-            content.objects.filter(a),
-            data[2]
+            a, method
         )
 
     def get_model_fields(self):
@@ -139,62 +157,42 @@ class DataQueryPermission(ObjectUserInfo):
         :return:
         """
         for data in self.get_user_data_permission():
-            params = {data.check_field: data.value}
-            model_check = data.content_type.filter(**params)
-            method = [x.method for x in data.content_type.all()]
-            if model_obj in model_check and request_type in method:
+            if model_obj in data[0] and request_type in data[1]:
                 return True
         return False
-
-    def check_user_permissions(self, model_objects, request_method):
-        """
-        :param model_objects:
-        :param request_method:
-        :return:
-        """
-        errors = list()
-        print(model_objects)
-        print(type(model_objects))
-        for s in model_objects:
-            if not self.check_user_permission(model_obj=s, request_type=request_method):
-                errors.append("ID:{0},权限不存在!".format(s.id))
-        if errors:
-            self.error_message = ','.join(list(set(errors))).rstrip(',')
-        if self.error_message:
-            return False
-        else:
-            return True
 
     def get_request_filter(self, request):
         """
         :param request:
         :return:
         """
-        filter_dict = dict()
         kwargs = getattr(request, request.method)
         fields = self.get_model_fields()
-
+        query_q = Q()
+        query_q.connector = "AND"
         for key, value in kwargs.items():
-            if key not in fields:
+            if key not in fields or not value:
                 continue
-            if len(value) == 0:
-                continue
-            elif len(value) == 1:
-                filter_dict = {key: value[0]}
-            else:
-                filter_dict = {"{0}__in".format(key): value}
-        if len(filter_dict) != 0:
-            self.kwargs = filter_dict
+            query_q.add(key, value)
+        return query_q
 
     def get_user_data_objects(self, request):
         """
         :return:
         """
         self.user = self.get_user_object(request=request)
-        self.get_user_model_data_permission()
-        if not self.__object:
-            return self.__object
-        elif self.kwargs:
-            return self.__object.filter(**self.kwargs)
-        else:
-            return self.__object
+        # 超级管理员直接返回结果
+        if self.user.is_superuser and self.user.is_active:
+            return self.__model.objects.all()
+        url_q = self.get_request_filter(request=request)
+        permissions = self.get_user_model_data_permission()
+        if not permissions:
+            return []
+        parent_q = Q()
+        for data in permissions:
+            sub_q = Q()
+            sub_q.connector = 'AND'
+            sub_q.children.append(url_q)
+            sub_q.children.append(data)
+            parent_q.add(sub_q, 'OR')
+        return self.__model.objects.filter(parent_q)

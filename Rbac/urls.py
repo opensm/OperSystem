@@ -10,7 +10,6 @@ from Rbac.views import AuthView, \
     UserStatusEditView, \
     UserEditRoleView, \
     RolePermissionEditView, \
-    UserMenu, \
     CurrentUser, \
     LogoutView, \
     DataPermissionsView, \

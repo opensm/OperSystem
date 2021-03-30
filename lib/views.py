@@ -1,4 +1,3 @@
-from django.views.generic.base import ContextMixin, TemplateResponseMixin, View
 from rest_framework.views import APIView
 from lib.mixins import DataQueryPermission
 from lib.response import DataResponse

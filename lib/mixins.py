@@ -68,7 +68,6 @@ class DataQueryPermission(ObjectUserInfo):
         """
         if not isinstance(self.model_name, str):
             return []
-        params = dict()
         if not self.__model:
             raise ValueError("french model value error!")
         # 超级管理员直接返回结果
@@ -114,11 +113,12 @@ class DataQueryPermission(ObjectUserInfo):
         )
 
     def get_model_fields(self):
-        if not self.__object:
-            return []
+        field_name = dict()
         if not self.__model:
-            raise ValueError("请先通过 get_user_model_data_permission实例化相关数据！")
-        return [x.name for x in self.__model._meta.fields]
+            raise ValueError("请先输入model参数实例化相关数据！")
+        for x in self.__model._meta.fields:
+            field_name[x.name] = x.verbose_name
+        return field_name
 
     def get_field_values(self, field):
         """
@@ -128,7 +128,7 @@ class DataQueryPermission(ObjectUserInfo):
         if not self.__object:
             raise ValueError("请先通过 get_user_model_data_permission实例化相关数据！")
         fields = self.get_model_fields()
-        if field not in fields:
+        if field not in fields.keys():
             return []
         return list(set([getattr(x, field) for x in self.__object]))
 

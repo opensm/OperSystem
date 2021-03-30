@@ -7,7 +7,7 @@ from Rbac.backend import UserResourceQuery
 import datetime
 from Rbac.backend import make_token
 from Rbac.serializers import *
-from lib.views import BaseDetailView, BaseListView
+from lib.views import BaseDetailView, BaseListView, BaseGETView, BaseGetPUTView
 
 
 def format_error(data):
@@ -169,167 +169,22 @@ class ResetPassWordView(APIView):
             )
 
 
-class UserEditRoleView(APIView):
-
-    def put(self, request, userId):
-        """
-        :param request:
-        :param userId:
-        :url  /api/v1/user/(?P<userId>[0-9])/roles$
-        :parameter:
-        {
-            "roles": "角色ID1",
-            "roles": "角色ID2",
-            ......
-        }
-        :return:
-        """
-        try:
-            query = UserInfo.objects.get(id=userId)
-        except UserInfo.DoesNotExist:
-            return DataResponse(
-                msg="修改到用户关联角色失败,用户ID:{0}!",
-                code='00001'
-            )
-        data = UserEditRoleSerializer(instance=query, data=request.data)
-        if not data.is_valid():
-            return DataResponse(
-                msg="修改到用户关联角色失败,{0}!".format(format_error(data=data.errors)),
-                code='00001'
-            )
-        else:
-            data.save()
-            return DataResponse(
-                msg="修改到用户关联角色成功,用户ID为：{0}".format(userId),
-                code='00000'
-            )
-
-    def get(self, request, userId):
-        """
-        :param request:
-        :param userId:
-        :return:
-        """
-        try:
-            query = UserInfo.objects.get(id=userId)
-        except UserInfo.DoesNotExist:
-            return DataResponse(
-                msg="获取用户角色信息失败,用户ID为:{0}!".format(userId),
-                code='00001'
-            )
-        data = RoleSerializer(instance=query.roles.all(), many=True)
-        return DataResponse(
-            data=data.data,
-            msg="获取用户角色信息成功,用户ID为:{0}!".format(userId),
-            code='00000'
-        )
+class UserEditRoleView(BaseGetPUTView):
+    model_name = 'UserInfo'
+    app_label = 'Rbac'
+    serializer_class = UserEditRoleSerializer
 
 
-class UserStatusEditView(APIView):
-    def put(self, request, userId):
-        """
-        :param request:
-        :param userId:
-        :url  /api/v1/user/(?P<userId>[0-9])/state$
-        :parameter:
-        {
-            "is_active": "True"|"False",
-        }
-        :return:
-        """
-        try:
-            query = UserInfo.objects.get(id=userId)
-        except UserInfo.DoesNotExist:
-            return DataResponse(
-                msg="修改用户状态失败,用户ID不存在:{0}!".format(userId),
-                code='00001'
-            )
-
-        data = UserStatusEditSerializer(instance=query, data=request.data)
-        if not data.is_valid():
-            return DataResponse(
-                msg="修改用户状态失败,{0}!".format(format_error(data=data.errors)),
-                code='00001'
-            )
-        else:
-            data.save()
-            return DataResponse(
-                msg="修改用户状态成功!",
-                code='00000'
-            )
-
-    def get(self, request, userId):
-        """
-        :param request:
-        :param userId:
-        :return:
-        """
-        try:
-            query = UserInfo.objects.get(id=userId)
-        except UserInfo.DoesNotExist:
-            return DataResponse(
-                msg="获取账号状态失败,用户ID:{0}!".format(userId),
-                code='00001'
-            )
-        return DataResponse(
-            data={'is_active': query.is_active},
-            msg="获取账号状态成功,用户ID:{0}!".format(userId),
-            code='00000'
-        )
+class UserStatusEditView(BaseGetPUTView):
+    model_name = 'UserInfo'
+    app_label = 'Rbac'
+    serializer_class = UserStatusEditSerializer
 
 
 class RolePermissionEditView(APIView):
-    def put(self, request, roleId):
-        """
-        :param request:
-        :param roleId:
-        :url /api/v1/role/1/permission
-        :parameter:
-        {
-            "permissions": [1,2,3],
-        }
-        :return:
-        """
-        try:
-            query = Role.objects.get(id=roleId)
-        except Role.DoesNotExist:
-            return DataResponse(
-                msg="获取角色权限信息失败!",
-                code='00001'
-            )
-        data = RolePermissionEditSerializer(instance=query, data=request.data)
-        if not data.is_valid():
-            return DataResponse(
-                msg="修改角色权限信息失败，{0}!".format(format_error(data=data.errors)),
-                code='00001'
-            )
-        else:
-            data.save()
-            return DataResponse(
-                data=data.data,
-                msg="修改角色权限成功!",
-                code='00000'
-            )
-
-    def get(self, request, roleId):
-        """
-        :param request:
-        :param roleId:
-        :return:
-        """
-        try:
-            query = Role.objects.get(id=roleId)
-        except Role.DoesNotExist:
-            return DataResponse(
-                code='00001',
-                msg="获取角色权限信息失败!"
-            )
-        data = PermissionSerializer(instance=query, many=True)
-        return DataResponse(
-            data=data.data,
-            code='00000',
-            msg='获取角色权限信息失败!'
-        )
+    model_name = 'Role'
+    app_label = 'Rbac'
+    serializer_class = RolePermissionEditSerializer
 
 
 class CurrentUser(APIView):

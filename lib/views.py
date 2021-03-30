@@ -149,7 +149,7 @@ class BaseGETView(DataQueryPermission, APIView):
         )
 
 
-class BaseGetPostView(DataQueryPermission, APIView):
+class BaseGetPUTView(DataQueryPermission, APIView):
     serializer_class = None
     pk = None
 

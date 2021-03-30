@@ -3,6 +3,20 @@ from django.db.models import query
 from django.db.models import Q
 from KubernetesManagerWeb.settings import AUTH_USER_MODEL
 import datetime
+import hashlib
+import time
+from KubernetesManagerWeb.settings import SECRET_KEY
+
+
+def make_token(username):
+    """
+    :param username:
+    :return:
+    """
+    md5 = hashlib.md5(
+        "{0}{1}{2}".format(username, time.time(), SECRET_KEY).encode("utf8")
+    )
+    return md5.hexdigest()
 
 
 class ObjectUserInfo:

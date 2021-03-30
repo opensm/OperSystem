@@ -5,7 +5,7 @@ from lib.response import DataResponse
 from django.utils import timezone
 # from Rbac.backend import UserResourceQuery
 import datetime
-from Rbac.backend import make_token
+from lib.mixins import make_token
 from Rbac.serializers import *
 from lib.views import BaseDetailView, BaseListView, BaseGETView, BaseGetPUTView, BasePUTView, UserGETView
 

@@ -32,6 +32,25 @@ class BaseListView(DataQueryPermission, APIView, RewritePageNumberPagination):
             code="00000"
         )
 
+    def post(self, request):
+        if not self.serializer_class:
+            raise TypeError("serializer_class type error!")
+        data = self.serializer_class(
+            data=request.data
+        )
+        if not data.is_valid():
+            return DataResponse(
+                msg="添加参数异常",
+                code='00001'
+            )
+        else:
+            data.save()
+            return DataResponse(
+                data=data.data,
+                msg='数据保存成功！',
+                code='00000'
+            )
+
 
 class BaseDetailView(DataQueryPermission, APIView, RewritePageNumberPagination):
     serializer_class = None

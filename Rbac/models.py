@@ -35,57 +35,43 @@ class Menu(models.Model):
         (2, "三级菜单"),
         (999, "按钮功能")
     )
-    name = models.CharField(
-        verbose_name="菜单名称", null=False, blank=False, unique=True, max_length=50
-    )
-    path = models.CharField(
-        verbose_name="URL", null=False, blank=False, unique=True, max_length=200
-    )
-    parent = models.ForeignKey(
-        'self',
-        verbose_name='父级菜单',
-        null=True,
-        blank=True,
-        related_name='children',
-        on_delete=models.DO_NOTHING
-    )
-    icon = models.CharField(
-        verbose_name="图标", null=True, blank=True, default="", max_length=50
-    )
-    index = models.IntegerField(
-        verbose_name='菜单序列', null=False, blank=False, default=0
-    )
-    permission = models.ManyToManyField(
-        verbose_name="使用权限", default=None, to="Permission"
-    )
+    name = models.CharField(verbose_name="菜单名称", max_length=50, null=False, blank=False, unique=True)
+    path = models.CharField(verbose_name="URL", max_length=200, null=False, blank=False, unique=True)
+    parent = models.ForeignKey('self', verbose_name='父级菜单', null=True, blank=True, related_name='children',
+                               on_delete=models.DO_NOTHING)
+    icon = models.CharField(verbose_name="图标", max_length=50, null=True, blank=True, default="")
+    index = models.IntegerField(verbose_name='菜单序列', null=False, blank=False, default=0)
+    permission = models.ForeignKey(verbose_name="数据权限", default=None, to="DataPermissionRule",
+                                   on_delete=models.DO_NOTHING)
     level = models.IntegerField(verbose_name="菜单级别", default=0, choices=menu_choice)
+    create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
     class Meta:
         unique_together = (('parent', 'index'),)
         db_table = 'sys_menus'
 
 
-class Permission(models.Model):
-    name = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
-    model = models.OneToOneField('DataPermissionRule', default=None, blank=True, on_delete=models.DO_NOTHING)
-    path = models.CharField(
-        verbose_name='URL', max_length=255, null=False, blank=False, default="/", unique=True
-    )
-    create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
-
-    class Meta:
-        db_table = 'sys_permissions'
-
-    def __str__(self):
-        return self.name
+# class Permission(models.Model):
+#     name = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
+#     model = models.OneToOneField('DataPermissionRule', default=None, blank=True, on_delete=models.DO_NOTHING)
+#     path = models.CharField(
+#         verbose_name='URL', max_length=255, null=False, blank=False, default="/", unique=True
+#     )
+#     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
+#
+#     class Meta:
+#         db_table = 'sys_permissions'
+#
+#     def __str__(self):
+#         return self.name
 
 
 class Role(models.Model):
     name = models.CharField(verbose_name='角色', max_length=32, blank=False, null=False, default="默认角色")
     desc = models.TextField(verbose_name="角色描述", blank=True)
-    permissions = models.ManyToManyField(
-        Permission,
-        verbose_name='permissions',
+    menu = models.ManyToManyField(
+        Menu,
+        verbose_name='Menu',
         blank=True,
     )
     data_permission = models.ManyToManyField(

@@ -2,6 +2,8 @@ from rest_framework.views import APIView
 from lib.mixins import DataQueryPermission
 from lib.response import DataResponse
 from lib.page import RewritePageNumberPagination
+from Rbac.serializers import MenuSerializer
+from itertools import chain
 
 
 class BaseListView(DataQueryPermission, APIView, RewritePageNumberPagination):
@@ -142,6 +144,41 @@ class BaseGETView(DataQueryPermission, APIView):
         data = self.serializer_class(
             instance=model_obj
         )
+        return DataResponse(
+            data=data.data,
+            msg="获取信息成功！",
+            code='00000'
+        )
+
+
+class UserGETView(DataQueryPermission, APIView):
+    serializer_class = None
+    pk = None
+
+    def get_menu(self):
+        """
+        :return:
+        """
+        # 判断传入参数类型
+        if not isinstance(self.user, self.get_user_model):
+            raise TypeError("传入的用户类型错误！")
+        # 超级用户直接返回全部权限
+        # instance = self.get_user_model_data_permission()
+        instance = list()
+        for x in self.user.roles.all():
+            instance = chain(x.menu.all(), instance)
+        data = MenuSerializer(many=True, instance=instance)
+        return data.data
+
+    def get(self, request):
+        if not self.serializer_class:
+            raise TypeError("serializer_class type error!")
+        model_obj = self.get_user_data_objects(request=request)
+        data = self.serializer_class(
+            instance=model_obj
+        )
+        menu = data.data
+        menu['user_permissions'] = self.get_menu()
         return DataResponse(
             data=data.data,
             msg="获取信息成功！",

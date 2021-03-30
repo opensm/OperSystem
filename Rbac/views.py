@@ -3,11 +3,11 @@ from rest_framework.views import APIView
 from Rbac.models import *
 from lib.response import DataResponse
 from django.utils import timezone
-from Rbac.backend import UserResourceQuery
+# from Rbac.backend import UserResourceQuery
 import datetime
 from Rbac.backend import make_token
 from Rbac.serializers import *
-from lib.views import BaseDetailView, BaseListView, BaseGETView, BaseGetPUTView,BasePUTView
+from lib.views import BaseDetailView, BaseListView, BaseGETView, BaseGetPUTView, BasePUTView, UserGETView
 
 
 def format_error(data):
@@ -134,7 +134,6 @@ class UserView(BaseDetailView):
 
 
 class ResetPassWordView(BasePUTView):
-
     model_name = 'UserInfo'
     app_label = 'Rbac'
     serializer_class = ResetPasswordSerializer
@@ -152,48 +151,38 @@ class UserStatusEditView(BaseGetPUTView):
     serializer_class = UserStatusEditSerializer
 
 
-class RolePermissionEditView(APIView):
+class RolePermissionEditView(BaseGetPUTView):
     model_name = 'Role'
     app_label = 'Rbac'
     serializer_class = RolePermissionEditSerializer
 
 
-class CurrentUser(APIView):
-
-    def get(self, request):
-        token = request.META.get('HTTP_AUTHORIZATION')
-        token_object = UserToken.objects.get(token=token)
-        data = UserInfoSerializer(token_object.username)
-        user = UserResourceQuery(request=request)
-        menu = data.data
-        menu['user_permissions'] = user.get_menu()
-        return DataResponse(
-            data=menu,
-            msg="获取当前用户信息成功！",
-            code='00000'
-        )
+class CurrentUser(UserGETView):
+    model_name = 'UserInfo'
+    app_label = 'Rbac'
+    serializer_class = RolePermissionEditSerializer
 
 
-class UserMenu(APIView):
-
-    def get(self, request):
-        """
-        :param request:
-        :return:
-        """
-        user = UserResourceQuery(request=request)
-        user_obj = user.get_user_model()
-        if not user_obj:
-            return DataResponse(
-                code='00001',
-                msg='Token校验失败!'
-            )
-        menu = user.get_menu()
-        return DataResponse(
-            data=menu,
-            code='00000',
-            msg='获取菜单列表成功!'
-        )
+# class UserMenu(APIView):
+#
+#     def get(self, request):
+#         """
+#         :param request:
+#         :return:
+#         """
+#         user = UserResourceQuery(request=request)
+#         user_obj = user.get_user_model()
+#         if not user_obj:
+#             return DataResponse(
+#                 code='00001',
+#                 msg='Token校验失败!'
+#             )
+#         menu = user.get_menu()
+#         return DataResponse(
+#             data=menu,
+#             code='00000',
+#             msg='获取菜单列表成功!'
+#         )
 
 
 class DataPermissionsView(BaseListView):

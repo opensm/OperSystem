@@ -755,7 +755,7 @@ class DataPermissionsView(APIView):
         :return:
         """
         pg = RewritePageNumberPagination()
-        query = DataPermission.objects.all()
+        query = DataPermissionRule.objects.all()
         page_roles = pg.paginate_queryset(queryset=query, request=request, view=self)
         data = DataPermissionSerializer(instance=page_roles, many=True)
         return pg.get_paginated_response(
@@ -806,8 +806,8 @@ class DataPermissionView(APIView):
         :return: 查看权限信息
         """
         try:
-            query = DataPermission.objects.get(id=DataPermissionId)
-        except DataPermission.DoesNotExist:
+            query = DataPermissionRule.objects.get(id=DataPermissionId)
+        except DataPermissionRule.DoesNotExist:
             return DataResponse(
                 msg='查看数据权限信息失败,DataPermissionId:{0},原因:不存在！'.format(DataPermissionId),
                 code='00001'
@@ -837,8 +837,8 @@ class DataPermissionView(APIView):
         """
 
         try:
-            query = DataPermission.objects.get(id=DataPermissionId)
-        except DataPermission.DoesNotExist:
+            query = DataPermissionRule.objects.get(id=DataPermissionId)
+        except DataPermissionRule.DoesNotExist:
             return DataResponse(
                 msg='修改权限失败,权限Id:{0}！'.format(DataPermissionId),
                 code='00001'
@@ -865,13 +865,13 @@ class DataPermissionView(APIView):
         {}
         :return: 删除角色
         """
-        if not DataPermission.objects.filter(id=DataPermissionId).exists():
+        if not DataPermissionRule.objects.filter(id=DataPermissionId).exists():
             return DataResponse(
                 msg='数据权限信息不存在！',
                 code='00001'
             )
         try:
-            DataPermission.objects.get(id=DataPermissionId).delete()
+            DataPermissionRule.objects.get(id=DataPermissionId).delete()
             return DataResponse(
                 msg='删除数据权限成功！',
                 code='00000'

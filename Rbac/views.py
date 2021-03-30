@@ -7,7 +7,7 @@ from Rbac.backend import UserResourceQuery
 import datetime
 from Rbac.backend import make_token
 from Rbac.serializers import *
-from lib.views import BaseDetailView, BaseListView, BaseGETView, BaseGetPUTView
+from lib.views import BaseDetailView, BaseListView, BaseGETView, BaseGetPUTView,BasePUTView
 
 
 def format_error(data):
@@ -133,40 +133,11 @@ class UserView(BaseDetailView):
     serializer_class = UserInfoSerializer
 
 
-class ResetPassWordView(APIView):
+class ResetPassWordView(BasePUTView):
 
-    def put(self, request, userId):
-        """
-        :param request:
-        :param userId:
-        :url  /api/v1/user/(?P<userId>[0-9])/reset_passoword$
-        :parameter:
-        {
-            "oldPassword": "oldPassword",
-            "newPassword": "newPassword"
-        }
-        :return:
-        """
-        try:
-            query = UserInfo.objects.get(id=userId)
-        except UserInfo.DoesNotExist:
-            return DataResponse(
-                msg="获取到用户密码失败,用户ID:{0}!".format(userId),
-                code='00001'
-            )
-        data = ResetPasswordSerializer(user=query, data=request.data)
-        if not data.is_valid():
-            return DataResponse(
-                data=data.data,
-                msg="修改密码失败,{0}!".format(format_error(data=data.errors)),
-                code='00001'
-            )
-        else:
-            return DataResponse(
-                data=data.data,
-                msg="修改密码成功!",
-                code='00000'
-            )
+    model_name = 'UserInfo'
+    app_label = 'Rbac'
+    serializer_class = ResetPasswordSerializer
 
 
 class UserEditRoleView(BaseGetPUTView):

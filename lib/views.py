@@ -172,7 +172,11 @@ class BaseGetPUTView(DataQueryPermission, APIView):
             data=request.data
         )
         if not data.is_valid():
-            return DataResponse(data=request.data, msg="数据输入格式不匹配:{0}".format(data.errors), code="00001")
+            return DataResponse(
+                data=request.data,
+                msg="数据输入格式不匹配:{0}".format(data.errors),
+                code="00001"
+            )
         try:
             data.save()
             return DataResponse(msg="数据保存成功", code="00000")
@@ -196,3 +200,42 @@ class BaseGetPUTView(DataQueryPermission, APIView):
             msg="获取信息成功",
             code="00000"
         )
+
+
+class BasePUTView(DataQueryPermission, APIView):
+    serializer_class = None
+    pk = None
+
+    def put(self, request):
+        """
+        :param request:
+        :return:
+        """
+        if not self.serializer_class:
+            raise TypeError("serializer_class type error!")
+        if not self.check_user_permissions(request=request):
+            return DataResponse(
+                code="00001",
+                msg=self.error_message
+            )
+        model_objs = self.get_user_data_objects(request=request)
+        data = self.serializer_class(
+            instance=model_objs,
+            many=True,
+            data=request.data
+        )
+        if not data.is_valid():
+            return DataResponse(
+                data=request.data,
+                msg="数据输入格式不匹配:{0}".format(data.errors),
+                code="00001"
+            )
+        try:
+            data.save()
+            return DataResponse(msg="数据保存成功", code="00000")
+        except Exception as error:
+            return DataResponse(
+                data=request.data,
+                msg="数据保存失败:%s" % error,
+                code="00001"
+            )

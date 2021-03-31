@@ -1,7 +1,7 @@
 import datetime
 from django.contrib import auth
 from django.contrib.auth import password_validation
-from Rbac.models import Role, Permission, UserInfo, DataPermissionRule, Menu, RequestType
+from Rbac.models import Role, UserInfo, DataPermissionRule, Menu, RequestType
 from rest_framework import serializers
 
 
@@ -20,7 +20,6 @@ class SubPermissionSerializer(serializers.Serializer):
 class MenuSerializer(serializers.ModelSerializer):
     children = RecursiveField(many=True, read_only=True, allow_null=True)
     parent = serializers.PrimaryKeyRelatedField(queryset=Menu.objects.all(), allow_null=True)
-
 
     def validate_parent(self, attrs):
         """
@@ -42,7 +41,6 @@ class MenuSerializer(serializers.ModelSerializer):
 
 
 class PermissionSerializer(serializers.ModelSerializer):
-
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Permission  # 指定需要序列化的模型表
         fields = ("__all__")
@@ -57,7 +55,6 @@ class RoleSerializer(serializers.ModelSerializer):
 
 
 class UserInfoSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = UserInfo
         exclude = ('password',)
@@ -127,7 +124,6 @@ class ResetPasswordSerializer(serializers.Serializer):
 
 
 class UserEditRoleSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = UserInfo
         fields = ("roles",)
@@ -153,7 +149,6 @@ class UserEditRoleSerializer(serializers.ModelSerializer):
 
 
 class UserStatusEditSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = UserInfo
         fields = ('is_active',)
@@ -197,7 +192,6 @@ class RolePermissionEditSerializer(serializers.ModelSerializer):
 
 
 class DataPermissionSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = DataPermissionRule
         fields = ("__all__")

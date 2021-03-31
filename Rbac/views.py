@@ -107,6 +107,7 @@ class RoleView(BaseDetailView):
     model_name = 'Role'
     app_label = 'Rbac'
     serializer_class = RoleSerializer
+    pk = 'id'
 
 
 class MenusView(BaseListView):

@@ -11,10 +11,10 @@ class RecursiveField(serializers.Serializer):
         return serializer.data
 
 
-class SubPermissionSerializer(serializers.Serializer):
-    class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
-        model = Permission  # 指定需要序列化的模型表
-        fields = ('name', 'id')
+# class SubPermissionSerializer(serializers.Serializer):
+#     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
+#         model = Permission  # 指定需要序列化的模型表
+#         fields = ('name', 'id')
 
 
 class MenuSerializer(serializers.ModelSerializer):
@@ -39,11 +39,11 @@ class MenuSerializer(serializers.ModelSerializer):
         model = Menu  # 指定需要序列化的模型表
         fields = ("__all__")
 
-
-class PermissionSerializer(serializers.ModelSerializer):
-    class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
-        model = Permission  # 指定需要序列化的模型表
-        fields = ("__all__")
+#
+# class PermissionSerializer(serializers.ModelSerializer):
+#     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
+#         model = Permission  # 指定需要序列化的模型表
+#         fields = ("__all__")
 
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -171,8 +171,8 @@ class UserStatusEditSerializer(serializers.ModelSerializer):
 
 
 class RolePermissionEditSerializer(serializers.ModelSerializer):
-    permissions = serializers.PrimaryKeyRelatedField(
-        many=True, required=True, queryset=Permission.objects.all(),
+    menu = serializers.PrimaryKeyRelatedField(
+        many=True, required=True, queryset=Menu.objects.all(),
     )
 
     class Meta:
@@ -186,7 +186,7 @@ class RolePermissionEditSerializer(serializers.ModelSerializer):
         :return:
         """
         for permission in validated_data['permissions']:
-            instance.permissions.add(permission)
+            instance.menu.add(permission)
         instance.save()
         return instance
 
@@ -198,9 +198,9 @@ class DataPermissionSerializer(serializers.ModelSerializer):
 
 
 __all__ = [
-    'SubPermissionSerializer',
+    # 'SubPermissionSerializer',
     'MenuSerializer',
-    'PermissionSerializer',
+    # 'PermissionSerializer',
     'RoleSerializer',
     'UserInfoSerializer',
     'SignInSerializer',

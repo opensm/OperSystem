@@ -23,7 +23,7 @@ urlpatterns = [
     # re_path('^roles$', RolesView.as_view(), name='roles'),
     # re_path('^role/(?P<roleId>[0-9])$', RoleView.as_view()),
     # re_path('^role/(?P<roleId>[0-9])/permission$', RolePermissionEditView.as_view()),
-    re_path('^role$', RoleView.as_view()),
+    re_path('^role', RoleView.as_view()),
     re_path('^role/permission$', RolePermissionEditView.as_view()),
     # 权限管理
     re_path('^menu$', MenuView.as_view(), name='menu'),

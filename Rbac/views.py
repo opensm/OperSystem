@@ -109,16 +109,16 @@ class RoleView(BaseDetailView):
     serializer_class = RoleSerializer
 
 
-class PermissionsView(BaseListView):
-    model_name = 'Permission'
-    app_label = 'Rbac'
-    serializer_class = PermissionSerializer
+# class PermissionsView(BaseListView):
+#     model_name = 'Permission'
+#     app_label = 'Rbac'
+#     serializer_class = PermissionSerializer
 
 
-class PermissionView(BaseDetailView):
-    model_name = 'Permission'
-    app_label = 'Rbac'
-    serializer_class = PermissionSerializer
+# class PermissionView(BaseDetailView):
+#     model_name = 'Permission'
+#     app_label = 'Rbac'
+#     serializer_class = PermissionSerializer
 
 
 class UsersView(BaseListView):

@@ -2,8 +2,6 @@ from django.urls import path, re_path
 from Rbac.views import AuthView, \
     RoleView, \
     RolesView, \
-    PermissionsView, \
-    PermissionView, \
     UserView, \
     UsersView, \
     ResetPassWordView, \
@@ -28,7 +26,7 @@ urlpatterns = [
     re_path('^role$', RoleView.as_view()),
     re_path('^role/permission$', RolePermissionEditView.as_view()),
     # 权限管理
-    re_path('^permissions$', PermissionsView.as_view(), name='permission_list_manage'),
+    # re_path('^permissions$', PermissionsView.as_view(), name='permission_list_manage'),
     # path('permission/<int:permissionId>', PermissionView.as_view(), name='each_permission_manage'),
     # 数据权限管理
     re_path('^data_permissions$', DataPermissionsView.as_view(), name='data_permission_list_manage'),

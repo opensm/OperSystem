@@ -61,6 +61,7 @@ class BaseDetailView(DataQueryPermission, APIView, RewritePageNumberPagination):
     def get_user_data_objects(self, request):
         print(self.kwargs)
         print(self.pk)
+        self.kwargs = getattr(request, request.method)
         if self.pk is None or self.pk not in self.kwargs:
             raise ValueError("没获取到pk")
         if self.page_size_query_param in self.kwargs:

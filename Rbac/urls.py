@@ -32,7 +32,7 @@ urlpatterns = [
     re_path('^data_permissions$', DataPermissionsView.as_view(), name='data_permission_list_manage'),
     # 用户管理
     # re_path('^users$', UsersView.as_view(), name='users'),
-    re_path('^user$', UserView.as_view(), name='user'),
+    re_path('^user', UserView.as_view(), name='user'),
     re_path('^user/reset_passoword$', ResetPassWordView.as_view(), name='reset_passoword'),
     re_path('^user/state$', UserStatusEditView.as_view(), name="user_status"),
     re_path('^user/roles$', UserEditRoleView.as_view(), name="user_role"),

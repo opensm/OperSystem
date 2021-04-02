@@ -127,7 +127,7 @@ class BaseDetailView(DataQueryPermission, APIView, RewritePageNumberPagination):
         print(model_obj)
         if not model_obj:
             return DataResponse(
-                data=request.data,
+                data=[],
                 msg="获取数据失败",
                 code="00001"
             )

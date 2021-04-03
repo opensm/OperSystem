@@ -4,6 +4,7 @@ from lib.response import DataResponse
 from lib.page import RewritePageNumberPagination
 from Rbac.serializers import MenuSerializer
 from itertools import chain
+from lib.exceptions import APIException
 
 
 class BaseListView(DataQueryPermission, APIView, RewritePageNumberPagination):
@@ -24,10 +25,11 @@ class BaseListView(DataQueryPermission, APIView, RewritePageNumberPagination):
             raise TypeError("serializer_class type error!")
         model_obj = self.get_user_data_objects(request=request)
         if not model_obj:
-            return DataResponse(
-                code="00001",
-                msg="获取到数据失败！"
-            )
+            raise APIException("数据错误！！")
+            # return DataResponse(
+            #     code="00001",
+            #     msg="获取到数据失败！"
+            # )
         page_obj = self.paginate_queryset(queryset=model_obj, request=request, view=self)
         data = self.serializer_class(
             instance=page_obj,

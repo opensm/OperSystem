@@ -23,6 +23,11 @@ class BaseListView(DataQueryPermission, APIView, RewritePageNumberPagination):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         model_obj = self.get_user_data_objects(request=request)
+        if not model_obj:
+            return DataResponse(
+                code="00001",
+                msg="删除数据异常，获取到删除数据失败！"
+            )
         page_obj = self.paginate_queryset(queryset=model_obj, request=request, view=self)
         data = self.serializer_class(
             instance=page_obj,

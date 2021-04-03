@@ -15,6 +15,8 @@ class APIException(Exception):
             detail = self.default_detail
         if code is None:
             code = self.default_code
+        print(code)
+        print(detail)
 
         # self.detail = _get_error_details(detail, code)
 

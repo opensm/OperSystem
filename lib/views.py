@@ -25,7 +25,11 @@ class BaseListView(DataQueryPermission, APIView, RewritePageNumberPagination):
             raise TypeError("serializer_class type error!")
         model_obj = self.get_user_data_objects(request=request)
         if not model_obj:
-            raise APIException("数据错误！！")
+            try:
+                raise APIException("数据错误！！")
+            except APIException as error:
+                print(error.status_code)
+                print(error.default_detail)
             # return DataResponse(
             #     code="00001",
             #     msg="获取到数据失败！"

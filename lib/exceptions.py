@@ -1,4 +1,5 @@
 from django.utils.translation import gettext_lazy as _
+from lib.code.status import *
 
 
 class APIException(Exception):
@@ -6,7 +7,7 @@ class APIException(Exception):
     Base class for REST framework exceptions.
     Subclasses should provide `.status_code` and `.default_detail` properties.
     """
-    status_code = 500
+    status_code = API_50001_SERVER_ERROR
     default_detail = _('A server error occurred.')
     default_code = 'error'
 

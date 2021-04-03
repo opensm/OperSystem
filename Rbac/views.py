@@ -3,7 +3,6 @@ from rest_framework.views import APIView
 from Rbac.models import *
 from lib.response import DataResponse
 from django.utils import timezone
-# from Rbac.backend import UserResourceQuery
 import datetime
 from lib.mixins import make_token
 from Rbac.serializers import *
@@ -156,35 +155,13 @@ class UserStatusEditView(BaseGetPUTView):
 class RolePermissionEditView(BaseGetPUTView):
     model_name = 'Role'
     app_label = 'Rbac'
-    serializer_class = RolePermissionEditSerializer
+    serializer_class = RoleMenuEditSerializer
 
 
-class CurrentUser(UserGETView):
+class CurrentUserView(UserGETView):
     model_name = 'UserInfo'
     app_label = 'Rbac'
-    serializer_class = RolePermissionEditSerializer
-
-
-# class UserMenu(APIView):
-#
-#     def get(self, request):
-#         """
-#         :param request:
-#         :return:
-#         """
-#         user = UserResourceQuery(request=request)
-#         user_obj = user.get_user_model()
-#         if not user_obj:
-#             return DataResponse(
-#                 code='00001',
-#                 msg='Token校验失败!'
-#             )
-#         menu = user.get_menu()
-#         return DataResponse(
-#             data=menu,
-#             code='00000',
-#             msg='获取菜单列表成功!'
-#         )
+    serializer_class = RoleMenuEditSerializer
 
 
 class DataPermissionsView(BaseListView):
@@ -197,3 +174,22 @@ class DataPermissionView(BaseDetailView):
     model_name = 'DataPermissionRule'
     app_label = 'Rbac'
     serializer_class = DataPermissionSerializer
+
+
+__all__ = [
+    'AuthView',
+    'DataPermissionView',
+    'DataPermissionsView',
+    'UserView',
+    'UsersView',
+    'UserStatusEditView',
+    'UserEditRoleView',
+    'RoleView',
+    'RolesView',
+    'ResetPassWordView',
+    'RolePermissionEditView',
+    'LogoutView',
+    'MenusView',
+    'MenuView',
+    'CurrentUserView'
+]

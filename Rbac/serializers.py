@@ -39,6 +39,7 @@ class MenuSerializer(serializers.ModelSerializer):
         model = Menu  # 指定需要序列化的模型表
         fields = ("__all__")
 
+
 #
 # class PermissionSerializer(serializers.ModelSerializer):
 #     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
@@ -170,14 +171,14 @@ class UserStatusEditSerializer(serializers.ModelSerializer):
         return instance
 
 
-class RolePermissionEditSerializer(serializers.ModelSerializer):
+class RoleMenuEditSerializer(serializers.ModelSerializer):
     menu = serializers.PrimaryKeyRelatedField(
         many=True, required=True, queryset=Menu.objects.all(),
     )
 
     class Meta:
         model = Role
-        fields = ('permissions',)
+        fields = ('menu',)
 
     def update(self, instance, validated_data):
         """
@@ -207,6 +208,6 @@ __all__ = [
     'ResetPasswordSerializer',
     'UserEditRoleSerializer',
     'UserStatusEditSerializer',
-    'RolePermissionEditSerializer',
+    'RoleMenuEditSerializer',
     'DataPermissionSerializer'
 ]

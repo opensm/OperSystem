@@ -129,7 +129,7 @@ class UsersView(BaseListView):
 
 
 class UserView(BaseDetailView):
-    model_name = 'Permission'
+    model_name = 'UserInfo'
     app_label = 'Rbac'
     serializer_class = UserInfoSerializer
 

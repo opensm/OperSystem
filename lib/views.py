@@ -26,6 +26,7 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
         try:
             if self.error_message:
                 for x in self.error_message:
+                    print(x.default_detail)
                     raise APIException(detail=x.default_detail, code=x.default_code)
         except APIException as error:
             return DataResponse(

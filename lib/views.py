@@ -34,7 +34,7 @@ class BaseListView(DataQueryPermission, APIView, RewritePageNumberPagination):
         try:
             if self.error_message:
                 for x in self.error_message:
-                    raise APIException(detail=x.detail, code=x.code)
+                    raise APIException(detail=x.default_detail, code=x.code)
         except APIException as error:
             return DataResponse(
                 code=error.status_code,
@@ -66,7 +66,7 @@ class BaseListView(DataQueryPermission, APIView, RewritePageNumberPagination):
         try:
             if self.error_message:
                 for x in self.error_message:
-                    raise APIException(detail=x.detail, code=x.code)
+                    raise APIException(detail=x.default_detail, code=x.code)
         except APIException as error:
             return DataResponse(
                 code=error.status_code,
@@ -121,7 +121,7 @@ class BaseDetailView(DataQueryPermission, APIView, RewritePageNumberPagination):
             model_obj.delete()
             if self.error_message:
                 for x in self.error_message:
-                    raise APIException(detail=x.detail, code=x.code)
+                    raise APIException(detail=x.default_detail, code=x.code)
         except APIException as error:
             return DataResponse(
                 code=error.status_code,

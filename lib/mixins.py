@@ -41,7 +41,7 @@ class ObjectUserInfo:
 class DataQueryPermission(ObjectUserInfo):
     model_name = None
     app_label = None
-    error_message = {}
+    error_message = []
     kwargs = None
 
     def __init__(self):

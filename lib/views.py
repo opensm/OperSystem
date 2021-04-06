@@ -22,6 +22,8 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                     code=API_12001_DATA_NULL_ERROR
                 )
             )
+        print(model_obj)
+        print(1111111111111111111111115)
         try:
             if self.error_message:
                 for x in self.error_message:

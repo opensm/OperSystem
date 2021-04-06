@@ -9,9 +9,9 @@ from lib.exceptions import *
 
 class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
     serializer_class = None
-    error_message = []
 
     def get(self, request):
+        self.error_message = []
         print(self.error_message)
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")

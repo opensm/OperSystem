@@ -186,7 +186,7 @@ class DataQueryPermission(ObjectUserInfo):
         query_q.connector = "AND"
         for key, value in kwargs.items():
             if key not in fields or not value:
-                continue
+                raise KeyError('输入参数错误')
             query_q.add(key, value)
         return query_q
 

@@ -14,7 +14,6 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         model_obj = self.get_user_data_objects(request=request)
-        print(11111111111111111111111112)
         if not model_obj:
             self.error_message.append(
                 APIException(
@@ -31,13 +30,11 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                 code=error.status_code,
                 msg=error.default_detail
             )
-        print(11111111111111111111111113)
         page_obj = self.paginate_queryset(queryset=model_obj, request=request, view=self)
         data = self.serializer_class(
             instance=page_obj,
             many=True
         )
-        print(11111111111111111111111114)
         return self.get_paginated_response(
             data=data.data,
             msg="获取数据成功",
@@ -238,7 +235,6 @@ class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
     pk = None
 
     def get_user_data_objects(self, request):
-        print(11111111111111111111111111)
         self.kwargs = getattr(request, request.method)
         if self.pk is None or self.pk not in self.kwargs:
             self.error_message.append(

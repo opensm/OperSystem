@@ -167,7 +167,6 @@ class BaseDetailView(DataQueryPermission, APIView, RewritePageNumberPagination):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         model_obj = self.get_user_data_objects(request=request)
-        print(model_obj)
         if not model_obj:
             return DataResponse(
                 data=[],

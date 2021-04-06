@@ -11,6 +11,7 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
     serializer_class = None
 
     def get(self, request):
+        print(self.error_message)
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         model_obj = self.get_user_data_objects(request=request)

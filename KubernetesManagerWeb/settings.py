@@ -91,8 +91,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'KubernetesWeb',
         'USER': 'root',
+        'PORT': 30336,
         'PASSWORD': '123456',
-        'HOST': '10.244.2.63',
+        'HOST': '192.168.254.4',
         'OPTIONS': {
             "init_command": "SET foreign_key_checks = 0;",
         }

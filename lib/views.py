@@ -9,6 +9,7 @@ from lib.exceptions import *
 
 class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
     serializer_class = None
+    error_message = []
 
     def get(self, request):
         print(self.error_message)

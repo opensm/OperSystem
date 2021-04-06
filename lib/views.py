@@ -12,11 +12,9 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
 
     def get(self, request):
         self.error_message = []
-        print(self.error_message)
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         model_obj = self.get_user_data_objects(request=request)
-        print(11111111111111111111111112)
         if not model_obj:
             self.error_message.append(
                 APIException(
@@ -24,8 +22,6 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                     code=API_12001_DATA_NULL_ERROR
                 )
             )
-        print(model_obj)
-        print(1111111111111111111111115)
         try:
             if self.error_message:
                 for x in self.error_message:
@@ -35,13 +31,11 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                 code=error.status_code,
                 msg=error.default_detail
             )
-        print(11111111111111111111111113)
         page_obj = self.paginate_queryset(queryset=model_obj, request=request, view=self)
         data = self.serializer_class(
             instance=page_obj,
             many=True
         )
-        print(11111111111111111111111114)
         return self.get_paginated_response(
             data=data.data,
             msg="获取数据成功",
@@ -53,6 +47,7 @@ class BasePOSTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
     serializer_class = None
 
     def post(self, request):
+        self.error_message = []
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         data = self.serializer_class(
@@ -86,6 +81,7 @@ class BaseDELETEVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
     pk = None
 
     def delete(self, request):
+        self.error_message = []
         model_obj = self.get_user_data_objects(request=request)
         if not model_obj:
             self.error_message.append(
@@ -127,6 +123,7 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
         :param request:
         :return:
         """
+        self.error_message = []
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         if not self.check_user_permissions(request=request):
@@ -242,9 +239,10 @@ class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
     pk = None
 
     def get_user_data_objects(self, request):
-        print(11111111111111111111111111)
         self.kwargs = getattr(request, request.method)
-        if self.pk is None or self.pk not in self.kwargs:
+        if self.pk is None:
+            raise ValueError("pk 没有定义！")
+        if self.pk not in self.kwargs:
             self.error_message.append(
                 APIException(
                     detail="传入参数错误！",

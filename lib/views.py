@@ -27,7 +27,7 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
             if self.error_message:
                 for x in self.error_message:
                     print(x.default_detail)
-                    raise APIException(detail=x.default_detail, code=x.default_code)
+                    raise APIException(detail=x.default_detail, code=x.status_code)
         except APIException as error:
             return DataResponse(
                 code=error.status_code,
@@ -64,7 +64,7 @@ class BasePOSTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
         try:
             if self.error_message:
                 for x in self.error_message:
-                    raise APIException(detail=x.default_detail, code=x.default_code)
+                    raise APIException(detail=x.default_detail, code=x.status_code)
         except APIException as error:
             return DataResponse(
                 code=error.status_code,
@@ -103,7 +103,7 @@ class BaseDELETEVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
             model_obj.delete()
             if self.error_message:
                 for x in self.error_message:
-                    raise APIException(detail=x.default_detail, code=x.default_code)
+                    raise APIException(detail=x.default_detail, code=x.status_code)
         except APIException as error:
             return DataResponse(
                 code=error.status_code,
@@ -151,7 +151,7 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
             )
         try:
             for x in self.error_message:
-                raise APIException(code=x.default_code, detail=x.default_detail)
+                raise APIException(code=x.status_code, detail=x.default_detail)
             data.save()
             return DataResponse(msg="数据保存成功", code=API_00000_OK)
         except APIException as error:

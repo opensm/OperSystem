@@ -6,6 +6,7 @@ import datetime
 import hashlib
 import time
 from KubernetesManagerWeb.settings import SECRET_KEY
+from lib.exceptions import *
 
 
 def make_token(username):

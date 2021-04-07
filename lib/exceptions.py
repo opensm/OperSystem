@@ -9,13 +9,12 @@ class APIException(Exception):
     """
     status_code = API_50001_SERVER_ERROR
     default_detail = _('A server error occurred.')
-    default_code = 'error'
 
     def __init__(self, detail=None, code=None):
         if detail is None:
             detail = self.default_detail
         if code is None:
-            code = self.default_code
+            code = self.status_code
         print(code)
         print(detail)
 

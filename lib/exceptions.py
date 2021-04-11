@@ -13,10 +13,12 @@ class APIException(Exception):
     def __init__(self, detail=None, code=None):
         if detail is None:
             detail = self.default_detail
+        else:
+            self.status_code = code
         if code is None:
             code = self.status_code
-        print(code)
-        print(detail)
+        else:
+            self.status_code = code
 
         # self.detail = _get_error_details(detail, code)
 

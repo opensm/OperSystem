@@ -14,21 +14,17 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
         self.error_message = []
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
-        model_obj = self.get_user_data_objects(request=request)
-        print(model_obj)
-        print(self.error_message)
-        if not model_obj:
-            self.error_message.append(
-                APIException(
+        try:
+            model_obj = self.get_user_data_objects(request=request)
+            if not model_obj:
+                raise APIException(
                     detail="获取数据失败！",
                     code=API_12001_DATA_NULL_ERROR
                 )
-            )
-        try:
-            if self.error_message:
-                for x in self.error_message:
-                    print(x.default_detail)
-                    raise APIException(detail=x.default_detail, code=x.status_code)
+            # if self.error_message:
+            #     for x in self.error_message:
+            #         print(x.default_detail)
+            #         raise APIException(detail=x.default_detail, code=x.status_code)
         except APIException as error:
             return DataResponse(
                 code=error.status_code,

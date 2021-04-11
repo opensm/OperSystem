@@ -14,7 +14,7 @@ class APIException(Exception):
         if detail is None:
             detail = self.default_detail
         else:
-            self.status_code = code
+            self.default_detail = detail
         if code is None:
             code = self.status_code
         else:

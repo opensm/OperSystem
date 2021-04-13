@@ -21,10 +21,6 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                     detail="获取数据失败！",
                     code=API_12001_DATA_NULL_ERROR
                 )
-            # if self.error_message:
-            #     for x in self.error_message:
-            #         print(x.default_detail)
-            #         raise APIException(detail=x.default_detail, code=x.status_code)
         except APIException as error:
             return DataResponse(
                 code=error.status_code,
@@ -52,22 +48,18 @@ class BasePOSTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
         data = self.serializer_class(
             data=request.data
         )
-        if not data.is_valid():
-            self.error_message.append(
-                APIException(
-                    detail="序列化数据出现异常，请检查输入参数！"
-                )
-            )
         try:
-            if self.error_message:
-                for x in self.error_message:
-                    raise APIException(detail=x.default_detail, code=x.status_code)
+            if not data.is_valid():
+                raise APIException(
+                    detail="序列化数据出现异常，请检查输入参数！",
+                    code=API_10001_PARAMS_ERROR,
+                )
+            data.save()
         except APIException as error:
             return DataResponse(
                 code=error.status_code,
                 msg=error.default_detail
             )
-        data.save()
         return DataResponse(
             data=data.data,
             msg='数据保存成功！',
@@ -80,37 +72,28 @@ class BaseDELETEVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
     pk = None
 
     def delete(self, request):
-        self.error_message = []
-        model_obj = self.get_user_data_objects(request=request)
-        if not model_obj:
-            self.error_message.append(
-                APIException(
+        try:
+            model_obj = self.get_user_data_objects(request=request)
+            if not model_obj:
+                raise APIException(
                     detail="获取删除数据失败！",
                     code=API_12001_DATA_NULL_ERROR
                 )
-            )
-        if not self.check_user_permissions(request=request):
-            self.error_message.append(
-                APIException(
+            if not self.check_user_permissions(request=request):
+                raise APIException(
                     detail="没有删除权限！！",
                     code=API_40003_PERMISSION_DENIED
                 )
-            )
-        try:
             model_obj.delete()
-            if self.error_message:
-                for x in self.error_message:
-                    raise APIException(detail=x.default_detail, code=x.status_code)
+            return DataResponse(
+                code=API_00000_OK,
+                msg="删除信息成功!"
+            )
         except APIException as error:
             return DataResponse(
                 code=error.status_code,
                 msg=error.default_detail
             )
-
-        return DataResponse(
-            code=API_00000_OK,
-            msg="删除信息成功!"
-        )
 
 
 class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
@@ -125,30 +108,23 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
         self.error_message = []
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
-        if not self.check_user_permissions(request=request):
-            self.error_message.append(
-                APIException(
+        try:
+            if not self.check_user_permissions(request=request):
+                raise APIException(
                     detail="没有删除权限！！",
                     code=API_40003_PERMISSION_DENIED
                 )
+
+            model_objs = self.get_user_data_objects(request=request)
+            if not model_objs:
+                raise APIException(detail="没获取到修改数据", code=API_12001_DATA_NULL_ERROR)
+            data = self.serializer_class(
+                instance=model_objs,
+                many=True,
+                data=request.data
             )
-        model_objs = self.get_user_data_objects(request=request)
-        if not model_objs:
-            self.error_message.append(
-                APIException(detail="没获取到修改数据", code=API_12001_DATA_NULL_ERROR)
-            )
-        data = self.serializer_class(
-            instance=model_objs,
-            many=True,
-            data=request.data
-        )
-        if not data.is_valid():
-            self.error_message.append(
-                APIException(detail="修改数据格式不匹配！", code=API_10001_PARAMS_ERROR)
-            )
-        try:
-            for x in self.error_message:
-                raise APIException(code=x.status_code, detail=x.default_detail)
+            if not data.is_valid():
+                raise APIException(detail="修改数据格式不匹配！", code=API_10001_PARAMS_ERROR)
             data.save()
             return DataResponse(msg="数据保存成功", code=API_00000_OK)
         except APIException as error:
@@ -423,31 +399,37 @@ class BaseGetPUTView(BaseGETVIEW, BasePUTVIEW):
         """
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
-        if not self.check_user_permissions(request=request):
-            return DataResponse(
-                code="00001",
-                msg=self.error_message
-            )
-        model_objs = self.get_user_data_objects(request=request)
-        data = self.serializer_class(
-            instance=model_objs,
-            many=True,
-            data=request.data
-        )
-        if not data.is_valid():
-            return DataResponse(
-                data=request.data,
-                msg="数据输入格式不匹配:{0}".format(data.errors),
-                code="00001"
-            )
+
         try:
+            if not self.check_user_permissions(request=request):
+                raise APIException(detail="没有权限修改！", code=API_40003_PERMISSION_DENIED)
+                # return DataResponse(
+                #     code="00001",
+                #     msg=self.error_message
+                # )
+            model_objs = self.get_user_data_objects(request=request)
+            data = self.serializer_class(
+                instance=model_objs,
+                many=True,
+                data=request.data
+            )
+            if not data.is_valid():
+                raise APIException(
+                    detail="数据格式错误！",
+                    code=API_10001_PARAMS_ERROR
+                )
+                # return DataResponse(
+                #     data=request.data,
+                #     msg="数据输入格式不匹配:{0}".format(data.errors),
+                #     code="00001"
+                # )
             data.save()
             return DataResponse(msg="数据保存成功", code="00000")
-        except Exception as error:
+        except APIException as error:
             return DataResponse(
                 data=request.data,
-                msg="数据保存失败:%s" % error,
-                code="00001"
+                msg="数据保存失败:%s" % error.default_detail,
+                code=error.status_code
             )
 
     def get(self, request):
@@ -476,29 +458,35 @@ class BasePUTView(BasePUTVIEW):
         """
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
-        if not self.check_user_permissions(request=request):
-            return DataResponse(
-                code="00001",
-                msg=self.error_message
-            )
-        model_objs = self.get_user_data_objects(request=request)
-        data = self.serializer_class(
-            instance=model_objs,
-            many=True,
-            data=request.data
-        )
-        if not data.is_valid():
-            return DataResponse(
-                data=request.data,
-                msg="数据输入格式不匹配:{0}".format(data.errors),
-                code="00001"
-            )
+
         try:
+            if not self.check_user_permissions(request=request):
+                raise APIException(code=API_40003_PERMISSION_DENIED, detail="没有权限！")
+                # return DataResponse(
+                #     code="00001",
+                #     msg=self.error_message
+                # )
+            model_objs = self.get_user_data_objects(request=request)
+            data = self.serializer_class(
+                instance=model_objs,
+                many=True,
+                data=request.data
+            )
+            if not data.is_valid():
+                raise APIException(
+                    detail="数据输入格式不匹配:{0}".format(data.errors),
+                    code=API_10001_PARAMS_ERROR
+                )
+                # return DataResponse(
+                #     data=request.data,
+                #     msg="数据输入格式不匹配:{0}".format(data.errors),
+                #     code="00001"
+                # )
             data.save()
             return DataResponse(msg="数据保存成功", code="00000")
-        except Exception as error:
+        except APIException as error:
             return DataResponse(
                 data=request.data,
-                msg="数据保存失败:%s" % error,
-                code="00001"
+                msg="数据保存失败:%s" % error.default_detail,
+                code=error.status_code
             )

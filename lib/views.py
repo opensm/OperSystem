@@ -100,7 +100,7 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
     serializer_class = None
     pk = None
 
-    def post(self, request):
+    def put(self, request):
         """
         :param request:
         :return:

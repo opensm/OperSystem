@@ -35,6 +35,7 @@ class Menu(models.Model):
         (2, "三级菜单"),
         (999, "按钮功能")
     )
+    id = models.AutoField(primary_key=True)
     name = models.CharField(verbose_name="菜单名称", max_length=50, null=False, blank=False, unique=True)
     path = models.CharField(verbose_name="URL", max_length=200, null=False, blank=False, unique=True)
     parent = models.ForeignKey('self', verbose_name='父级菜单', null=True, blank=True, related_name='children',
@@ -67,6 +68,7 @@ class Menu(models.Model):
 
 
 class Role(models.Model):
+    id = models.AutoField(primary_key=True)
     name = models.CharField(verbose_name='角色', max_length=32, blank=False, null=False, default="默认角色")
     desc = models.TextField(verbose_name="角色描述", blank=True)
     menu = models.ManyToManyField(
@@ -84,6 +86,7 @@ class Role(models.Model):
 
 
 class DataPermissionRule(models.Model):
+    id = models.AutoField(primary_key=True)
     name = models.CharField(
         verbose_name="规则名称", max_length=10, default='默认规则'
     )
@@ -98,6 +101,7 @@ class DataPermissionList(models.Model):
     operate_choice = (
         ("eq", "等于")
     )
+    id = models.AutoField(primary_key=True)
     permission_rule = models.ManyToManyField(verbose_name="数据权限规则", to="DataPermissionRule")
     operate_type = models.CharField(default="eq", max_length=20, verbose_name="运算规则", null=False)
     value = models.CharField(verbose_name="值", default="", max_length=20)
@@ -109,6 +113,7 @@ class DataPermissionList(models.Model):
 
 
 class UserInfo(AbstractBaseUser, PermissionsMixin):
+    id = models.AutoField(primary_key=True)
     username = models.CharField(verbose_name='用户名', max_length=50, null=False, unique=True)
     name = models.CharField(verbose_name="姓名", max_length=50, default='')
     mobile = models.CharField(verbose_name="手机", max_length=12, null=False, default="186000000000")
@@ -137,6 +142,7 @@ class UserInfo(AbstractBaseUser, PermissionsMixin):
 
 
 class UserToken(models.Model):
+    id = models.AutoField(primary_key=True)
     username = models.OneToOneField(
         to='UserInfo', on_delete=models.DO_NOTHING,
         verbose_name="用户", default=0

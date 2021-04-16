@@ -215,6 +215,7 @@ class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
 
     def get_user_data_objects(self, request):
         print(request.method)
+        print(111111111111111111111111111111111)
         self.kwargs = getattr(request, request.method)
         if self.pk is None:
             raise ValueError("pk 没有定义！")

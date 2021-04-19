@@ -196,7 +196,6 @@ class DataQueryPermission(ObjectUserInfo):
         for key, value in kwargs.items():
             if key not in fields or not value:
                 raise APIException(detail='输入参数错误', code=API_10001_PARAMS_ERROR)
-                # self.error_message.append(APIException(detail='输入参数错误', code=API_10001_PARAMS_ERROR))
             query_q.add(key, value)
         return query_q
 
@@ -208,15 +207,34 @@ class DataQueryPermission(ObjectUserInfo):
         url_q = self.get_request_filter(request=request)
         # 超级管理员直接返回结果
         if self.user.is_superuser and self.user.is_active:
-            return self.__model.objects.all()
-        permissions = self.get_user_model_data_permission()
-        if not permissions:
-            return []
-        parent_q = Q()
-        for data in permissions:
-            sub_q = Q()
-            sub_q.connector = 'AND'
-            sub_q.children.append(url_q)
-            sub_q.children.append(data)
-            parent_q.add(sub_q, 'OR')
-        return self.__model.objects.filter(parent_q)
+            if url_q:
+                self.__model.objects.filter(url_q)
+            else:
+                return self.__model.objects.all()
+        elif not self.user.is_superuser and self.user.is_active:
+            permissions = self.get_user_model_data_permission()
+            if not permissions:
+                return []
+            if url_q:
+                parent_q = Q()
+                for data in permissions:
+                    sub_q = Q()
+                    sub_q.connector = 'AND'
+                    sub_q.children.append(data)
+                    parent_q.add(sub_q, 'OR')
+                return self.__model.objects.filter(parent_q)
+            else:
+                permissions = self.get_user_model_data_permission()
+                parent_q = Q()
+                for data in permissions:
+                    sub_q = Q()
+                    sub_q.connector = 'AND'
+                    sub_q.children.append(url_q)
+                    sub_q.children.append(data)
+                    parent_q.add(sub_q, 'OR')
+                return self.__model.objects.filter(parent_q)
+        else:
+            raise APIException(
+                code=API_40003_PERMISSION_DENIED,
+                detail="没有操作权限！"
+            )

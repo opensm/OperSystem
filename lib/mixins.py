@@ -200,7 +200,7 @@ class DataQueryPermission(ObjectUserInfo):
             for key, value in kwargs.items():
                 if key not in fields or not value:
                     raise APIException(detail='输入参数错误', code=API_10001_PARAMS_ERROR)
-                Q("{0}={1}".format(key, value))
+                return Q("{0}={1}".format(key, value))
         else:
             query_q.connector = "AND"
             for key, value in kwargs.items():

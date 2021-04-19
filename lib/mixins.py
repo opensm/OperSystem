@@ -35,8 +35,9 @@ class ObjectUserInfo:
         token = request.META.get('HTTP_AUTHORIZATION')
         user = self.get_user_model
         try:
-            return UserInfo.objects.get(usertoken__token=token)
-            #return user.objects.get(usertoken__token=token)
+            print(user.objects.get(usertoken__token=token))
+            # return UserInfo.objects.get(usertoken__token=token)
+            return user.objects.get(usertoken__token=token)
         except UserInfo.DoesNotExist:
             raise APIException(code=API_40001_AUTH_ERROR, detail="用户登录失效")
 
@@ -61,6 +62,7 @@ class DataQueryPermission(ObjectUserInfo):
         """
         :return:
         """
+        if
         model = django_apps.get_model("Rbac.DataPermissionList")
         if not self.user.usertoken.expiration_time > datetime.datetime.now() or not self.user.is_active:
             return []

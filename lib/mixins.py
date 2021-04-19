@@ -35,7 +35,6 @@ class ObjectUserInfo:
         token = request.META.get('HTTP_AUTHORIZATION')
         user = self.get_user_model
         try:
-            print(user.objects.get(usertoken__token=token))
             # return UserInfo.objects.get(usertoken__token=token)
             return user.objects.get(usertoken__token=token)
         except UserInfo.DoesNotExist:

@@ -191,15 +191,13 @@ class DataQueryPermission(ObjectUserInfo):
         kwargs = getattr(request, "GET")
         fields = self.get_model_fields()
         query_q = Q()
-        print(len(kwargs))
         if len(kwargs) == 0:
             return []
         elif len(kwargs) == 1:
-            print("111111111")
             for key, value in kwargs.items():
                 if key not in fields or not value:
                     raise APIException(detail='输入参数错误', code=API_10001_PARAMS_ERROR)
-                return Q("{0}={1}".format(key, value))
+                return query_q.children(key, value)
         else:
             query_q.connector = "AND"
             for key, value in kwargs.items():

@@ -46,7 +46,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    #'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -140,12 +140,12 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "template/dist/static"),
 ]
-REST_FRAMEWORK = {
-    'DEFAULT_PARSER_CLASSES': (
-        'rest_framework.parsers.FormParser',
-        'rest_framework.parsers.MultiPartParser'
-     )
- }
+# REST_FRAMEWORK = {
+#    'DEFAULT_PARSER_CLASSES': (
+#        'rest_framework.parsers.FormParser',
+#        'rest_framework.parsers.MultiPartParser'
+#     )
+# }
 
 # 跨域增加忽略
 CORS_ALLOW_CREDENTIALS = True

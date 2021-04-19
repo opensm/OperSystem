@@ -193,17 +193,17 @@ class DataQueryPermission(ObjectUserInfo):
         query_q = Q()
         if len(kwargs) == 0:
             return []
-        elif len(kwargs) == 1:
-            for key, value in kwargs.items():
-                if key not in fields or not value:
-                    raise APIException(detail='输入参数错误', code=API_10001_PARAMS_ERROR)
-                return Q("{0}={1}".format(key, value))
+        # elif len(kwargs) == 1:
+        #     for key, value in kwargs.items():
+        #         if key not in fields or not value:
+        #             raise APIException(detail='输入参数错误', code=API_10001_PARAMS_ERROR)
+        #         return Q("{0}={1}".format(key, value))
         else:
             query_q.connector = "AND"
             for key, value in kwargs.items():
                 if key not in fields or not value:
                     raise APIException(detail='输入参数错误', code=API_10001_PARAMS_ERROR)
-                query_q.add(key, value)
+                query_q.children.append((key, value))
         return query_q
 
     def get_user_data_objects(self, request):

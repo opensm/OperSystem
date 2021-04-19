@@ -193,7 +193,6 @@ class DataQueryPermission(ObjectUserInfo):
         print(kwargs)
         fields = self.get_model_fields()
         query_q = Q()
-        query_q.connector = "AND"
         if len(kwargs) == 0:
             return []
         elif len(kwargs) == 1:

@@ -202,6 +202,7 @@ class DataQueryPermission(ObjectUserInfo):
         :return:
         """
         self.user = self.get_user_object(request=request)
+        print(type(self.user))
         url_q = self.get_request_filter(request=request)
         # 超级管理员直接返回结果
         if self.user.is_superuser and self.user.is_active:

@@ -194,10 +194,12 @@ class DataQueryPermission(ObjectUserInfo):
         if len(kwargs.keys()) == 0:
             return []
         elif len(kwargs.keys()) == 1:
+            query_q.connector = "OR"
             for key, value in kwargs.items():
                 if key not in fields or not value:
                     raise APIException(detail='输入参数错误', code=API_10001_PARAMS_ERROR)
-                return Q("{0}={1}".format(key, value))
+                query_q.children.append((key, value))
+                return query_q
         else:
             query_q.connector = "AND"
             for key, value in kwargs.items():

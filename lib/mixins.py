@@ -189,9 +189,9 @@ class DataQueryPermission(ObjectUserInfo):
         :return:
         """
         kwargs = getattr(request, "GET")
-        print(kwargs)
         fields = self.get_model_fields()
         query_q = Q()
+        print(len(kwargs))
         if len(kwargs) == 0:
             return []
         elif len(kwargs) == 1:

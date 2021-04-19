@@ -7,6 +7,7 @@ import hashlib
 import time
 from KubernetesManagerWeb.settings import SECRET_KEY
 from lib.exceptions import *
+from Rbac.models import UserInfo, UserToken
 
 
 def make_token(username):
@@ -34,7 +35,8 @@ class ObjectUserInfo:
         token = request.META.get('HTTP_AUTHORIZATION')
         user = self.get_user_model
         try:
-            return user.objects.get(usertoken__token=token)
+            return UserInfo.objects.get(usertoken__token=token)
+            #return user.objects.get(usertoken__token=token)
         except user.DoesNotExist:
             raise APIException(code=API_40001_AUTH_ERROR, detail="用户登录失效")
 

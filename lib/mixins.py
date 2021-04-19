@@ -36,6 +36,7 @@ class ObjectUserInfo:
         try:
             return user.objects.get(usertoken__token=token)
         except user.DoesNotExist:
+            print("用户登录失败")
             return None
 
 

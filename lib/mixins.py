@@ -194,7 +194,7 @@ class DataQueryPermission(ObjectUserInfo):
         if len(kwargs.keys()) == 0:
             return []
         elif len(kwargs.keys()) == 1:
-            return Q("{0}={1}".format(kwargs.keys[0], kwargs[kwargs.keys[0]]))
+            return Q("{0}={1}".format(kwargs.keys()[0], kwargs[kwargs.keys()[0]]))
         else:
             query_q.connector = "AND"
             for key, value in kwargs.items():

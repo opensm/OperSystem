@@ -97,7 +97,7 @@ class BaseDELETEVIEW(DataQueryPermission, View, RewritePageNumberPagination):
             )
 
 
-class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
+class BasePUTVIEW(DataQueryPermission, View, RewritePageNumberPagination):
     serializer_class = None
     pk = None
 

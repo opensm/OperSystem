@@ -115,7 +115,7 @@ class BasePUTVIEW(DataQueryPermission, View, RewritePageNumberPagination):
                     detail="没有删除权限！！",
                     code=API_40003_PERMISSION_DENIED
                 )
-
+            print(request.data)
             model_objs = self.get_user_data_objects(request=request)
             if not model_objs:
                 raise APIException(detail="没获取到修改数据", code=API_12001_DATA_NULL_ERROR)

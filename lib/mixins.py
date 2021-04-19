@@ -193,11 +193,6 @@ class DataQueryPermission(ObjectUserInfo):
         query_q = Q()
         if len(kwargs) == 0:
             return []
-        # elif len(kwargs) == 1:
-        #     for key, value in kwargs.items():
-        #         if key not in fields or not value:
-        #             raise APIException(detail='输入参数错误', code=API_10001_PARAMS_ERROR)
-        #         return Q("{0}={1}".format(key, value))
         else:
             query_q.connector = "AND"
             for key, value in kwargs.items():
@@ -214,9 +209,6 @@ class DataQueryPermission(ObjectUserInfo):
         url_q = self.get_request_filter(request=request)
         # 超级管理员直接返回结果
         if self.user.is_superuser and self.user.is_active:
-            print(11111111111122222222222)
-            print(url_q)
-            print(11111111111122222222223)
             if url_q:
                 self.__model.objects.filter(url_q)
             else:

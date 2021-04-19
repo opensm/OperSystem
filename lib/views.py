@@ -159,12 +159,16 @@ class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
         if self.pk is None:
             raise ValueError("pk 没有定义！")
         if self.pk not in self.kwargs:
-            self.error_message.append(
-                APIException(
-                    detail="传入参数错误！",
-                    code=API_10001_PARAMS_ERROR
-                )
+            raise APIException(
+                detail="传入参数错误！",
+                code=API_10001_PARAMS_ERROR
             )
+            # self.error_message.append(
+            #     APIException(
+            #         detail="传入参数错误！",
+            #         code=API_10001_PARAMS_ERROR
+            #     )
+            # )
         if self.page_size_query_param in self.kwargs:
             self.kwargs.pop(self.page_size_query_param)
         if self.page_query_param in self.kwargs:
@@ -233,12 +237,16 @@ class BaseGetPUTView(BaseGETVIEW, BasePUTVIEW):
     def get_user_data_objects(self, request):
         self.kwargs = getattr(request, "GET")
         if self.pk is None or self.pk not in self.kwargs:
-            self.error_message.append(
-                APIException(
-                    detail="传入参数错误！",
-                    code=API_10001_PARAMS_ERROR
-                )
+            raise APIException(
+                detail="传入参数错误！",
+                code=API_10001_PARAMS_ERROR
             )
+            # self.error_message.append(
+            #     APIException(
+            #         detail="传入参数错误！",
+            #         code=API_10001_PARAMS_ERROR
+            #     )
+            # )
         if self.page_size_query_param in self.kwargs:
             self.kwargs.pop(self.page_size_query_param)
         if self.page_query_param in self.kwargs:

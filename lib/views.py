@@ -154,9 +154,6 @@ class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
     serializer_class = None
     pk = None
 
-    def put(self, request):
-        BasePUTVIEW.put(self, request=request)
-
     def get_user_data_objects(self, request):
         print(request.method)
         print(111111111111111111111111111111111)

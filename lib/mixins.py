@@ -181,6 +181,7 @@ class DataQueryPermission(ObjectUserInfo):
         :param request:
         :return:
         """
+
         kwargs = getattr(request, request.method)
         fields = self.get_model_fields()
         query_q = Q()

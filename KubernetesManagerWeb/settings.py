@@ -92,7 +92,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'KubernetesWeb',
         'USER': 'root',
-        'PORT': 30336,
+        'PORT': 3306,
         'PASSWORD': '123456',
         'HOST': '192.168.254.4',
         'OPTIONS': {

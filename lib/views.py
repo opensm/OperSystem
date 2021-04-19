@@ -4,10 +4,11 @@ from lib.response import DataResponse
 from lib.page import RewritePageNumberPagination
 from Rbac.serializers import MenuSerializer
 from itertools import chain
+from django.views import View
 from lib.exceptions import *
 
 
-class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
+class BaseGETVIEW(DataQueryPermission, View, RewritePageNumberPagination):
     serializer_class = None
 
     def get(self, request):
@@ -38,7 +39,7 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
         )
 
 
-class BasePOSTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
+class BasePOSTVIEW(DataQueryPermission, View, RewritePageNumberPagination):
     serializer_class = None
 
     def post(self, request):
@@ -67,7 +68,7 @@ class BasePOSTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
         )
 
 
-class BaseDELETEVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
+class BaseDELETEVIEW(DataQueryPermission, View, RewritePageNumberPagination):
     serializer_class = None
     pk = None
 
@@ -96,7 +97,7 @@ class BaseDELETEVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
             )
 
 
-class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
+class BasePUTVIEW(DataQueryPermission, View, RewritePageNumberPagination):
     serializer_class = None
     pk = None
 

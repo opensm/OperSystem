@@ -121,7 +121,6 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                 raise APIException(detail="没获取到修改数据", code=API_12001_DATA_NULL_ERROR)
             data = self.serializer_class(
                 instance=model_objs,
-                many=True,
                 data=request.data
             )
             if not data.is_valid():

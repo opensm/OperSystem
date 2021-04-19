@@ -105,6 +105,7 @@ class DataQueryPermission(ObjectUserInfo):
         :param request:
         :return:
         """
+        self.user = self.get_user_object(request=request)
         query_kwargs = self.get_request_filter(request=request)
         status = False
         for data in self.get_user_data_permission():

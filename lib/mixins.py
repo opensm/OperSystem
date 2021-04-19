@@ -207,6 +207,7 @@ class DataQueryPermission(ObjectUserInfo):
         url_q = self.get_request_filter(request=request)
         # 超级管理员直接返回结果
         if self.user.is_superuser and self.user.is_active:
+            print(url_q)
             if url_q:
                 self.__model.objects.filter(url_q)
             else:

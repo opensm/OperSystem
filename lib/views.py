@@ -131,7 +131,7 @@ class BasePUTVIEW(DataQueryPermission, View, RewritePageNumberPagination):
         except APIException as error:
             return DataResponse(
                 data=[],
-                msg="数据保存失败:%s" % error.default_detail,
+                msg="数据保存失败，%s" % error.default_detail,
                 code=error.status_code
             )
 

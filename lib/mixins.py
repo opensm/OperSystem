@@ -107,6 +107,8 @@ class DataQueryPermission(ObjectUserInfo):
         """
         self.user = self.get_user_object(request=request)
         query_kwargs = self.get_request_filter(request=request)
+        if self.user.is_superuser and self.user.is_active:
+            return True
         status = False
         for data in self.get_user_data_permission():
             q = Q()
@@ -203,7 +205,6 @@ class DataQueryPermission(ObjectUserInfo):
         :return:
         """
         self.user = self.get_user_object(request=request)
-        print(type(self.user))
         url_q = self.get_request_filter(request=request)
         # 超级管理员直接返回结果
         if self.user.is_superuser and self.user.is_active:

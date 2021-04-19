@@ -195,6 +195,7 @@ class DataQueryPermission(ObjectUserInfo):
         if len(kwargs) == 0:
             return []
         elif len(kwargs) == 1:
+            print("111111111")
             for key, value in kwargs.items():
                 if key not in fields or not value:
                     raise APIException(detail='输入参数错误', code=API_10001_PARAMS_ERROR)

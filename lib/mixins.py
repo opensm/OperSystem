@@ -191,15 +191,16 @@ class DataQueryPermission(ObjectUserInfo):
         kwargs = getattr(request, "GET")
         fields = self.get_model_fields()
         query_q = Q()
-        if len(kwargs) == 0:
+        if len(kwargs.keys()) == 0:
             return []
+        elif len(kwargs.keys()) == 1:
+            return Q("{0}={1}".format(kwargs.keys[0], kwargs[kwargs.keys[0]]))
         else:
             query_q.connector = "AND"
             for key, value in kwargs.items():
                 if key not in fields or not value:
                     raise APIException(detail='输入参数错误', code=API_10001_PARAMS_ERROR)
-                #query_q.children.append((key, value))
-                return Q("{0}={1}".format(key,value))
+                query_q.children.append((key, value))
         return query_q
 
     def get_user_data_objects(self, request):
@@ -208,6 +209,7 @@ class DataQueryPermission(ObjectUserInfo):
         """
         self.user = self.get_user_object(request=request)
         url_q = self.get_request_filter(request=request)
+        print(url_q)
         # 超级管理员直接返回结果
         if self.user.is_superuser and self.user.is_active:
             if url_q:

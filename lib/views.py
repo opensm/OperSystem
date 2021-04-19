@@ -8,7 +8,7 @@ from django.views import View
 from lib.exceptions import *
 
 
-class BaseGETVIEW(DataQueryPermission, View, RewritePageNumberPagination):
+class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
     serializer_class = None
 
     def get(self, request):
@@ -39,7 +39,7 @@ class BaseGETVIEW(DataQueryPermission, View, RewritePageNumberPagination):
         )
 
 
-class BasePOSTVIEW(DataQueryPermission, View, RewritePageNumberPagination):
+class BasePOSTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
     serializer_class = None
 
     def post(self, request):
@@ -68,7 +68,7 @@ class BasePOSTVIEW(DataQueryPermission, View, RewritePageNumberPagination):
         )
 
 
-class BaseDELETEVIEW(DataQueryPermission, View, RewritePageNumberPagination):
+class BaseDELETEVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
     serializer_class = None
     pk = None
 

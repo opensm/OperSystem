@@ -182,7 +182,7 @@ class DataQueryPermission(ObjectUserInfo):
         :return:
         """
         print(type(request.method))
-        kwargs = getattr(request, request.method)
+        kwargs = getattr(request, request.method.lower())
         fields = self.get_model_fields()
         query_q = Q()
         query_q.connector = "AND"

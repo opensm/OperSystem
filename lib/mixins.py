@@ -218,6 +218,7 @@ class DataQueryPermission(ObjectUserInfo):
             if url_q:
                 parent_q = Q()
                 for data in permissions:
+                    print(data)
                     sub_q = Q()
                     sub_q.connector = 'AND'
                     sub_q.children.append(data)

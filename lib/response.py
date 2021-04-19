@@ -41,4 +41,4 @@ class DataResponse(JsonResponse):
             }
         if 'token' in kwargs:
             params['token'] = kwargs.pop('token')
-        super(DataResponse, self).__init__(data=params, **kwargs)
+        super().__init__(data=params, **kwargs)

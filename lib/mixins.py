@@ -62,7 +62,8 @@ class DataQueryPermission(ObjectUserInfo):
         """
         :return:
         """
-        if
+        if not isinstance(self.user,self.get_user_model):
+            raise TypeError("用户表类型错误！")
         model = django_apps.get_model("Rbac.DataPermissionList")
         if not self.user.usertoken.expiration_time > datetime.datetime.now() or not self.user.is_active:
             return []

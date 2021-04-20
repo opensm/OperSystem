@@ -193,25 +193,33 @@ class DataQueryPermission(ObjectUserInfo):
         query_q = Q()
         if len(kwargs.keys()) == 0:
             return []
-        elif len(kwargs.keys()) == 1:
-            # query_q.connector = ""
-            for key, value in kwargs.items():
-                if key not in fields or not value:
-                    raise APIException(detail='输入参数错误', code=API_10001_PARAMS_ERROR)
-                # query_q.add(key, value)
-                query_q.children.append((key, value))
-                # return query_q
-            if self.user.is_superuser and self.user.is_active:
-                data = Q(**kwargs)
-                return data
-            elif not self.user.is_superuser and self.user.is_active:
-                return query_q
         else:
-            query_q.connector = "AND"
+            query_params = dict()
             for key, value in kwargs.items():
                 if key not in fields or not value:
                     raise APIException(detail='输入参数错误', code=API_10001_PARAMS_ERROR)
-                query_q.children.append((key, value))
+                query_params["{}__in"] = value
+            self.__model = self.__model.objects.filter(**query_params)
+
+        # elif len(kwargs.keys()) == 1:
+        #     # query_q.connector = ""
+        #     for key, value in kwargs.items():
+        #         if key not in fields or not value:
+        #             raise APIException(detail='输入参数错误', code=API_10001_PARAMS_ERROR)
+        #         # query_q.add(key, value)
+        #         query_q.children.append((key, value))
+        #         # return query_q
+        #     if self.user.is_superuser and self.user.is_active:
+        #         data = Q(**kwargs)
+        #         return data
+        #     elif not self.user.is_superuser and self.user.is_active:
+        #         return query_q
+        # else:
+        #     query_q.connector = "AND"
+        #     for key, value in kwargs.items():
+        #         if key not in fields or not value:
+        #             raise APIException(detail='输入参数错误', code=API_10001_PARAMS_ERROR)
+        #         query_q.children.append((key, value))
         return query_q
 
     def get_user_data_objects(self, request):
@@ -219,36 +227,39 @@ class DataQueryPermission(ObjectUserInfo):
         :return:
         """
         self.user = self.get_user_object(request=request)
-        url_q = self.get_request_filter(request=request)
-        print(url_q)
+        self.get_request_filter(request=request)
         # 超级管理员直接返回结果
         if self.user.is_superuser and self.user.is_active:
-            if url_q:
-                self.__model.objects.filter(url_q)
-            else:
-                return self.__model.objects.all()
+            return self.__model.objects.all()
         elif not self.user.is_superuser and self.user.is_active:
             permissions = self.get_user_model_data_permission()
             if not permissions:
                 return []
-            if url_q:
-                parent_q = Q()
-                for data in permissions:
-                    sub_q = Q()
-                    sub_q.connector = 'AND'
-                    sub_q.children.append(data)
-                    parent_q.add(sub_q, 'OR')
-                return self.__model.objects.filter(parent_q)
-            else:
-                permissions = self.get_user_model_data_permission()
-                parent_q = Q()
-                for data in permissions:
-                    sub_q = Q()
-                    sub_q.connector = 'AND'
-                    sub_q.children.append(url_q)
-                    sub_q.children.append(data)
-                    parent_q.add(sub_q, 'OR')
-                return self.__model.objects.filter(parent_q)
+            permissions = self.get_user_model_data_permission()
+            parent_q = Q()
+            for data in permissions:
+                sub_q = Q()
+                sub_q.connector = 'AND'
+                sub_q.children.append(data)
+                parent_q.add(sub_q, 'OR')
+            return self.__model.objects.filter(parent_q)
+            # if url_q:
+            #     parent_q = Q()
+            #     for data in permissions:
+            #         sub_q = Q()
+            #         sub_q.connector = 'AND'
+            #         sub_q.children.append(data)
+            #         parent_q.add(sub_q, 'OR')
+            #     return self.__model.objects.filter(parent_q)
+            # else:
+            #     permissions = self.get_user_model_data_permission()
+            #     parent_q = Q()
+            #     for data in permissions:
+            #         sub_q = Q()
+            #         sub_q.connector = 'AND'
+            #         sub_q.children.append(data)
+            #         parent_q.add(sub_q, 'OR')
+            #     return self.__model.objects.filter(parent_q)
         else:
             raise APIException(
                 code=API_40003_PERMISSION_DENIED,

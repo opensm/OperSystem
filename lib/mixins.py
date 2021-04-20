@@ -197,19 +197,15 @@ class DataQueryPermission(ObjectUserInfo):
         """
         kwargs = getattr(request, "GET")
         fields = self.get_model_fields()
-        print(kwargs)
         # query_q = Q()
         if len(kwargs.keys()) == 0:
             return
         else:
             query_params = dict()
             for key in kwargs.keys():
-                print(key)
-                print(kwargs.getlist(key))
                 if key not in fields or not kwargs.getlist(key):
                     raise APIException(detail='输入参数错误', code=API_10001_PARAMS_ERROR)
                 query_params["{}__in".format(key)] = kwargs.getlist(key)
-                print(self.__model.objects.filter(**query_params))
             return self.__model.objects.filter(**query_params)
 
         # elif len(kwargs.keys()) == 1:

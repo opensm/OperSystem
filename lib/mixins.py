@@ -192,7 +192,7 @@ class DataQueryPermission(ObjectUserInfo):
         fields = self.get_model_fields()
         # query_q = Q()
         if len(kwargs.keys()) == 0:
-            return []
+            return
         else:
             query_params = dict()
             for key, value in kwargs.items():

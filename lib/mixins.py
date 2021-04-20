@@ -200,7 +200,7 @@ class DataQueryPermission(ObjectUserInfo):
                     raise APIException(detail='输入参数错误', code=API_10001_PARAMS_ERROR)
                 query_params["{}__in".format(key)] = value
             print(query_params)
-            self.__model = self.__model.objects.filter(**query_params)
+            return self.__model.objects.filter(**query_params)
 
         # elif len(kwargs.keys()) == 1:
         #     # query_q.connector = ""
@@ -228,10 +228,13 @@ class DataQueryPermission(ObjectUserInfo):
         :return:
         """
         self.user = self.get_user_object(request=request)
-        self.get_request_filter(request=request)
+        current_obj = self.get_request_filter(request=request)
         # 超级管理员直接返回结果
         if self.user.is_superuser and self.user.is_active:
-            return self.__model.objects.all()
+            if not current_obj:
+                return self.__model.objects.all()
+            else:
+                current_obj.all()
         elif not self.user.is_superuser and self.user.is_active:
             permissions = self.get_user_model_data_permission()
             if not permissions:
@@ -243,7 +246,10 @@ class DataQueryPermission(ObjectUserInfo):
                 sub_q.connector = 'AND'
                 sub_q.children.append(data)
                 parent_q.add(sub_q, 'OR')
-            return self.__model.objects.filter(parent_q)
+            if current_obj:
+                current_obj.filter(parent_q)
+            else:
+                return self.__model.objects.filter(parent_q)
             # if url_q:
             #     parent_q = Q()
             #     for data in permissions:

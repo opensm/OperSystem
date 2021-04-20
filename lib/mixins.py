@@ -113,7 +113,6 @@ class DataQueryPermission(ObjectUserInfo):
         status = False
         for data in self.get_user_data_permission():
             q = Q()
-            # q.add(query_kwargs, 'ADD')
             obj, methods = self.get_permission_rule_q(data=data)
             q.add(obj, 'ADD')
             if not current_obj:
@@ -197,7 +196,6 @@ class DataQueryPermission(ObjectUserInfo):
         """
         kwargs = getattr(request, "GET")
         fields = self.get_model_fields()
-        # query_q = Q()
         if len(kwargs.keys()) == 0:
             return
         else:

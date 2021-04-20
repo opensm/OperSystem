@@ -105,7 +105,7 @@ class DataQueryPermission(ObjectUserInfo):
         :return:
         """
         self.user = self.get_user_object(request=request)
-        self.get_request_filter(request=request)
+        current_obj = self.get_request_filter(request=request)
         if self.user.is_superuser and self.user.is_active:
             return True
         status = False
@@ -114,9 +114,14 @@ class DataQueryPermission(ObjectUserInfo):
             # q.add(query_kwargs, 'ADD')
             obj, methods = self.get_permission_rule_q(data=data)
             q.add(obj, 'ADD')
-            if request.method in methods and self.__model.objects.filter(q):
-                status = True
-                break
+            if not current_obj:
+                if request.method in methods and self.__model.objects.filter(q):
+                    status = True
+                    break
+            else:
+                if request.method in methods and current_obj.filter(q):
+                    status = True
+                    break
         return status
 
     def get_permission_rule_q(self, data):

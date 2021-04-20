@@ -51,21 +51,22 @@ class BasePOSTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
         )
         try:
             if not data.is_valid():
+                print(data.errors)
                 raise APIException(
                     detail="序列化数据出现异常，请检查输入参数！",
                     code=API_10001_PARAMS_ERROR,
                 )
             data.save()
+            return DataResponse(
+                data=data.data,
+                msg='数据保存成功！',
+                code=API_00000_OK
+            )
         except APIException as error:
             return DataResponse(
                 code=error.status_code,
                 msg=error.default_detail
             )
-        return DataResponse(
-            data=data.data,
-            msg='数据保存成功！',
-            code=API_00000_OK
-        )
 
 
 class BaseDELETEVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):

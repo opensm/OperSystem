@@ -53,21 +53,6 @@ class Menu(models.Model):
         db_table = 'sys_menus'
 
 
-# class Permission(models.Model):
-#     name = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
-#     model = models.OneToOneField('DataPermissionRule', default=None, blank=True, on_delete=models.DO_NOTHING)
-#     path = models.CharField(
-#         verbose_name='URL', max_length=255, null=False, blank=False, default="/", unique=True
-#     )
-#     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
-#
-#     class Meta:
-#         db_table = 'sys_permissions'
-#
-#     def __str__(self):
-#         return self.name
-
-
 class Role(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(verbose_name='角色', max_length=32, blank=False, null=False, default="默认角色")

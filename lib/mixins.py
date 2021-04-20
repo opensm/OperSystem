@@ -195,6 +195,7 @@ class DataQueryPermission(ObjectUserInfo):
         """
         kwargs = getattr(request, "GET")
         fields = self.get_model_fields()
+        print(kwargs)
         # query_q = Q()
         if len(kwargs.keys()) == 0:
             return

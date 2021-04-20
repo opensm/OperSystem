@@ -50,6 +50,11 @@ class BasePOSTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
             data=request.data
         )
         try:
+            if not self.check_user_method_permissions(request=request):
+                raise APIException(
+                    code=API_40003_PERMISSION_DENIED,
+                    detail="没有权限操作"
+                )
             if not data.is_valid():
                 print(data.errors)
                 raise APIException(

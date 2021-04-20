@@ -73,8 +73,6 @@ class DataQueryPermission(ObjectUserInfo):
             for content in role.data_permission.filter(
                     content_type=ContentType.objects.get(app_label=self.app_label, model=self.model_name)
             ):
-                print(content)
-                print(type(content))
                 permission = model.objects.get(
                     permission_rule=content,
                 )
@@ -85,6 +83,39 @@ class DataQueryPermission(ObjectUserInfo):
                     content.request_type
                 ))
         return permission_list
+
+    def get_user_method_permission(self):
+        """
+        :return:
+        """
+        if not isinstance(self.user, self.get_user_model):
+            raise TypeError("用户表类型错误！")
+        if not self.user.usertoken.expiration_time > datetime.datetime.now() or not self.user.is_active:
+            return []
+        permission_list = list()
+        for role in self.user.roles.all():
+            # for content in role.data_permission.all():
+            for content in role.data_permission.filter(
+                    content_type=ContentType.objects.get(app_label=self.app_label, model=self.model_name)
+            ):
+                permission_list.append(
+                    content
+                )
+        return permission_list
+
+    def check_user_method_permissions(self, request):
+        """
+        :param request:
+        :return:
+        """
+        self.user = self.get_user_object(request=request)
+        data = self.get_user_method_permission()
+        status = False
+        for content in data:
+            request_data = [x.method for x in content.request_type.all()]
+            if request.method in request_data:
+                status = True
+        return status
 
     def get_user_model_data_permission(self):
         """

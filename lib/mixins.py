@@ -201,10 +201,10 @@ class DataQueryPermission(ObjectUserInfo):
         else:
             query_params = dict()
             for key, value in kwargs.items():
+                print(value)
                 if key not in fields or not value:
                     raise APIException(detail='输入参数错误', code=API_10001_PARAMS_ERROR)
                 query_params["{}__in".format(key)] = value
-            print(query_params)
             return self.__model.objects.filter(**query_params)
 
         # elif len(kwargs.keys()) == 1:

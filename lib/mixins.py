@@ -110,6 +110,7 @@ class DataQueryPermission(ObjectUserInfo):
         """
         self.user = self.get_user_object(request=request)
         data = self.get_user_method_permission()
+        print("************{0}*************".format(data))
         status = False
         for content in data:
             print("9999999999{0}9999999999999".format(content))

@@ -242,7 +242,7 @@ class DataQueryPermission(ObjectUserInfo):
             if not current_obj:
                 return self.__model.objects.all()
             else:
-                current_obj.all()
+                return current_obj.all()
         elif not self.user.is_superuser and self.user.is_active:
             permissions = self.get_user_model_data_permission()
             if not permissions:
@@ -255,7 +255,7 @@ class DataQueryPermission(ObjectUserInfo):
                 sub_q.children.append(data)
                 parent_q.add(sub_q, 'OR')
             if current_obj:
-                current_obj.filter(parent_q)
+                return current_obj.filter(parent_q)
             else:
                 return self.__model.objects.filter(parent_q)
             # if url_q:

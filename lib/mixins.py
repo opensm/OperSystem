@@ -8,6 +8,7 @@ import time
 from KubernetesManagerWeb.settings import SECRET_KEY
 from lib.exceptions import *
 from Rbac.models import UserInfo, UserToken
+from django.contrib.contenttypes.models import ContentType
 
 
 def make_token(username):
@@ -69,8 +70,10 @@ class DataQueryPermission(ObjectUserInfo):
         permission_list = list()
         for role in self.user.roles.all():
             print(role)
-            for content in role.data_permission.all():
-            #for content in role.data_permission.filter(content_type=self.__model):
+            # for content in role.data_permission.all():
+            for content in role.data_permission.filter(
+                    content_type=ContentType.objects.get(app_label=self.app_label, model=self.model_name)
+            ):
                 print(content)
                 print(type(content))
                 permission = model.objects.get(

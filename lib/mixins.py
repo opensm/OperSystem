@@ -199,9 +199,13 @@ class DataQueryPermission(ObjectUserInfo):
                 if key not in fields or not value:
                     raise APIException(detail='输入参数错误', code=API_10001_PARAMS_ERROR)
                 # query_q.add(key, value)
-                # # query_q.children.append((key, value))
+                query_q.children.append((key, value))
                 # return query_q
-            return Q(**kwargs)
+            if self.user.is_superuser and self.user.is_active:
+                data = Q(**kwargs)
+                return data
+            elif not self.user.is_superuser and self.user.is_active:
+                return query_q
         else:
             query_q.connector = "AND"
             for key, value in kwargs.items():

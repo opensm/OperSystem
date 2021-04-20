@@ -190,7 +190,7 @@ class DataQueryPermission(ObjectUserInfo):
         """
         kwargs = getattr(request, "GET")
         fields = self.get_model_fields()
-        query_q = Q()
+        # query_q = Q()
         if len(kwargs.keys()) == 0:
             return []
         else:
@@ -220,7 +220,7 @@ class DataQueryPermission(ObjectUserInfo):
         #         if key not in fields or not value:
         #             raise APIException(detail='输入参数错误', code=API_10001_PARAMS_ERROR)
         #         query_q.children.append((key, value))
-        return query_q
+        # return query_q
 
     def get_user_data_objects(self, request):
         """

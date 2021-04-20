@@ -116,7 +116,6 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                     code=API_40003_PERMISSION_DENIED
                 )
             model_objs = self.get_user_data_objects(request=request)
-            print(model_objs)
             if not model_objs or len(model_objs) > 1:
                 raise APIException(detail="获取到修改数据异常，请检查！", code=API_12001_DATA_NULL_ERROR)
             data = self.serializer_class(
@@ -163,12 +162,6 @@ class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
                 detail="传入参数错误！",
                 code=API_10001_PARAMS_ERROR
             )
-            # self.error_message.append(
-            #     APIException(
-            #         detail="传入参数错误！",
-            #         code=API_10001_PARAMS_ERROR
-            #     )
-            # )
         if self.page_size_query_param in self.kwargs:
             self.kwargs.pop(self.page_size_query_param)
         if self.page_query_param in self.kwargs:
@@ -241,12 +234,6 @@ class BaseGetPUTView(BaseGETVIEW, BasePUTVIEW):
                 detail="传入参数错误！",
                 code=API_10001_PARAMS_ERROR
             )
-            # self.error_message.append(
-            #     APIException(
-            #         detail="传入参数错误！",
-            #         code=API_10001_PARAMS_ERROR
-            #     )
-            # )
         if self.page_size_query_param in self.kwargs:
             self.kwargs.pop(self.page_size_query_param)
         if self.page_query_param in self.kwargs:

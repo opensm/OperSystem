@@ -97,6 +97,7 @@ class DataQueryPermission(ObjectUserInfo):
         elif not self.user.is_active:
             return []
         for data in self.get_user_data_permission():
+            print(data)
             obj, methods = self.get_permission_rule_q(data=data)
             q_query.append(obj)
         return q_query

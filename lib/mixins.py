@@ -160,8 +160,9 @@ class DataQueryPermission(ObjectUserInfo):
             print("++++++++++++++++++++++++++++++++++++++")
             print(obj)
             print("++++++++++++++++++++++++++++++++++++++")
+            method = [x.method for x in methods.all()]
             if not current_obj:
-                if request.method in methods and self.__model.objects.filter(obj):
+                if request.method in method and self.__model.objects.filter(obj):
                     status = True
                     break
             else:
@@ -209,19 +210,19 @@ class DataQueryPermission(ObjectUserInfo):
             print("1++++++++++++++++++++++++++++")
             print(Q(**params, _connector="OR"))
             # for key, value in params.items():
-                # a.add(data={key, value}, conn_type=a.OR)
-                # for v in value:
-                #     a.add(Q(**{key: v}), Q.OR)
-                # a_t = Q()
-                # a_t.connector = 'OR'
-                # for v in value:
-                #     a_t.children.append((key, v))
-                # a.add(a_t, 'ADD')
-                # if len(value) > 1:
-                #     print(Q(**{key: value}, _connector="OR"))
-                #     return Q(**{key: value}, _connector="OR")
-                # else:
-                #     return Q(**{key: value}, _connector="AND")
+            # a.add(data={key, value}, conn_type=a.OR)
+            # for v in value:
+            #     a.add(Q(**{key: v}), Q.OR)
+            # a_t = Q()
+            # a_t.connector = 'OR'
+            # for v in value:
+            #     a_t.children.append((key, v))
+            # a.add(a_t, 'ADD')
+            # if len(value) > 1:
+            #     print(Q(**{key: value}, _connector="OR"))
+            #     return Q(**{key: value}, _connector="OR")
+            # else:
+            #     return Q(**{key: value}, _connector="AND")
             return (
                 Q(**params, _connector="OR"), method
             )

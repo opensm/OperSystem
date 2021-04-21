@@ -154,6 +154,7 @@ class DataQueryPermission(ObjectUserInfo):
             return True
         status = False
         for data in self.get_user_data_permission():
+            print(data)
             q = Q()
             obj, methods = self.get_permission_rule_q(data=data)
             q.add(obj, 'ADD')

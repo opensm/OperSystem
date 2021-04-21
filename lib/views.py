@@ -4,7 +4,6 @@ from lib.response import DataResponse
 from lib.page import RewritePageNumberPagination
 from Rbac.serializers import MenuSerializer
 from itertools import chain
-from django.views import View
 from lib.exceptions import *
 
 

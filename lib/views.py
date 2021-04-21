@@ -16,6 +16,11 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         try:
+            if not self.check_user_permissions(request=request):
+                raise APIException(
+                    detail="没有相关权限！",
+                    code=API_40003_PERMISSION_DENIED
+                )
             model_obj = self.get_user_data_objects(request=request)
             if not model_obj:
                 raise APIException(

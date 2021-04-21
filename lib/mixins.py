@@ -207,7 +207,8 @@ class DataQueryPermission(ObjectUserInfo):
             )
         else:
             print("1++++++++++++++++++++++++++++")
-            for key, value in params.items():
+            print(Q(**params, _connector="OR"))
+            # for key, value in params.items():
                 # a.add(data={key, value}, conn_type=a.OR)
                 # for v in value:
                 #     a.add(Q(**{key: v}), Q.OR)
@@ -216,11 +217,11 @@ class DataQueryPermission(ObjectUserInfo):
                 # for v in value:
                 #     a_t.children.append((key, v))
                 # a.add(a_t, 'ADD')
-                if len(value) > 1:
-                    print(Q(**{key: value}, _connector="OR"))
-                    return Q(**{key: value}, _connector="OR")
-                else:
-                    return Q(**{key: value}, _connector="AND")
+                # if len(value) > 1:
+                #     print(Q(**{key: value}, _connector="OR"))
+                #     return Q(**{key: value}, _connector="OR")
+                # else:
+                #     return Q(**{key: value}, _connector="AND")
             print((
                 a, method
             ))

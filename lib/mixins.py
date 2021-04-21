@@ -206,7 +206,7 @@ class DataQueryPermission(ObjectUserInfo):
             )
         else:
             for key, value in params.items():
-                a.add(data={key, value}, conn_type=a.OR)
+                # a.add(data={key, value}, conn_type=a.OR)
                 for v in value:
                     a.add(data=(key, v), conn_type=a.OR)
             return (

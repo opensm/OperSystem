@@ -211,6 +211,9 @@ class DataQueryPermission(ObjectUserInfo):
                 # a.add(data={key, value}, conn_type=a.OR)
                 for v in value:
                     a.add(Q(**{key: v}), Q.OR)
+            print((
+                a, method
+            ))
             return (
                 a, method
             )

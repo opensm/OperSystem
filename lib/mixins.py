@@ -208,6 +208,7 @@ class DataQueryPermission(ObjectUserInfo):
         else:
             print("1++++++++++++++++++++++++++++")
             print(Q(**params, _connector="OR"))
+            return Q(**params, _connector="OR")
             # for key, value in params.items():
                 # a.add(data={key, value}, conn_type=a.OR)
                 # for v in value:

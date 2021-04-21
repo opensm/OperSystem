@@ -192,10 +192,7 @@ class DataQueryPermission(ObjectUserInfo):
             params.setdefault(
                 x.check_field,
                 []
-            ).append({
-                'operate': x.operate_choice,
-                'value': x.value
-            })
+            ).append(x.value)
         a = Q()
         for key, value in params.items():
             a_t = Q()

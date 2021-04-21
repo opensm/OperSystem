@@ -166,7 +166,7 @@ class DataQueryPermission(ObjectUserInfo):
                     status = True
                     break
             else:
-                if request.method in methods and current_obj.filter(obj):
+                if request.method in method and current_obj.filter(obj):
                     status = True
                     break
         return status

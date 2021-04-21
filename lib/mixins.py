@@ -209,8 +209,13 @@ class DataQueryPermission(ObjectUserInfo):
             print("1++++++++++++++++++++++++++++")
             for key, value in params.items():
                 # a.add(data={key, value}, conn_type=a.OR)
+                # for v in value:
+                #     a.add(Q(**{key: v}), Q.OR)
+                a_t = Q()
+                a_t.connector = 'OR'
                 for v in value:
-                    a.add(Q(**{key: v}), Q.OR)
+                    a_t.children.append((key, v))
+                a.add(a_t, 'ADD')
             print((
                 a, method
             ))

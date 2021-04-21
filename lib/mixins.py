@@ -208,7 +208,6 @@ class DataQueryPermission(ObjectUserInfo):
         else:
             print("1++++++++++++++++++++++++++++")
             print(Q(**params, _connector="OR"))
-            return Q(**params, _connector="OR")
             # for key, value in params.items():
                 # a.add(data={key, value}, conn_type=a.OR)
                 # for v in value:
@@ -223,11 +222,8 @@ class DataQueryPermission(ObjectUserInfo):
                 #     return Q(**{key: value}, _connector="OR")
                 # else:
                 #     return Q(**{key: value}, _connector="AND")
-            print((
-                a, method
-            ))
             return (
-                a, method
+                Q(**params, _connector="OR"), method
             )
 
     def get_model_fields(self):

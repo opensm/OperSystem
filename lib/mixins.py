@@ -184,7 +184,7 @@ class DataQueryPermission(ObjectUserInfo):
         print(query_set)
         print(method)
         print("*****************************************************")
-        if len(query_set):
+        if not query_set:
             return []
         for x in query_set:
             params.setdefault(

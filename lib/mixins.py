@@ -74,7 +74,7 @@ class DataQueryPermission(ObjectUserInfo):
                     content_type=ContentType.objects.get(app_label=self.app_label, model=self.model_name)
             ):
                 try:
-                    permission = model.objects.get(
+                    permission = model.objects.filter(
                         permission_rule=content,
                     )
                 except model.DoesNotExist:

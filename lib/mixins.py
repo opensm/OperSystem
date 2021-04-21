@@ -180,6 +180,10 @@ class DataQueryPermission(ObjectUserInfo):
         method = data[1]
         if not method:
             raise ValueError("没有相关的请求类型")
+        print("*****************************************************")
+        print(query_set)
+        print(method)
+        print("*****************************************************")
         if len(query_set):
             return []
         for x in query_set:

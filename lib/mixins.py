@@ -190,10 +190,17 @@ class DataQueryPermission(ObjectUserInfo):
         if not query_set:
             return []
         for x in query_set:
-            params.setdefault(
-                x.check_field,
-                []
-            ).append(x.value)
+            try:
+                value = int(x.value)
+                params.setdefault(
+                    x.check_field,
+                    []
+                ).append(value)
+            except ValueError:
+                params.setdefault(
+                    x.check_field,
+                    []
+                ).append(x.value)
         a = Q()
         if len(params.keys()) > 1:
             print("2++++++++++++++++++++++++++++")

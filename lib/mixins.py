@@ -195,6 +195,7 @@ class DataQueryPermission(ObjectUserInfo):
             ).append(x.value)
         a = Q()
         if len(params.keys()) > 1:
+            print("2++++++++++++++++++++++++++++")
             for key, value in params.items():
                 a_t = Q()
                 a_t.connector = 'OR'
@@ -205,6 +206,7 @@ class DataQueryPermission(ObjectUserInfo):
                 a, method
             )
         else:
+            print("1++++++++++++++++++++++++++++")
             for key, value in params.items():
                 # a.add(data={key, value}, conn_type=a.OR)
                 for v in value:

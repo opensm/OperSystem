@@ -205,13 +205,13 @@ class DataQueryPermission(ObjectUserInfo):
                 a, method
             )
         else:
-            # for key, value in params.items():
-            #     a.add(data={key, value}, conn_type=a.OR)
-            #     # for v in value:
-            #     #     a_t.children.append((key, v))
-            #     # a.add(a_t, 'ADD')
+            for key, value in params.items():
+                a.add(data={key, value}, conn_type=a.OR)
+                # for v in value:
+                #     a_t.children.append((key, v))
+                # a.add(a_t, 'ADD')
             return (
-                Q(**params), method
+                a, method
             )
 
     def get_model_fields(self):

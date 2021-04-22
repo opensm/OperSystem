@@ -11,6 +11,7 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
     serializer_class = None
 
     def get(self, request):
+        print("get")
         self.error_message = []
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
@@ -83,6 +84,7 @@ class BaseDELETEVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
     pk = None
 
     def delete(self, request):
+        print("delete")
         try:
             model_obj = self.get_user_data_objects(request=request)
             if not model_obj:
@@ -116,6 +118,7 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
         :param request:
         :return:
         """
+        print("put")
         self.error_message = []
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")

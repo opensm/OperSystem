@@ -157,9 +157,6 @@ class DataQueryPermission(ObjectUserInfo):
             # q = Q()
             obj, methods = self.get_permission_rule_q(data=data)
             # q.add(obj, 'ADD')
-            print("++++++++++++++++++++++++++++++++++++++")
-            print(obj)
-            print("++++++++++++++++++++++++++++++++++++++")
             method = [x.method for x in methods.all()]
             if not current_obj:
                 if request.method in method and self.__model.objects.filter(obj):
@@ -183,10 +180,6 @@ class DataQueryPermission(ObjectUserInfo):
         method = data[1]
         if not method:
             raise ValueError("没有相关的请求类型")
-        print("*****************************************************")
-        print(query_set)
-        print(method)
-        print("*****************************************************")
         if not query_set:
             return []
         for x in query_set:
@@ -203,7 +196,6 @@ class DataQueryPermission(ObjectUserInfo):
                 ).append(x.value)
         a = Q()
         if len(params.keys()) > 1:
-            print("2++++++++++++++++++++++++++++")
             for key, value in params.items():
                 a_t = Q()
                 a_t.connector = 'OR'
@@ -214,7 +206,6 @@ class DataQueryPermission(ObjectUserInfo):
                 a, method
             )
         elif len(params.keys()) == 1:
-            print("1++++++++++++++++++++++++++++")
             for key, value in params.items():
                 if len(value) > 0:
                     return (

@@ -135,6 +135,7 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                 data=request.data
             )
             print(request.data)
+            print( data.is_valid())
             if not data.is_valid():
                 print(data.errors)
                 raise APIException(detail="修改数据格式不匹配！", code=API_10001_PARAMS_ERROR)

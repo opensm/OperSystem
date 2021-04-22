@@ -104,7 +104,7 @@ class DataPermissionList(models.Model):
 class UserInfo(AbstractBaseUser, PermissionsMixin):
     id = models.AutoField(primary_key=True)
     username = models.CharField(verbose_name='用户名', max_length=50, null=False, unique=True)
-    name = models.CharField(verbose_name="姓名", max_length=50, default='')
+    name = models.CharField(verbose_name="姓名", max_length=50, default='default')
     mobile = models.CharField(verbose_name="手机", max_length=12, null=False, default="186000000000")
     roles = models.ManyToManyField(
         Role,

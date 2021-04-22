@@ -55,7 +55,7 @@ class Menu(models.Model):
 
 class Role(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(verbose_name='角色', max_length=32, blank=False, null=False, default="默认角色")
+    name = models.CharField(verbose_name='角色', max_length=32, blank=False, null=False, default="default")
     desc = models.TextField(verbose_name="角色描述", blank=True)
     menu = models.ManyToManyField(
         Menu,

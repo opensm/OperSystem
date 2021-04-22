@@ -217,9 +217,13 @@ class DataQueryPermission(ObjectUserInfo):
             print("1++++++++++++++++++++++++++++")
             for key, value in params.items():
                 if len(value) > 1:
-                    return Q(**{"{}__in".format(key): value})
+                    return (
+                        Q(**{"{}__in".format(key): value}), method
+                    )
                 elif len(value) == 1:
-                    return Q(**params)
+                    return (
+                        Q(**params), method
+                    )
                 else:
                     raise APIException(
                         detail="权限表配置异常",
@@ -239,9 +243,9 @@ class DataQueryPermission(ObjectUserInfo):
             #     return Q(**{key: value}, _connector="OR")
             # else:
             #     return Q(**{key: value}, _connector="AND")
-            return (
-                Q(**params, _connector="OR"), method
-            )
+            # return (
+            #     Q(**params, _connector="OR"), method
+            # )
 
     def get_model_fields(self):
         field_name = dict()

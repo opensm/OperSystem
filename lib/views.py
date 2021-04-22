@@ -121,23 +121,20 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
         print("put")
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
-        print(1111111111111111111111111111)
         try:
-            print(1111111111111111111111111112)
             if not self.check_user_permissions(request=request):
                 raise APIException(
                     detail="没有删除权限！！",
                     code=API_40003_PERMISSION_DENIED
                 )
-            print(1111111111111111111111111113)
             model_objs = self.get_user_data_objects(request=request)
-            print(model_objs)
             if not model_objs or len(model_objs) > 1:
                 raise APIException(detail="获取到修改数据异常，请检查！", code=API_12001_DATA_NULL_ERROR)
             data = self.serializer_class(
                 instance=model_objs[0],
                 data=request.data
             )
+            print(request.data)
             if not data.is_valid():
                 print(data.errors)
                 raise APIException(detail="修改数据格式不匹配！", code=API_10001_PARAMS_ERROR)

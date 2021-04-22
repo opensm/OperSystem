@@ -213,9 +213,18 @@ class DataQueryPermission(ObjectUserInfo):
             return (
                 a, method
             )
-        else:
+        elif len(params.keys()) == 1:
             print("1++++++++++++++++++++++++++++")
-            print(Q(**params, _connector="OR"))
+            for key, value in params.items():
+                if len(value) > 1:
+                    return Q(**{"{}__in".format(key): value})
+                elif len(value) == 1:
+                    return Q(**params)
+                else:
+                    raise APIException(
+                        detail="权限表配置异常",
+                        code=API_50001_SERVER_ERROR
+                    )
             # for key, value in params.items():
             # a.add(data={key, value}, conn_type=a.OR)
             # for v in value:

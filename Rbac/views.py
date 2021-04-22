@@ -174,6 +174,7 @@ class DataPermissionView(BaseDetailView):
     model_name = 'DataPermissionRule'
     app_label = 'Rbac'
     serializer_class = DataPermissionSerializer
+    pk = 'id'
 
 
 __all__ = [

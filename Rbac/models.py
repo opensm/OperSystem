@@ -74,13 +74,15 @@ class Role(models.Model):
 class DataPermissionRule(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(
-        verbose_name="规则名称", max_length=10, default='默认规则'
+        verbose_name="规则名称", max_length=10, default='默认规则', null=False, unique=True
     )
-    content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING, verbose_name="关联模型", default=0)
+    content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING, verbose_name="关联模型", default=0,
+                                     null=False)
     request_type = models.ManyToManyField(RequestType, verbose_name="请求类型", default=0)
 
     class Meta:
         db_table = 'sys_permission_rule'
+        unique_together = (('content_type', 'request_type'),)
 
 
 class DataPermissionList(models.Model):

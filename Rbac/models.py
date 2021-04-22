@@ -78,7 +78,7 @@ class DataPermissionRule(models.Model):
     )
     content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING, verbose_name="关联模型", default=0,
                                      null=False)
-    request_type = models.ManyToManyField(RequestType, verbose_name="请求类型", default=0, null=False)
+    request_type = models.ManyToManyField(RequestType, verbose_name="请求类型", default=0)
     is_all = models.BooleanField(verbose_name="全部权限", default=False, null=False)
 
     class Meta:

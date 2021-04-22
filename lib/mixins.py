@@ -187,20 +187,27 @@ class DataQueryPermission(ObjectUserInfo):
         print(query_set)
         print(method)
         print("*****************************************************")
-        if not query_set:
+        if len(query_set) == 0:
             return []
-        for x in query_set:
+        elif len(query_set) == 1:
             try:
-                value = int(x.value)
-                params.setdefault(
-                    x.check_field,
-                    []
-                ).append(value)
-            except ValueError:
-                params.setdefault(
-                    x.check_field,
-                    []
-                ).append(x.value)
+                params[query_set[0].check_field] = int(query_set[0].value)
+            except TypeError:
+                params[query_set[0].check_field] = query_set[0].value
+        else:
+            for x in query_set:
+                try:
+                    value = int(x.value)
+                    params.setdefault(
+                        x.check_field,
+                        []
+                    ).append(value)
+                except ValueError:
+                    params.setdefault(
+                        x.check_field,
+                        []
+                    ).append(x.value)
+
         a = Q()
         if len(params.keys()) > 1:
             print("2++++++++++++++++++++++++++++")

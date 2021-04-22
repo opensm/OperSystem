@@ -187,27 +187,20 @@ class DataQueryPermission(ObjectUserInfo):
         print(query_set)
         print(method)
         print("*****************************************************")
-        if len(query_set) == 0:
+        if not query_set:
             return []
-        elif len(query_set) == 1:
+        for x in query_set:
             try:
-                params[query_set[0].check_field] = int(query_set[0].value)
-            except TypeError:
-                params[query_set[0].check_field] = query_set[0].value
-        else:
-            for x in query_set:
-                try:
-                    value = int(x.value)
-                    params.setdefault(
-                        x.check_field,
-                        []
-                    ).append(value)
-                except ValueError:
-                    params.setdefault(
-                        x.check_field,
-                        []
-                    ).append(x.value)
-
+                value = int(x.value)
+                params.setdefault(
+                    x.check_field,
+                    []
+                ).append(value)
+            except ValueError:
+                params.setdefault(
+                    x.check_field,
+                    []
+                ).append(x.value)
         a = Q()
         if len(params.keys()) > 1:
             print("2++++++++++++++++++++++++++++")
@@ -223,14 +216,14 @@ class DataQueryPermission(ObjectUserInfo):
         elif len(params.keys()) == 1:
             print("1++++++++++++++++++++++++++++")
             for key, value in params.items():
-                if len(value) > 1:
+                if len(value) > 0:
                     return (
                         Q(**{"{}__in".format(key): value}), method
                     )
-                elif len(value) == 1:
-                    return (
-                        Q(**params), method
-                    )
+                # elif len(value) == 1:
+                #     return (
+                #         Q(**params), method
+                #     )
                 else:
                     raise APIException(
                         detail="权限表配置异常",

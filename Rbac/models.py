@@ -83,7 +83,7 @@ class DataPermissionRule(models.Model):
 
     class Meta:
         db_table = 'sys_permission_rule'
-        unique_together = (('content_type', 'request_type'),)
+        # unique_together = (('content_type', 'request_type'),)
 
 
 class DataPermissionList(models.Model):

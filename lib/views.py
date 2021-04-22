@@ -119,15 +119,17 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
         :return:
         """
         print("put")
-        self.error_message = []
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
+        print(1111111111111111111111111111)
         try:
+            print(1111111111111111111111111112)
             if not self.check_user_permissions(request=request):
                 raise APIException(
                     detail="没有删除权限！！",
                     code=API_40003_PERMISSION_DENIED
                 )
+            print(1111111111111111111111111113)
             model_objs = self.get_user_data_objects(request=request)
             print(model_objs)
             if not model_objs or len(model_objs) > 1:

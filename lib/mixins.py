@@ -112,6 +112,8 @@ class DataQueryPermission(ObjectUserInfo):
         :return:
         """
         self.user = self.get_user_object(request=request)
+        if self.user.is_superuser and self.user.is_active:
+            return True
         data = self.get_user_method_permission()
         print("************{0}*************".format(data))
         status = False

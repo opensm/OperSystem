@@ -32,7 +32,9 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                 instance=page_obj,
                 many=True
             )
+
             format_data = self.format_return_data(data=data.data)
+            print(format_data)
             return self.get_paginated_response(
                 data=format_data,
                 msg="获取数据成功",

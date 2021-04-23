@@ -69,7 +69,6 @@ class DataQueryPermission(ObjectUserInfo):
             return []
         permission_list = list()
         for role in self.user.roles.all():
-            # for content in role.data_permission.all():
             for content in role.data_permission.filter(
                     content_type=ContentType.objects.get(app_label=self.app_label, model=self.model_name)
             ):
@@ -97,7 +96,6 @@ class DataQueryPermission(ObjectUserInfo):
             return []
         permission_list = list()
         for role in self.user.roles.all():
-            # for content in role.data_permission.all():
             for content in role.data_permission.filter(
                     content_type=ContentType.objects.get(app_label=self.app_label, model=self.model_name)
             ):
@@ -119,6 +117,22 @@ class DataQueryPermission(ObjectUserInfo):
         for content in data:
             request_data = [x.method for x in content.request_type.all()]
             if request.method in request_data:
+                status = True
+        return status
+
+    def check_user_post_permissions(self, request):
+        """
+        :param request:
+        :return:
+        """
+        self.user = self.get_user_object(request=request)
+        if self.user.is_superuser and self.user.is_active:
+            return True
+        data = self.get_user_method_permission()
+        status = False
+        for content in data:
+            request_data = [x.method for x in content.request_type.all()]
+            if "POST" in request_data:
                 status = True
         return status
 
@@ -254,32 +268,11 @@ class DataQueryPermission(ObjectUserInfo):
                     return (
                         Q(**{"{}__in".format(key): value}), method
                     )
-                # elif len(value) == 1:
-                #     return (
-                #         Q(**params), method
-                #     )
                 else:
                     raise APIException(
                         detail="权限表配置异常",
                         code=API_50001_SERVER_ERROR
                     )
-            # for key, value in params.items():
-            # a.add(data={key, value}, conn_type=a.OR)
-            # for v in value:
-            #     a.add(Q(**{key: v}), Q.OR)
-            # a_t = Q()
-            # a_t.connector = 'OR'
-            # for v in value:
-            #     a_t.children.append((key, v))
-            # a.add(a_t, 'ADD')
-            # if len(value) > 1:
-            #     print(Q(**{key: value}, _connector="OR"))
-            #     return Q(**{key: value}, _connector="OR")
-            # else:
-            #     return Q(**{key: value}, _connector="AND")
-            # return (
-            #     Q(**params, _connector="OR"), method
-            # )
 
     def get_model_fields(self):
         field_name = dict()

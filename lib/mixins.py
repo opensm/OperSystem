@@ -139,7 +139,6 @@ class DataQueryPermission(ObjectUserInfo):
         for data in self.get_user_data_permission():
             obj, methods = self.get_permission_rule_q(data=data)
             q_query.append(obj)
-            print(q_query)
         return q_query
 
     def check_user_permissions(self, request):

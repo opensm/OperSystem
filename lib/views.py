@@ -11,7 +11,6 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
     serializer_class = None
 
     def get(self, request):
-        print("get")
         self.error_message = []
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
@@ -34,7 +33,6 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
             )
 
             format_data = self.format_return_data(data=data.data)
-            print(format_data)
             return self.get_paginated_response(
                 data=format_data,
                 msg="获取数据成功",
@@ -51,7 +49,6 @@ class BasePOSTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
     serializer_class = None
 
     def post(self, request):
-        self.error_message = []
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         data = self.serializer_class(
@@ -64,7 +61,6 @@ class BasePOSTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                     detail="没有权限操作"
                 )
             if not data.is_valid():
-                print(data.errors)
                 raise APIException(
                     detail="序列化数据出现异常，请检查输入参数！",
                     code=API_10001_PARAMS_ERROR,
@@ -87,7 +83,6 @@ class BaseDELETEVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
     pk = None
 
     def delete(self, request):
-        print("delete")
         try:
             model_obj = self.get_user_data_objects(request=request)
             if not model_obj:
@@ -121,7 +116,6 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
         :param request:
         :return:
         """
-        print("put")
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         try:
@@ -137,10 +131,7 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                 instance=model_objs[0],
                 data=request.data
             )
-            print(request.data)
-            print(data.is_valid())
             if not data.is_valid():
-                print(data.errors)
                 raise APIException(detail="修改数据格式不匹配！", code=API_10001_PARAMS_ERROR)
             data.save()
             return DataResponse(msg="数据保存成功", code=API_00000_OK)

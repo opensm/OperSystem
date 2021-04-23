@@ -16,10 +16,11 @@ class RewritePageNumberPagination(PageNumberPagination):
     page_query_param = "page"
     sort_query_param = "sort"
 
-    def get_paginated_response(self, data, msg=None, code="00000"):
+    def get_paginated_response(self, data, msg=None, post=False, code="00000"):
         """
         :param data:
         :param msg:
+        :param post:
         :param code:
         :return:
         """
@@ -27,7 +28,7 @@ class RewritePageNumberPagination(PageNumberPagination):
             raise ValueError("msg不能为空")
         if not isinstance(code, str):
             raise TypeError('code 类型错误，必须是string')
-        meta = {'msg': msg, 'code': code}
+        meta = {'msg': msg, 'code': code, 'post_tag': post}
         return Response(OrderedDict([
             ('total', self.page.paginator.count),
             ('next', self.get_next_link()),

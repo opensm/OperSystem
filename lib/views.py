@@ -33,9 +33,11 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
             )
 
             format_data = self.format_return_data(data=data.data)
+            tag = self.check_user_post_permissions(request=request)
             return self.get_paginated_response(
                 data=format_data,
                 msg="获取数据成功",
+                post=tag,
                 code=API_00000_OK
             )
         except APIException as error:

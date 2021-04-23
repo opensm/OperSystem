@@ -204,9 +204,8 @@ class DataQueryPermission(ObjectUserInfo):
                 code=API_50001_SERVER_ERROR
             )
         for x in data:
-            print(x)
             requests = self.return_request_types(params=x)
-            x['tag'] = requests
+            x['button'] = requests
             data_list.append(
                 x
             )

@@ -211,6 +211,7 @@ class DataQueryPermission(ObjectUserInfo):
             data_list.append(
                 x
             )
+        return data_list
 
     def get_permission_rule_q(self, data):
         """

@@ -171,7 +171,6 @@ class DataQueryPermission(ObjectUserInfo):
         """
         :return:
         """
-        print(params['id'])
         if not isinstance(self.model_name, str):
             return []
         if not self.__model:

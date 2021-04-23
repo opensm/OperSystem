@@ -167,6 +167,51 @@ class DataQueryPermission(ObjectUserInfo):
                     break
         return status
 
+    def return_request_types(self, params):
+        """
+        :return:
+        """
+        q_query = list()
+
+        if not isinstance(self.model_name, str):
+            return []
+        if not self.__model:
+            raise ValueError("french model value error!")
+
+        # 用户状态为不生效，返回空
+        elif not self.user.is_active:
+            return []
+        for data in self.get_user_data_permission():
+            obj, methods = self.get_permission_rule_q(data=data)
+            q_query.append(obj)
+
+            if self.__model.objects.filter(obj | Q(**params)):
+                return methods
+            else:
+                continue
+        raise APIException(
+            detail="{0},不存在对应的数据格式请检查".format(params),
+            code=API_50001_SERVER_ERROR
+        )
+
+    def format_return_data(self, data):
+        """
+        :param data:
+        :return:
+        """
+        data_list = list()
+        if not isinstance(data, list):
+            raise APIException(
+                detail="输入的数据类型错误，请输入list类型!",
+                code=API_50001_SERVER_ERROR
+            )
+        for x in data:
+            requests = self.return_request_types(params=x)
+            x['request'] = requests
+            data_list.append(
+                x
+            )
+
     def get_permission_rule_q(self, data):
         """
         :param data:

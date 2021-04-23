@@ -27,16 +27,18 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                     detail="获取数据失败！",
                     code=API_12001_DATA_NULL_ERROR
                 )
+            page_obj = self.paginate_queryset(queryset=model_obj, request=request, view=self)
+            data = self.serializer_class(
+                instance=page_obj,
+                many=True
+            )
+
         except APIException as error:
             return DataResponse(
                 code=error.status_code,
                 msg=error.default_detail
             )
-        page_obj = self.paginate_queryset(queryset=model_obj, request=request, view=self)
-        data = self.serializer_class(
-            instance=page_obj,
-            many=True
-        )
+
         return self.get_paginated_response(
             data=data.data,
             msg="获取数据成功",
@@ -135,7 +137,7 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                 data=request.data
             )
             print(request.data)
-            print( data.is_valid())
+            print(data.is_valid())
             if not data.is_valid():
                 print(data.errors)
                 raise APIException(detail="修改数据格式不匹配！", code=API_10001_PARAMS_ERROR)

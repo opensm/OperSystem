@@ -181,7 +181,10 @@ class DataQueryPermission(ObjectUserInfo):
             return []
         for data in self.get_user_data_permission():
             obj, methods = self.get_permission_rule_q(data=data)
+            print("000000000000000000000000000000000000000+")
             print(obj)
+            print("000000000000000000000000000000000000000-")
+
             if self.__model.objects.filter(obj & Q(id=params['id'])):
                 return methods
             else:

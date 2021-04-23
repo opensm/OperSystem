@@ -301,7 +301,6 @@ class DataQueryPermission(ObjectUserInfo):
             permissions = self.get_user_model_data_permission()
             if not permissions:
                 return []
-            permissions = self.get_user_model_data_permission()
             parent_q = Q()
             for data in permissions:
                 sub_q = Q()

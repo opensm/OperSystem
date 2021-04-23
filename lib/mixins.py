@@ -115,12 +115,9 @@ class DataQueryPermission(ObjectUserInfo):
         if self.user.is_superuser and self.user.is_active:
             return True
         data = self.get_user_method_permission()
-        print("************{0}*************".format(data))
         status = False
         for content in data:
-            print("9999999999{0}9999999999999".format(content))
             request_data = [x.method for x in content.request_type.all()]
-            print(request_data)
             if request.method in request_data:
                 status = True
         return status

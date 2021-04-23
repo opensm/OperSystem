@@ -13,7 +13,7 @@ class RequestType(models.Model):
         ("POST", "添加"),
         ("GET", "查询"),
         ("DELETE", "删除"),
-        ("PATCH", "修改")
+        ("PUT", "修改")
     )
     id = models.AutoField(primary_key=True)
     name = models.CharField(verbose_name="操作类型", max_length=50, default="")

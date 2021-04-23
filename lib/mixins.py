@@ -174,16 +174,15 @@ class DataQueryPermission(ObjectUserInfo):
             return []
         if not self.__model:
             raise ValueError("french model value error!")
-
         # 用户状态为不生效，返回空
-        elif not self.user.is_active:
+        if not self.user.is_active:
             return []
+        if self.user.is_superuser:
+            return [x.method for x in django_apps.get_model("Rbac.RequestType").objects.all()]
         for data in self.get_user_data_permission():
             obj, methods = self.get_permission_rule_q(data=data)
-            print("000000000000000000000000000000000000000+")
-            print(obj)
-            print("000000000000000000000000000000000000000-")
-
+            if not obj:
+                continue
             if self.__model.objects.filter(obj & Q(id=params['id'])):
                 return [x.method for x in methods.all()]
             else:

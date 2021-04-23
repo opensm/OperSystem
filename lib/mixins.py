@@ -185,7 +185,7 @@ class DataQueryPermission(ObjectUserInfo):
             print("000000000000000000000000000000000000000-")
 
             if self.__model.objects.filter(obj & Q(id=params['id'])):
-                return methods
+                return [x.method for x in methods.all()]
             else:
                 continue
         raise APIException(

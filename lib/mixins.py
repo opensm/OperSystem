@@ -206,7 +206,7 @@ class DataQueryPermission(ObjectUserInfo):
         for x in data:
             print(x)
             requests = self.return_request_types(params=x)
-            x['request'] = requests
+            x['tag'] = requests
             data_list.append(
                 x
             )

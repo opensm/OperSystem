@@ -171,7 +171,7 @@ class DataQueryPermission(ObjectUserInfo):
         """
         :return:
         """
-        print(params)
+        print(params['id'])
         if not isinstance(self.model_name, str):
             return []
         if not self.__model:
@@ -182,7 +182,8 @@ class DataQueryPermission(ObjectUserInfo):
             return []
         for data in self.get_user_data_permission():
             obj, methods = self.get_permission_rule_q(data=data)
-            if self.__model.objects.filter(obj | Q(id=params['id'])):
+            print(obj)
+            if self.__model.objects.filter(obj & Q(id=params['id'])):
                 return methods
             else:
                 continue

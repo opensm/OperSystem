@@ -222,7 +222,8 @@ class UserGETView(DataQueryPermission, APIView):
         instance = list()
         model = django_apps.get_model("Rbac.Menu")
         if self.user.is_superuser:
-            return model.objects.all()
+            data = MenuSerializer(many=True, instance=model.objects.all())
+            return data.data
         for x in self.user.roles.all():
             instance = chain(x.menu.all(), instance)
         data = MenuSerializer(many=True, instance=instance)

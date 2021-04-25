@@ -255,8 +255,8 @@ class UserGETView(DataQueryPermission, APIView):
             instance=self.user
         )
         menu = data.data
-        menu['user_permissions'] = dict(self.get_menu())
-        menu['roles'] = dict(self.get_roles())
+        menu['user_permissions'] = self.get_menu()
+        menu['roles'] = self.get_roles()
         RecodeLog.info(msg="返回:{0}".format(menu))
         return DataResponse(
             data=menu,

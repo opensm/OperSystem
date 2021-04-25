@@ -240,7 +240,6 @@ class UserGETView(DataQueryPermission, APIView):
         )
         RecodeLog.info(msg="返回:{0}".format(data.data))
         menu = data.data
-        RecodeLog.info(msg=self.get_menu())
         menu['user_permissions'] = self.get_menu()
         return DataResponse(
             data=menu,

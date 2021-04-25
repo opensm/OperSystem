@@ -6,6 +6,7 @@ from Rbac.serializers import MenuSerializer
 from itertools import chain
 from lib.exceptions import *
 from lib.Log import RecodeLog
+from django.apps import apps as django_apps
 
 
 class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
@@ -219,6 +220,9 @@ class UserGETView(DataQueryPermission, APIView):
             raise TypeError("传入的用户类型错误！")
         # 超级用户直接返回全部权限
         instance = list()
+        model = django_apps.get_model("Rbac.Menu")
+        if self.user.is_superuser:
+            return model.objects.all()
         for x in self.user.roles.all():
             instance = chain(x.menu.all(), instance)
         data = MenuSerializer(many=True, instance=instance)

@@ -43,8 +43,8 @@ class Menu(models.Model):
                                on_delete=models.DO_NOTHING)
     icon = models.CharField(verbose_name="图标", max_length=50, null=True, blank=True, default="")
     index = models.IntegerField(verbose_name='菜单序列', null=False, blank=False, default=0)
-    permission = models.ForeignKey(verbose_name="数据权限", default=None, to="DataPermissionRule",
-                                   on_delete=models.DO_NOTHING)
+    # permission = models.ForeignKey(verbose_name="数据权限", default=None, to="DataPermissionRule",
+    #                                on_delete=models.DO_NOTHING)
     level = models.IntegerField(verbose_name="菜单级别", default=0, choices=menu_choice)
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 

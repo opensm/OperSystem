@@ -257,7 +257,7 @@ class UserGETView(DataQueryPermission, APIView):
         menu = data.data
         menu['user_permissions'] = self.get_menu()
         menu['roles'] = self.get_roles()
-        RecodeLog.info(msg="返回:{0}".format(data.data))
+        RecodeLog.info(msg="返回:{0}".format(menu))
         return DataResponse(
             data=menu,
             msg="获取信息成功！",

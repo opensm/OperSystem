@@ -254,10 +254,10 @@ class UserGETView(DataQueryPermission, APIView):
         data = self.serializer_class(
             instance=self.user
         )
-        RecodeLog.info(msg="返回:{0}".format(data.data))
         menu = data.data
         menu['user_permissions'] = self.get_menu()
         menu['roles'] = self.get_roles()
+        RecodeLog.info(msg="返回:{0}".format(data.data))
         return DataResponse(
             data=menu,
             msg="获取信息成功！",

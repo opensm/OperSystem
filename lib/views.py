@@ -63,6 +63,7 @@ class BasePOSTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                     detail="没有权限操作"
                 )
             if not data.is_valid():
+                print(data.errors)
                 raise APIException(
                     detail="序列化数据出现异常，请检查输入参数！",
                     code=API_10001_PARAMS_ERROR,

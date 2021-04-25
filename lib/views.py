@@ -223,13 +223,37 @@ class UserGETView(DataQueryPermission, APIView):
         model = django_apps.get_model("Rbac.Menu")
         if self.user.is_superuser:
             RecodeLog.info(msg="当前为超级用户，用户：{0}!".format(self.user.username))
-            data = MenuSerializer(many=True, instance=model.objects.all())
-            return data.data
+            instance = model.objects.filter(parent=None).exclude(level=999)
+            # return data.data
         else:
             for x in self.user.roles.all():
-                instance = chain(x.menu.all(), instance)
-            data = MenuSerializer(many=True, instance=instance)
-            return data.data
+                instance = chain(x.menu.filter(parent=None).exclude(level=999), instance)
+            # data = MenuSerializer(many=True, instance=instance)
+            # return data.data
+        self.get_child_menu(childs=instance,)
+
+    # 递归获取所有的子菜单
+    def get_child_menu(self, childs):
+        model = django_apps.get_model("Rbac.Menu")
+        children = []
+        if childs:
+            for child in childs:
+                data = MenuSerializer(instance=child).data
+                if self.user.is_superuser:
+                    _childs = model.objects.filter(
+                        parent=child,
+                    ).exclude(level=999)
+                else:
+                    _childs = model.objects.filter(
+                        role__userinfo__in=self.user.role.all(),
+                        parent=child
+                    ).exclude(level=999)
+                if _childs:
+                    child_data = self.get_child_menu(childs=_childs)
+                    if child_data:
+                        data.setdefault('children', []).extend(child_data)
+                children.append(data)
+        return children
 
     def get_roles(self):
         """
@@ -239,7 +263,6 @@ class UserGETView(DataQueryPermission, APIView):
         if not isinstance(self.user, self.get_user_model):
             raise TypeError("传入的用户类型错误！")
         # 超级用户直接返回全部权限
-        instance = list()
         if self.user.is_superuser:
             RecodeLog.info(msg="当前为超级用户，用户：{0}!".format(self.user.username))
 

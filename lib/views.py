@@ -230,7 +230,7 @@ class UserGETView(DataQueryPermission, APIView):
                 instance = chain(x.menu.filter(parent=None).exclude(level=999), instance)
             # data = MenuSerializer(many=True, instance=instance)
             # return data.data
-        self.get_child_menu(childs=instance,)
+        self.get_child_menu(childs=instance)
 
     # 递归获取所有的子菜单
     def get_child_menu(self, childs):

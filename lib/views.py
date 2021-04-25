@@ -220,9 +220,9 @@ class UserGETView(DataQueryPermission, APIView):
     def get(self, request):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
-        model_obj = self.get_user_object(request=request)
+        self.user = self.get_user_object(request=request)
         data = self.serializer_class(
-            instance=model_obj
+            instance=self.user
         )
         print(data.data)
         menu = data.data

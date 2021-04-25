@@ -12,6 +12,7 @@ urlpatterns = [
     path('role', RoleView.as_view()),
     path('role/permission', RolePermissionEditView.as_view()),
     # 权限管理
+    path('menus', MenusView.as_view(), name='menus'),
     path('menu', MenuView.as_view(), name='menu'),
     # 数据权限管理
     path('data_permissions', DataPermissionsView.as_view(), name='data_permission_list_manage'),

@@ -176,4 +176,4 @@ CORS_ALLOW_HEADERS = (
 
 LOG_DIR = '/tmp'
 LOG_FILE = 'oper.log'
-LOG_LEVEL = "debug"
+LOG_LEVEL = "DEBUG"

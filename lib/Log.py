@@ -19,7 +19,7 @@ if not RecodeLog.handlers:
     fh.setLevel(log_level)
     ch.setLevel(log_level)
     # 设置日志格式
-    if LOG_LEVEL == "DEBUG":
+    if LOG_LEVEL.upper() == "DEBUG":
         formatter = logging.Formatter(
             "%(asctime)s - Message of File(文件): %(filename)s,Module(类):%(module)s,FuncName(函数):%(funcName)s ,LineNo(行数):%(lineno)d - %(levelname)s - %(message)s"
         )

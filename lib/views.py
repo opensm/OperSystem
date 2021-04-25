@@ -5,6 +5,7 @@ from lib.page import RewritePageNumberPagination
 from Rbac.serializers import MenuSerializer
 from itertools import chain
 from lib.exceptions import *
+from lib.Log import RecodeLog
 
 
 class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
@@ -63,7 +64,7 @@ class BasePOSTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                     detail="没有权限操作"
                 )
             if not data.is_valid():
-                print(data.errors)
+                RecodeLog.error(msg="数据验证错误:{0}".format(data.errors))
                 raise APIException(
                     detail="序列化数据出现异常，请检查输入参数！",
                     code=API_10001_PARAMS_ERROR,
@@ -75,6 +76,7 @@ class BasePOSTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                 code=API_00000_OK
             )
         except APIException as error:
+            RecodeLog.error(msg="返回:{0}".format(error))
             return DataResponse(
                 code=error.status_code,
                 msg=error.default_detail
@@ -104,6 +106,7 @@ class BaseDELETEVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                 msg="删除信息成功!"
             )
         except APIException as error:
+            RecodeLog.error(msg="返回:{0}".format(error))
             return DataResponse(
                 code=error.status_code,
                 msg=error.default_detail
@@ -129,6 +132,7 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                 )
             model_objs = self.get_user_data_objects(request=request)
             if not model_objs or len(model_objs) > 1:
+                RecodeLog.error(msg="返回:{0}".format(model_objs))
                 raise APIException(detail="获取到修改数据异常，请检查！", code=API_12001_DATA_NULL_ERROR)
             data = self.serializer_class(
                 instance=model_objs[0],
@@ -139,6 +143,7 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
             data.save()
             return DataResponse(msg="数据保存成功", code=API_00000_OK)
         except APIException as error:
+            RecodeLog.error(msg="返回:{0}".format(error))
             return DataResponse(
                 data=[],
                 msg="数据保存失败，%s" % error.default_detail,
@@ -225,7 +230,7 @@ class UserGETView(DataQueryPermission, APIView):
         data = self.serializer_class(
             instance=self.user
         )
-        print(data.data)
+        RecodeLog.info(msg="返回:{0}".format(data.data))
         menu = data.data
         menu['user_permissions'] = self.get_menu()
         return DataResponse(
@@ -272,6 +277,7 @@ class BaseGetPUTView(BaseGETVIEW, BasePUTVIEW):
                 data=request.data
             )
             if not data.is_valid():
+                RecodeLog.error(msg="返回:{0}".format(data.errors))
                 raise APIException(
                     detail="数据格式错误！",
                     code=API_10001_PARAMS_ERROR
@@ -322,6 +328,7 @@ class BasePUTView(BasePUTVIEW):
                 data=request.data
             )
             if not data.is_valid():
+                RecodeLog.error(msg="返回:{0}".format(data.errors))
                 raise APIException(
                     detail="数据输入格式不匹配:{0}".format(data.errors),
                     code=API_10001_PARAMS_ERROR

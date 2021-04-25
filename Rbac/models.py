@@ -40,7 +40,7 @@ class Menu(models.Model):
     name = models.CharField(verbose_name="菜单名称", max_length=50, null=False, blank=False, unique=True)
     path = models.CharField(verbose_name="URL", max_length=200, null=False, blank=False, unique=True)
     parent = models.ForeignKey(
-        'self', verbose_name='父级菜单', null=True, blank=True,
+        'self', verbose_name='父级菜单', null=True,
         related_name='children', on_delete=models.DO_NOTHING
     )
     icon = models.CharField(verbose_name="图标", max_length=50, null=True, blank=True, default="")

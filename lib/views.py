@@ -42,6 +42,7 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                 code=API_00000_OK
             )
         except APIException as error:
+            RecodeLog.error(msg="返回状态码:{1},错误信息:{0}".format(error.default_detail, error.status_code))
             return DataResponse(
                 code=error.status_code,
                 msg=error.default_detail
@@ -76,7 +77,7 @@ class BasePOSTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                 code=API_00000_OK
             )
         except APIException as error:
-            RecodeLog.error(msg="返回:{0}".format(error))
+            RecodeLog.error(msg="返回状态码:{1},错误信息:{0}".format(error.default_detail, error.status_code))
             return DataResponse(
                 code=error.status_code,
                 msg=error.default_detail
@@ -106,7 +107,7 @@ class BaseDELETEVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                 msg="删除信息成功!"
             )
         except APIException as error:
-            RecodeLog.error(msg="返回:{0}".format(error))
+            RecodeLog.error(msg="返回状态码:{1},错误信息:{0}".format(error.default_detail, error.status_code))
             return DataResponse(
                 code=error.status_code,
                 msg=error.default_detail
@@ -143,7 +144,7 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
             data.save()
             return DataResponse(msg="数据保存成功", code=API_00000_OK)
         except APIException as error:
-            RecodeLog.error(msg="返回:{0}".format(error))
+            RecodeLog.error(msg="返回状态码:{1},错误信息:{0}".format(error.default_detail, error.status_code))
             return DataResponse(
                 data=[],
                 msg="数据保存失败，%s" % error.default_detail,
@@ -285,6 +286,7 @@ class BaseGetPUTView(BaseGETVIEW, BasePUTVIEW):
             data.save()
             return DataResponse(msg="数据保存成功", code="00000")
         except APIException as error:
+            RecodeLog.error(msg="返回状态码:{1},错误信息:{0}".format(error.default_detail, error.status_code))
             return DataResponse(
                 data=request.data,
                 msg="数据保存失败:%s" % error.default_detail,
@@ -336,6 +338,7 @@ class BasePUTView(BasePUTVIEW):
             data.save()
             return DataResponse(msg="数据保存成功", code="00000")
         except APIException as error:
+            RecodeLog.error(msg="返回状态码:{1},错误信息:{0}".format(error.default_detail, error.status_code))
             return DataResponse(
                 data=request.data,
                 msg="数据保存失败:%s" % error.default_detail,

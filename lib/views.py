@@ -222,6 +222,7 @@ class UserGETView(DataQueryPermission, APIView):
         instance = list()
         model = django_apps.get_model("Rbac.Menu")
         if self.user.is_superuser:
+            RecodeLog.info(msg="当前为超级用户！")
             data = MenuSerializer(many=True, instance=model.objects.all())
             return data.data
         else:

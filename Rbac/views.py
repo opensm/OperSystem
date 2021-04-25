@@ -161,7 +161,7 @@ class RolePermissionEditView(BaseGetPUTView):
 class CurrentUserView(UserGETView):
     model_name = 'UserInfo'
     app_label = 'Rbac'
-    serializer_class = RoleMenuEditSerializer
+    serializer_class = UserInfoSerializer
 
 
 class DataPermissionsView(BaseListView):

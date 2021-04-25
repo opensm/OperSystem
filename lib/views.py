@@ -224,6 +224,7 @@ class UserGETView(DataQueryPermission, APIView):
         data = self.serializer_class(
             instance=model_obj
         )
+        print(data.data)
         menu = data.data
         menu['user_permissions'] = self.get_menu()
         return DataResponse(

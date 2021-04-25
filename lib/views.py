@@ -224,10 +224,11 @@ class UserGETView(DataQueryPermission, APIView):
         if self.user.is_superuser:
             data = MenuSerializer(many=True, instance=model.objects.all())
             return data.data
-        for x in self.user.roles.all():
-            instance = chain(x.menu.all(), instance)
-        data = MenuSerializer(many=True, instance=instance)
-        return data.data
+        else:
+            for x in self.user.roles.all():
+                instance = chain(x.menu.all(), instance)
+            data = MenuSerializer(many=True, instance=instance)
+            return data.data
 
     def get(self, request):
         if not self.serializer_class:

@@ -119,6 +119,7 @@ class MenuView(BaseDetailView):
     model_name = 'Menu'
     app_label = 'Rbac'
     serializer_class = MenuSerializer
+    pk = 'id'
 
 
 class UsersView(BaseListView):

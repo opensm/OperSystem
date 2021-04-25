@@ -4,7 +4,7 @@ from logging.handlers import TimedRotatingFileHandler
 import os
 from KubernetesManagerWeb.settings import LOG_DIR, LOG_FILE, LOG_LEVEL
 
-log_level = getattr(logging, LOG_LEVEL)
+log_level = getattr(logging, LOG_LEVEL.upper())
 if not os.path.exists(LOG_DIR):
     os.makedirs(LOG_DIR, 750)
 RecodeLog = logging.getLogger("LOG INFO")

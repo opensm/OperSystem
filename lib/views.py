@@ -56,10 +56,11 @@ class BasePOSTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
     def post(self, request):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
-        data = self.serializer_class(
-            data=request.data
-        )
+        print(request.data)
         try:
+            data = self.serializer_class(
+                data=request.data
+            )
             if not self.check_user_method_permissions(request=request):
                 raise APIException(
                     code=API_40003_PERMISSION_DENIED,

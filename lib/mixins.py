@@ -320,7 +320,13 @@ class DataQueryPermission(ObjectUserInfo):
                 if key not in fields or not kwargs.getlist(key):
                     raise APIException(detail='输入参数错误', code=API_10001_PARAMS_ERROR)
                 query_params["{}__in".format(key)] = kwargs.getlist(key)
+        try:
             return self.__model.objects.filter(**query_params)
+        except Exception as error:
+            raise APIException(
+                code=API_50001_SERVER_ERROR,
+                detail=error.message
+            )
 
     def get_user_data_objects(self, request):
         """

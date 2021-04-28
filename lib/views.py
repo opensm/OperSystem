@@ -224,7 +224,6 @@ class UserGETView(DataQueryPermission, APIView):
         if self.user.is_superuser:
             RecodeLog.info(msg="当前为超级用户，用户：{0}!".format(self.user.username))
             instance = model.objects.filter(parent=None)
-            # instance = model.objects.filter(parent=None).exclude(level=999)
             data = MenuSerializer(instance=instance, many=True)
             return data.data
         else:

@@ -177,6 +177,7 @@ class BaseListView(BaseGETVIEW, BasePOSTVIEW):
 
     def get(self, request):
         self.kwargs = getattr(request, "GET")
+        self.kwargs = request.GET.copy()
         print(self.kwargs)
         if self.page_size_query_param in self.kwargs:
             self.kwargs.pop(self.page_size_query_param)

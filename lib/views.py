@@ -56,7 +56,6 @@ class BasePOSTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
     def post(self, request):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
-        print(request.data)
         try:
             data = self.serializer_class(
                 data=request.data
@@ -266,9 +265,10 @@ class UserGETView(DataQueryPermission, APIView):
             raise TypeError("传入的用户类型错误！")
         # 超级用户直接返回全部权限
         if self.user.is_superuser:
+            model = django_apps.get_model("Rbac.Role")
             RecodeLog.info(msg="当前为超级用户，用户：{0}!".format(self.user.username))
 
-            return ['超级用户']
+            return
         else:
             return [x.name for x in self.user.roles.all()]
 

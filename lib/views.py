@@ -128,11 +128,13 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         try:
+            print(111111111111111111111111111111)
             if not self.check_user_permissions(request=request):
                 raise APIException(
                     detail="没有删除权限！！",
                     code=API_40003_PERMISSION_DENIED
                 )
+            print(111111111111111111111111111112)
             model_objs = self.get_user_data_objects(request=request)
             if not model_objs or len(model_objs) > 1:
                 RecodeLog.error(msg="返回:{0}".format(model_objs))
@@ -140,14 +142,18 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                     detail="获取到修改数据异常，请检查,数据为:{0}".format(model_objs),
                     code=API_12001_DATA_NULL_ERROR
                 )
+            print(111111111111111111111111111113)
             data = self.serializer_class(
                 instance=model_objs[0],
                 data=request.data
             )
+            print(111111111111111111111111111114)
             if not data.is_valid():
                 raise APIException(detail="修改数据格式不匹配！", code=API_10001_PARAMS_ERROR)
+            print(111111111111111111111111111115)
             data.save()
-            return DataResponse(msg="数据保存成功", code=API_00000_OK)
+            print(111111111111111111111111111116)
+            return DataResponse(msg="数据保存成功：{}".format(request.data), code=API_00000_OK)
         except APIException as error:
             RecodeLog.error(msg="返回状态码:{1},错误信息:{0}".format(error.default_detail, error.status_code))
             return DataResponse(

@@ -166,6 +166,15 @@ class BaseListView(BaseGETVIEW, BasePOSTVIEW):
             self.kwargs.pop(self.sort_query_param)
         return super().get_user_data_objects(request)
 
+    def check_user_permissions(self, request):
+        if self.page_size_query_param in self.kwargs:
+            self.kwargs.pop(self.page_size_query_param)
+        if self.page_query_param in self.kwargs:
+            self.kwargs.pop(self.page_query_param)
+        if self.sort_query_param in self.kwargs:
+            self.kwargs.pop(self.sort_query_param)
+        return super().get_user_data_objects(request)
+
 
 class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
     serializer_class = None

@@ -185,7 +185,6 @@ class BaseListView(BaseGETVIEW, BasePOSTVIEW):
         return super().get(request=request)
 
 
-
 class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
     serializer_class = None
     pk = None

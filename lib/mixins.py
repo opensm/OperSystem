@@ -310,16 +310,17 @@ class DataQueryPermission(ObjectUserInfo):
         :param request:
         :return:
         """
-        kwargs = getattr(request, "GET")
+        # kwargs = getattr(request, "GET")
+
         fields = self.get_model_fields()
-        if len(kwargs.keys()) == 0:
+        if len(self.kwargs.keys()) == 0:
             return
         else:
             query_params = dict()
-            for key in kwargs.keys():
-                if key not in fields or not kwargs.getlist(key):
+            for key in self.kwargs.keys():
+                if key not in fields or not self.kwargs.getlist(key):
                     raise APIException(detail='输入参数错误:{}'.format(key), code=API_10001_PARAMS_ERROR)
-                query_params["{}__in".format(key)] = kwargs.getlist(key)
+                query_params["{}__in".format(key)] = self.kwargs.getlist(key)
         try:
             return self.__model.objects.filter(**query_params)
         except Exception as error:

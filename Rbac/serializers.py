@@ -15,6 +15,10 @@ class RecursiveField(serializers.Serializer):
 #     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
 #         model = Permission  # 指定需要序列化的模型表
 #         fields = ('name', 'id')
+class DataPermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DataPermissionRule
+        fields = ("__all__")
 
 
 class MenuSerializer(serializers.ModelSerializer):
@@ -41,11 +45,11 @@ class MenuSerializer(serializers.ModelSerializer):
 
 
 class RoleSerializer(serializers.ModelSerializer):
-    menu = serializers.PrimaryKeyRelatedField(
+    menu = MenuSerializer(
         many=True, read_only=True,
         queryset=Menu.objects.all()
     )
-    data_permission = serializers.PrimaryKeyRelatedField(
+    data_permission = DataPermissionSerializer(
         many=True, read_only=True,
         queryset=DataPermissionRule.objects.all(), allow_null=True, required=False
     )
@@ -190,12 +194,6 @@ class RoleMenuEditSerializer(serializers.ModelSerializer):
             instance.menu.add(permission)
         instance.save()
         return instance
-
-
-class DataPermissionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DataPermissionRule
-        fields = ("__all__")
 
 
 __all__ = [

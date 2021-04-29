@@ -246,6 +246,7 @@ class UserGETView(DataQueryPermission, APIView):
             return data.data
         else:
             for x in self.user.roles.all():
+                print(x)
                 instance = chain(x.menu.filter(parent=None).exclude(level=999), instance)
         return self.get_child_menu(childs=instance)
 
@@ -255,8 +256,6 @@ class UserGETView(DataQueryPermission, APIView):
         children = []
         if childs:
             for child in childs:
-                print(child)
-                print(model)
                 data = MenuSerializer(instance=child).data
                 if self.user.is_superuser:
                     _childs = model.objects.filter(

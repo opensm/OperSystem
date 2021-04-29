@@ -124,6 +124,7 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
         :param request:
         :return:
         """
+        print(request.data)
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         try:
@@ -379,7 +380,6 @@ class BasePUTView(BasePUTVIEW):
         :param request:
         :return:
         """
-        print(request.data)
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
 
@@ -389,7 +389,6 @@ class BasePUTView(BasePUTVIEW):
                     code=API_40003_PERMISSION_DENIED,
                     detail="没有权限！"
                 )
-            print(request.data)
             model_objs = self.get_user_data_objects(request=request)
             data = self.serializer_class(
                 instance=model_objs,

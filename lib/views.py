@@ -248,6 +248,7 @@ class UserGETView(DataQueryPermission, APIView):
             for x in self.user.roles.all():
                 print(x)
                 instance = chain(x.menu.filter(parent=None).exclude(level=999), instance)
+        print(instance)
         return self.get_child_menu(childs=instance)
 
     # 递归获取所有的子菜单

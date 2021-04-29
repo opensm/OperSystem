@@ -47,11 +47,9 @@ class MenuSerializer(serializers.ModelSerializer):
 class RoleSerializer(serializers.ModelSerializer):
     menu = MenuSerializer(
         many=True, read_only=True,
-        queryset=Menu.objects.all()
     )
     data_permission = DataPermissionSerializer(
         many=True, read_only=True,
-        queryset=DataPermissionRule.objects.all(), allow_null=True, required=False
     )
 
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别

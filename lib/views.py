@@ -379,6 +379,7 @@ class BasePUTView(BasePUTVIEW):
         :param request:
         :return:
         """
+        print(request.data)
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
 

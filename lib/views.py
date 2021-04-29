@@ -157,34 +157,11 @@ class BaseListView(BaseGETVIEW, BasePOSTVIEW):
     """A base view for displaying a single object."""
     serializer_class = None
 
-    # def get_user_data_objects(self, request):
-    #     if self.page_size_query_param in self.kwargs:
-    #         self.kwargs.pop(self.page_size_query_param)
-    #     if self.page_query_param in self.kwargs:
-    #         self.kwargs.pop(self.page_query_param)
-    #     if self.sort_query_param in self.kwargs:
-    #         self.kwargs.pop(self.sort_query_param)
-    #     return super().get_user_data_objects(request)
-    #
-    # def check_user_permissions(self, request):
-    #     if self.page_size_query_param in self.kwargs:
-    #         self.kwargs.pop(self.page_size_query_param)
-    #     if self.page_query_param in self.kwargs:
-    #         self.kwargs.pop(self.page_query_param)
-    #     if self.sort_query_param in self.kwargs:
-    #         self.kwargs.pop(self.sort_query_param)
-    #     return super().get_user_data_objects(request)
-
     def get(self, request):
-        self.kwargs = getattr(request, "GET")
         self.kwargs = request.GET.copy()
-        print(self.kwargs)
         if self.page_size_query_param in self.kwargs:
             self.kwargs.pop(self.page_size_query_param)
         if self.page_query_param in self.kwargs:
-            print(111111111111111111111111111)
-            print(self.kwargs)
-            print(111111111111111111111111111)
             self.kwargs.pop(self.page_query_param)
         if self.sort_query_param in self.kwargs:
             self.kwargs.pop(self.sort_query_param)
@@ -195,8 +172,8 @@ class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
     serializer_class = None
     pk = None
 
-    def get_user_data_objects(self, request):
-        self.kwargs = getattr(request, "GET")
+    def get(self, request):
+        self.kwargs = request.GET.copy()
         if self.pk is None:
             raise ValueError("pk 没有定义！")
         if self.pk not in self.kwargs:
@@ -210,7 +187,7 @@ class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
             self.kwargs.pop(self.page_query_param)
         if self.sort_query_param in self.kwargs:
             self.kwargs.pop(self.sort_query_param)
-        return super().get_user_data_objects(request)
+        return super().get(request)
 
 
 class BaseGETView(DataQueryPermission, APIView):

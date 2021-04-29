@@ -175,7 +175,11 @@ class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
     serializer_class = None
     pk = None
 
-    def get(self, request):
+    def format_request_params(self,request):
+        """
+        :param request:
+        :return:
+        """
         self.kwargs = request.GET.copy()
         if self.pk is None:
             raise ValueError("pk 没有定义！")
@@ -190,23 +194,13 @@ class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
             self.kwargs.pop(self.page_query_param)
         if self.sort_query_param in self.kwargs:
             self.kwargs.pop(self.sort_query_param)
+
+    def get(self, request):
+        self.format_request_params(request=request)
         return super().get(request)
 
     def put(self, request):
-        self.kwargs = request.GET.copy()
-        if self.pk is None:
-            raise ValueError("pk 没有定义！")
-        if self.pk not in self.kwargs:
-            raise APIException(
-                detail="传入参数错误！",
-                code=API_10001_PARAMS_ERROR
-            )
-        if self.page_size_query_param in self.kwargs:
-            self.kwargs.pop(self.page_size_query_param)
-        if self.page_query_param in self.kwargs:
-            self.kwargs.pop(self.page_query_param)
-        if self.sort_query_param in self.kwargs:
-            self.kwargs.pop(self.sort_query_param)
+        self.format_request_params(request=request)
         return super().put(request)
 
 

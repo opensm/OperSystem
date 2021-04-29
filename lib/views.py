@@ -175,7 +175,7 @@ class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
     serializer_class = None
     pk = None
 
-    def format_request_params(self,request):
+    def format_request_params(self, request):
         """
         :param request:
         :return:
@@ -194,6 +194,8 @@ class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
             self.kwargs.pop(self.page_query_param)
         if self.sort_query_param in self.kwargs:
             self.kwargs.pop(self.sort_query_param)
+        if self.page_size in self.kwargs:
+            self.kwargs.pop(self.page_size)
 
     def get(self, request):
         self.format_request_params(request=request)
@@ -396,7 +398,7 @@ class BasePUTView(BasePUTVIEW):
                     code=API_10001_PARAMS_ERROR
                 )
             data.save()
-            return DataResponse(msg="数据保存成功", code="00000")
+            return DataResponse(msg="数据保存成功：{}".format(request.data), code="00000")
         except APIException as error:
             RecodeLog.error(msg="返回状态码:{1},错误信息:{0}".format(error.default_detail, error.status_code))
             return DataResponse(

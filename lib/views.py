@@ -157,23 +157,33 @@ class BaseListView(BaseGETVIEW, BasePOSTVIEW):
     """A base view for displaying a single object."""
     serializer_class = None
 
-    def get_user_data_objects(self, request):
-        if self.page_size_query_param in self.kwargs:
-            self.kwargs.pop(self.page_size_query_param)
-        if self.page_query_param in self.kwargs:
-            self.kwargs.pop(self.page_query_param)
-        if self.sort_query_param in self.kwargs:
-            self.kwargs.pop(self.sort_query_param)
-        return super().get_user_data_objects(request)
+    # def get_user_data_objects(self, request):
+    #     if self.page_size_query_param in self.kwargs:
+    #         self.kwargs.pop(self.page_size_query_param)
+    #     if self.page_query_param in self.kwargs:
+    #         self.kwargs.pop(self.page_query_param)
+    #     if self.sort_query_param in self.kwargs:
+    #         self.kwargs.pop(self.sort_query_param)
+    #     return super().get_user_data_objects(request)
+    #
+    # def check_user_permissions(self, request):
+    #     if self.page_size_query_param in self.kwargs:
+    #         self.kwargs.pop(self.page_size_query_param)
+    #     if self.page_query_param in self.kwargs:
+    #         self.kwargs.pop(self.page_query_param)
+    #     if self.sort_query_param in self.kwargs:
+    #         self.kwargs.pop(self.sort_query_param)
+    #     return super().get_user_data_objects(request)
 
-    def check_user_permissions(self, request):
+    def get(self, request):
         if self.page_size_query_param in self.kwargs:
             self.kwargs.pop(self.page_size_query_param)
         if self.page_query_param in self.kwargs:
             self.kwargs.pop(self.page_query_param)
         if self.sort_query_param in self.kwargs:
             self.kwargs.pop(self.sort_query_param)
-        return super().get_user_data_objects(request)
+        return super().get(request=request)
+
 
 
 class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):

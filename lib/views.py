@@ -268,7 +268,7 @@ class UserGETView(DataQueryPermission, APIView):
             model = django_apps.get_model("Rbac.Role")
             RecodeLog.info(msg="当前为超级用户，用户：{0}!".format(self.user.username))
 
-            return
+            return ['超级用户']
         else:
             return [x.name for x in self.user.roles.all()]
 

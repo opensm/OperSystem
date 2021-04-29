@@ -135,7 +135,10 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
             model_objs = self.get_user_data_objects(request=request)
             if not model_objs or len(model_objs) > 1:
                 RecodeLog.error(msg="返回:{0}".format(model_objs))
-                raise APIException(detail="获取到修改数据异常，请检查！", code=API_12001_DATA_NULL_ERROR)
+                raise APIException(
+                    detail="获取到修改数据异常，请检查,数据为:{0}".format(model_objs),
+                    code=API_12001_DATA_NULL_ERROR
+                )
             data = self.serializer_class(
                 instance=model_objs[0],
                 data=request.data
@@ -225,14 +228,11 @@ class UserGETView(DataQueryPermission, APIView):
         if self.user.is_superuser:
             RecodeLog.info(msg="当前为超级用户，用户：{0}!".format(self.user.username))
             instance = model.objects.filter(parent=None)
-            print(instance)
             data = MenuSerializer(instance=instance, many=True)
             return data.data
         else:
             for x in self.user.roles.all():
                 instance = chain(x.menu.filter(parent=None).exclude(level=999), instance)
-            # data = MenuSerializer(many=True, instance=instance)
-            # return data.data
         return self.get_child_menu(childs=instance)
 
     # 递归获取所有的子菜单

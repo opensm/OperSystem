@@ -384,7 +384,11 @@ class BasePUTView(BasePUTVIEW):
 
         try:
             if not self.check_user_permissions(request=request):
-                raise APIException(code=API_40003_PERMISSION_DENIED, detail="没有权限！")
+                raise APIException(
+                    code=API_40003_PERMISSION_DENIED,
+                    detail="没有权限！"
+                )
+            print(request.data)
             model_objs = self.get_user_data_objects(request=request)
             data = self.serializer_class(
                 instance=model_objs,

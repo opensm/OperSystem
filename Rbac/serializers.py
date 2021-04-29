@@ -27,9 +27,16 @@ class DataPermissionSerializer(serializers.ModelSerializer):
         fields = ("__all__")
 
 
+class ParentMenuSerializer(serializers.ModelSerializer):
+    class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
+        model = Menu  # 指定需要序列化的模型表
+        fields = ("__all__")
+
+
 class MenuSerializer(serializers.ModelSerializer):
     children = RecursiveField(many=True, read_only=True, allow_null=True)
-    parent = serializers.PrimaryKeyRelatedField(queryset=Menu.objects.all(), allow_null=True, required=False)
+    # parent = MenuSerializer.PrimaryKeyRelatedField(queryset=Menu.objects.all(), allow_null=True, required=False)
+    parent = ParentMenuSerializer(many=True, read_only=True)
 
     def validate_parent(self, attrs):
         """

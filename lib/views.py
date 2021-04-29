@@ -181,6 +181,9 @@ class BaseListView(BaseGETVIEW, BasePOSTVIEW):
         if self.page_size_query_param in self.kwargs:
             self.kwargs.pop(self.page_size_query_param)
         if self.page_query_param in self.kwargs:
+            print(111111111111111111111111111)
+            print(self.kwargs)
+            print(111111111111111111111111111)
             self.kwargs.pop(self.page_query_param)
         if self.sort_query_param in self.kwargs:
             self.kwargs.pop(self.sort_query_param)

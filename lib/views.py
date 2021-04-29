@@ -266,7 +266,6 @@ class UserGETView(DataQueryPermission, APIView):
         # 超级用户直接返回全部权限
         if self.user.is_superuser:
             RecodeLog.info(msg="当前为超级用户，用户：{0}!".format(self.user.username))
-
             return ['超级用户']
         else:
             return [x.name for x in self.user.roles.all()]

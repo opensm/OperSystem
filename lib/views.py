@@ -225,10 +225,7 @@ class UserGETView(DataQueryPermission, APIView):
         if self.user.is_superuser:
             RecodeLog.info(msg="当前为超级用户，用户：{0}!".format(self.user.username))
             instance = model.objects.filter(parent=None)
-            # print(111111)
-            # for x in instance:
-            #     print(x.parent)
-            # print(111111)
+            print(instance)
             data = MenuSerializer(instance=instance, many=True)
             return data.data
         else:

@@ -1,6 +1,7 @@
 import datetime
 from django.contrib import auth
 from django.contrib.auth import password_validation
+from django.contrib.contenttypes.models import ContentType
 from Rbac.models import Role, UserInfo, DataPermissionRule, Menu, RequestType
 from rest_framework import serializers
 
@@ -17,9 +18,18 @@ class RequestTypeSerializer(serializers.ModelSerializer):
         fields = ("__all__")
 
 
+class ContentTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContentType
+        fields = ("__all__")
+
+
 class DataPermissionSerializer(serializers.ModelSerializer):
     request_type = RequestTypeSerializer(
         many=True, read_only=True,
+    )
+    content_type = ContentTypeSerializer(
+        read_only=True,
     )
 
     class Meta:

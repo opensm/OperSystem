@@ -282,7 +282,7 @@ class UserGETView(DataQueryPermission, APIView):
                     print(child)
                     print(model)
                     _childs = Menu.objects.filter(
-                        role__menu=self.user.roles.all(),
+                        role__in=self.user.roles.all(),
                         parent=child
                     )
                 if _childs:

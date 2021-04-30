@@ -161,7 +161,11 @@ class BaseListView(BaseGETVIEW, BasePOSTVIEW):
     """A base view for displaying a single object."""
     serializer_class = None
 
-    def get(self, request):
+    def format_request_params(self, request):
+        """
+        :param request:
+        :return:
+        """
         self.kwargs = request.GET.copy()
         if self.page_size_query_param in self.kwargs:
             self.kwargs.pop(self.page_size_query_param)
@@ -169,7 +173,16 @@ class BaseListView(BaseGETVIEW, BasePOSTVIEW):
             self.kwargs.pop(self.page_query_param)
         if self.sort_query_param in self.kwargs:
             self.kwargs.pop(self.sort_query_param)
-        return super().get(request=request)
+        if self.page_size in self.kwargs:
+            self.kwargs.pop(self.page_size)
+
+    def get(self, request):
+        self.format_request_params(request=request)
+        return super().get(request)
+
+    def post(self, request):
+        self.format_request_params(request=request)
+        return super().post(request)
 
 
 class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):

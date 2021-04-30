@@ -64,11 +64,9 @@ class MenuSerializer(serializers.ModelSerializer):
         return attrs
 
     def update(self, instance, validated_data):
-        print(validated_data)
         if not isinstance(validated_data, dict):
             raise serializers.ValidationError("输入数据类型错误！")
         for key, value in validated_data.items():
-            print(key, value)
             setattr(instance, key, value)
         instance.save()
         return instance

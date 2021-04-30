@@ -259,7 +259,7 @@ class UserGETView(DataQueryPermission, APIView):
             return data.data
         else:
             for x in self.user.roles.all():
-                print(x)
+                print(x.menu.filter(parent=None))
                 instance = chain(x.menu.filter(parent=None), instance)
         print(instance)
         return self.get_child_menu(childs=instance)
@@ -279,8 +279,7 @@ class UserGETView(DataQueryPermission, APIView):
                     print(child)
                     print(model)
                     _childs = model.objects.filter(
-                        role__userinfo__in=self.user.roles.all(),
-                        parent=child
+                        role__userinfo__in=self.user.roles.all()
                     )
                 if _childs:
                     child_data = self.get_child_menu(childs=_childs)

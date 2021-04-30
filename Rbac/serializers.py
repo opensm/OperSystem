@@ -62,6 +62,15 @@ class MenuSerializer(serializers.ModelSerializer):
             serializers.ValidationError("{0} 父菜单不存在！".format(name))
         return attrs
 
+    def update(self, instance, validated_data):
+        if not isinstance(validated_data, dict):
+            raise serializers.ValidationError("输入数据类型错误！")
+        for key, value in validated_data.items():
+            print(key,value)
+            setattr(instance, key, value)
+        instance.save()
+        return instance
+
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Menu  # 指定需要序列化的模型表
         fields = ("__all__")

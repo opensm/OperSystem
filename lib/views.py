@@ -264,7 +264,6 @@ class UserGETView(DataQueryPermission, APIView):
                     print(y.name)
                     instance.append(y)
                 # instance = chain(x.menu.filter(parent=None), instance)
-        print(instance)
         return self.get_child_menu(childs=instance)
 
     # 递归获取所有的子菜单

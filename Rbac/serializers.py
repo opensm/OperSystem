@@ -52,6 +52,7 @@ class MenuSerializer(serializers.ModelSerializer):
         """
         :return:
         """
+        print(attrs)
         if attrs is None:
             return attrs
         pk = getattr(attrs, 'id')

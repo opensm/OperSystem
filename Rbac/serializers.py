@@ -26,7 +26,7 @@ class ContentTypeSerializer(serializers.ModelSerializer):
 
 class DataPermissionSerializer(serializers.ModelSerializer):
     request_type = RequestTypeSerializer(
-        many=True, read_only=True,
+        many=True
     )
     content_type = ContentTypeSerializer(
         read_only=True,
@@ -46,7 +46,7 @@ class ParentMenuSerializer(serializers.ModelSerializer):
 class MenuSerializer(serializers.ModelSerializer):
     children = RecursiveField(many=True, read_only=True, allow_null=True)
     # parent = MenuSerializer.PrimaryKeyRelatedField(queryset=Menu.objects.all(), allow_null=True, required=False)
-    parent = ParentMenuSerializer(read_only=True, allow_null=True)
+    parent = ParentMenuSerializer(allow_null=True)
 
     def validate_parent(self, attrs):
         """
@@ -68,12 +68,8 @@ class MenuSerializer(serializers.ModelSerializer):
 
 
 class RoleSerializer(serializers.ModelSerializer):
-    menu = MenuSerializer(
-        many=True, read_only=True,
-    )
-    data_permission = DataPermissionSerializer(
-        many=True, read_only=True,
-    )
+    menu = MenuSerializer(many=True)
+    data_permission = DataPermissionSerializer(many=True)
 
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Role  # 指定需要序列化的模型表

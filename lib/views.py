@@ -277,6 +277,7 @@ class UserGETView(DataQueryPermission, APIView):
                     )
                 else:
                     print(child)
+                    print(model)
                     _childs = model.objects.filter(
                         role__userinfo__in=self.user.roles.all(),
                         parent=child

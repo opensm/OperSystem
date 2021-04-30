@@ -3,6 +3,7 @@ from lib.mixins import DataQueryPermission
 from lib.response import DataResponse
 from lib.page import RewritePageNumberPagination
 from Rbac.serializers import MenuSerializer
+from Rbac.models import Menu
 from itertools import chain
 from lib.exceptions import *
 from lib.Log import RecodeLog
@@ -259,11 +260,11 @@ class UserGETView(DataQueryPermission, APIView):
             return data.data
         else:
             for x in self.user.roles.all():
-                for y in x.menu.filter(parent=None):
-                    print(y)
-                    print(y.name)
-                    instance.append(y)
-                # instance = chain(x.menu.filter(parent=None), instance)
+                # for y in x.menu.filter(parent=None):
+                #     print(y)
+                #     print(y.name)
+                #     instance.append(y)
+                instance = chain(x.menu.filter(parent=None), instance)
         return self.get_child_menu(childs=instance)
 
     # 递归获取所有的子菜单
@@ -280,8 +281,9 @@ class UserGETView(DataQueryPermission, APIView):
                 else:
                     print(child)
                     print(model)
-                    _childs = model.objects.filter(
-                        role__userinfo__in=self.user.roles.all()
+                    _childs = Menu.objects.filter(
+                        role__menu=self.user.roles.all(),
+                        parent=child
                     )
                 if _childs:
                     child_data = self.get_child_menu(childs=_childs)

@@ -24,4 +24,5 @@ urlpatterns = [
     path('user/state', UserStatusEditView.as_view(), name="user_status"),
     path('user/roles', UserEditRoleView.as_view(), name="user_role"),
     path('current_user', CurrentUserView.as_view(), name='user'),
+    path('contenttypes', ContentTypeView.as_view(), name='contenttypes'),
 ]

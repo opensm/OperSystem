@@ -7,6 +7,7 @@ import datetime
 from lib.mixins import make_token
 from Rbac.serializers import *
 from lib.views import BaseDetailView, BaseListView, BaseGETView, BaseGetPUTView, BasePUTView, UserGETView
+from django.contrib.contenttypes.models import ContentType
 
 
 def format_error(data):
@@ -171,6 +172,12 @@ class CurrentUserView(UserGETView):
     serializer_class = UserInfoSerializer
 
 
+class ContentTypeView(BaseGETView):
+    model_name = 'ContentType'
+    app_label = 'contenttypes'
+    serializer_class = ContentTypeSerializer
+
+
 class DataPermissionsView(BaseListView):
     model_name = 'DataPermissionRule'
     app_label = 'Rbac'
@@ -201,5 +208,6 @@ __all__ = [
     'LogoutView',
     'MenusView',
     'MenuView',
-    'CurrentUserView'
+    'CurrentUserView',
+    'ContentTypeView'
 ]

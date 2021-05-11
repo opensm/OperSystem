@@ -45,6 +45,7 @@ class ParentMenuSerializer(serializers.ModelSerializer):
 
 class MenuSerializer(serializers.ModelSerializer):
     children = RecursiveField(many=True, read_only=True, allow_null=True)
+
     # parent = MenuSerializer.PrimaryKeyRelatedField(queryset=Menu.objects.all(), allow_null=True, required=False)
     # parent = ParentMenuSerializer(allow_null=True,read_only=True)
 
@@ -227,7 +228,7 @@ class RoleMenuEditSerializer(serializers.ModelSerializer):
 
 
 __all__ = [
-    # 'SubPermissionSerializer',
+    'ContentTypeSerializer',
     'MenuSerializer',
     # 'PermissionSerializer',
     'RoleSerializer',

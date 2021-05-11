@@ -25,12 +25,12 @@ class ContentTypeSerializer(serializers.ModelSerializer):
 
 
 class DataPermissionSerializer(serializers.ModelSerializer):
-    request_type = RequestTypeSerializer(
-        many=True, read_only=True
-    )
-    content_type = ContentTypeSerializer(
-        read_only=True
-    )
+    # request_type = RequestTypeSerializer(
+    #     many=True, read_only=True
+    # )
+    # content_type = ContentTypeSerializer(
+    #     read_only=True
+    # )
 
     class Meta:
         model = DataPermissionRule

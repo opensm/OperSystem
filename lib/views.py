@@ -228,6 +228,7 @@ class BaseGETView(DataQueryPermission, APIView):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         model_obj = self.get_user_data_objects(request=request)
+        print(model_obj)
         data = self.serializer_class(
             instance=model_obj
         )

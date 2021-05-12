@@ -232,8 +232,11 @@ class BaseGETView(DataQueryPermission, APIView):
             instance=model_obj
         )
         for x in model_obj:
+            print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
             print(getattr(x, 'app_label'))
             print(getattr(x, 'model'))
+            print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxy')
+
         print(data.data)
         return DataResponse(
             data=data.data,

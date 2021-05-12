@@ -231,7 +231,7 @@ class BaseGETView(DataQueryPermission, APIView):
         data = self.serializer_class(
             instance=model_obj
         )
-        print(data)
+        print(data.data)
         return DataResponse(
             data=data.data,
             msg="获取信息成功！",

@@ -237,6 +237,7 @@ class BaseGETView(DataQueryPermission, APIView):
             print(getattr(x, 'model'))
             print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxy')
 
+        print(data)
         print(data.data)
         return DataResponse(
             data=data.data,

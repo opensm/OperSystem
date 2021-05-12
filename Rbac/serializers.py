@@ -21,7 +21,7 @@ class RequestTypeSerializer(serializers.ModelSerializer):
 class ContentTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContentType
-        fields = ('app_label', 'model')
+        fields = ("__all__")
 
 
 class DataPermissionSerializer(serializers.ModelSerializer):

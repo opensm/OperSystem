@@ -231,6 +231,7 @@ class BaseGETView(DataQueryPermission, APIView):
         data = self.serializer_class(
             instance=model_obj
         )
+        print(getattr(model_obj[0], 'app_label'))
         print(data.data)
         return DataResponse(
             data=data.data,

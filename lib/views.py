@@ -245,7 +245,7 @@ class ContentFieldValueGETView(DataQueryPermission, APIView):
     field = None
 
     def get_user_data_objects(self, request):
-        self.kwargs = getattr(request, "GET")
+        self.kwargs = request.GET.copy()
         if 'field' not in self.kwargs:
             raise APIException(detail="输入参数异常!!", code=API_10001_PARAMS_ERROR)
         self.field = self.kwargs.pop('field')

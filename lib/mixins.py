@@ -299,6 +299,7 @@ class DataQueryPermission(ObjectUserInfo):
         field_name = dict()
         if not self.__model_class:
             raise ValueError("请先输入model参数实例化相关数据！")
+        print(self.__model_class._meta.fields)
         for x in self.__model_class._meta.fields:
             print(x)
             field_name[x.name] = x.verbose_name

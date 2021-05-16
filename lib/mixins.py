@@ -394,7 +394,9 @@ class DataQueryPermission(ObjectUserInfo):
                 else:
                     model = data.content_type
                     print("1111111111111")
-                    print(data)
+                    print(data.name)
+                    print(data.request_type)
+                    print(data.is_all)
                     print(data.content_type)
                     print("2222222222222222k")
 

@@ -300,6 +300,7 @@ class DataQueryPermission(ObjectUserInfo):
         if not self.__model_class:
             raise ValueError("请先输入model参数实例化相关数据！")
         for x in self.__model_class._meta.fields:
+            print(x)
             field_name[x.name] = x.verbose_name
         return field_name
 
@@ -393,13 +394,6 @@ class DataQueryPermission(ObjectUserInfo):
                     raise APIException(detail="模型类型错误！", code=API_50001_SERVER_ERROR)
                 else:
                     model = data.content_type
-                    print("1111111111111")
-                    print(data.name)
-                    print(data.request_type)
-                    print(data.is_all)
-                    print(data.content_type)
-                    print("2222222222222222k")
-
                     request_type = [x.method for x in data.request_type.all()]
                     if 'GET' not in request_type:
                         raise APIException('没有权限！', code=API_50001_SERVER_ERROR)

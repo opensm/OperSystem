@@ -207,13 +207,13 @@ class DataPermissionlistView(BaseDetailView):
     pk = 'id'
 
 
-class ContentFieldValueView(ContentFieldGETView):
+class ContentFieldValueView(ContentFieldValueGETView):
     model_name = 'DataPermissionRule'
     app_label = 'Rbac'
     serializer_class = DataPermissionSerializer
 
 
-class ContentFieldView(ContentFieldValueGETView):
+class ContentFieldView(ContentFieldGETView):
     model_name = 'DataPermissionRule'
     app_label = 'Rbac'
     serializer_class = DataPermissionSerializer

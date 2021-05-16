@@ -336,8 +336,9 @@ class DataQueryPermission(ObjectUserInfo):
         :return:
         """
         fields = self.get_model_fields()
-        if isinstance(self.__model,DataPermissionRule):
+        if self.__model == DataPermissionRule:
             print(1111111)
+            fields['field'] = "检查字段"
         print(fields)
         if len(self.kwargs.keys()) == 0:
             return

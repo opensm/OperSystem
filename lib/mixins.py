@@ -318,7 +318,7 @@ class DataQueryPermission(ObjectUserInfo):
         print(fields.keys())
         print(type(fields.keys()))
         print(111111111112)
-        if field not in fields.keys():
+        if field not in list(fields.keys()):
             return []
         return self.__model_class.object.values(field).distinct()
 

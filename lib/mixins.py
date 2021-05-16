@@ -277,13 +277,33 @@ class DataQueryPermission(ObjectUserInfo):
 
     def get_model_fields(self):
         field_name = dict()
+        if not self.__model:
+            raise ValueError("请先输入model参数实例化相关数据！")
+        for x in self.__model._meta.fields:
+            field_name[x.name] = x.verbose_name
+        return field_name
+
+    def get_field_values(self, field):
+        """
+        :param field:
+        :return:
+        """
+        if not self.__object:
+            raise ValueError("请先通过 get_user_model_data_permission实例化相关数据！")
+        fields = self.get_model_fields()
+        if field not in fields.keys():
+            return []
+        return list(set([getattr(x, field) for x in self.__object]))
+
+    def get_content_fields(self):
+        field_name = dict()
         if not self.__model_class:
             raise ValueError("请先输入model参数实例化相关数据！")
         for x in self.__model_class._meta.fields:
             field_name[x.name] = x.verbose_name
         return field_name
 
-    def get_field_values(self, field):
+    def get_content_field_values(self, field):
         """
         :param field:
         :return:
@@ -387,4 +407,3 @@ class DataQueryPermission(ObjectUserInfo):
             raise APIException(detail="输入数据类型错误！", code=API_50001_SERVER_ERROR)
 
         self.__model_class = model.model_class()
-

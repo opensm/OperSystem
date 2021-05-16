@@ -251,7 +251,7 @@ class ContentFieldValueGETView(DataQueryPermission, APIView):
         try:
             self.check_content_permission(obj=model_obj)
             field = self.kwargs.get('field')
-            data = self.get_field_values(field=field)
+            data = self.get_content_field_values(field=field)
             return DataResponse(
                 data=data,
                 msg="获取信息成功！",
@@ -275,7 +275,7 @@ class ContentFieldGETView(DataQueryPermission, APIView):
         model_obj = self.get_user_data_objects(request=request)
         try:
             self.check_content_permission(obj=model_obj)
-            fields = self.get_model_fields()
+            fields = self.get_content_fields()
             return DataResponse(
                 data=fields,
                 msg="获取信息成功！",

@@ -337,7 +337,6 @@ class DataQueryPermission(ObjectUserInfo):
         :return:
         """
         fields = self.get_model_fields()
-        print(fields)
         if len(self.kwargs.keys()) == 0:
             return
         else:

@@ -393,6 +393,7 @@ class DataQueryPermission(ObjectUserInfo):
                     raise APIException(detail="模型类型错误！", code=API_50001_SERVER_ERROR)
                 else:
                     model = data.content_type
+                    print(data.content_type)
                     request_type = [x.method for x in data.request_type.all()]
                     if 'GET' not in request_type:
                         raise APIException('没有权限！', code=API_50001_SERVER_ERROR)

@@ -128,6 +128,7 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         try:
+            print(request.data)
             if not self.check_user_permissions(request=request):
                 raise APIException(
                     detail="没有删除权限！！",

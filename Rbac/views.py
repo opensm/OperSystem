@@ -193,10 +193,27 @@ class DataPermissionView(BaseDetailView):
     pk = 'id'
 
 
+class DataPermissionlistsView(BaseListView):
+    model_name = 'DataPermissionList'
+    app_label = 'Rbac'
+    serializer_class = DataPermissionSerializer
+    page_size_query_param = 'size'
+    sort_query_param = 'sort'
+
+
+class DataPermissionlistView(BaseDetailView):
+    model_name = 'DataPermissionList'
+    app_label = 'Rbac'
+    serializer_class = DataPermissionSerializer
+    pk = 'id'
+
+
 __all__ = [
     'AuthView',
     'DataPermissionView',
     'DataPermissionsView',
+    'DataPermissionlistView',
+    'DataPermissionlistsView',
     'UserView',
     'UsersView',
     'UserStatusEditView',

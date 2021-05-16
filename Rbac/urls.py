@@ -15,6 +15,8 @@ urlpatterns = [
     path('menus', MenusView.as_view(), name='menus'),
     path('menu', MenuView.as_view(), name='menu'),
     # 数据权限管理
+    path('data_permission_lists', DataPermissionlistsView.as_view(), name='data_permission_lists'),
+    path('data_permission_list', DataPermissionlistView.as_view(), name='data_permission_list'),
     path('data_permissions', DataPermissionsView.as_view(), name='data_permission_list_manage'),
     path('data_permission', DataPermissionView.as_view(), name='data_permission'),
     # 用户管理

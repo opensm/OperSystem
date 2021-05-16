@@ -240,6 +240,55 @@ class BaseGETView(DataQueryPermission, APIView):
         )
 
 
+class ContentFieldValueGETView(DataQueryPermission, APIView):
+    serializer_class = None
+    pk = None
+
+    def get(self, request):
+        if not self.serializer_class:
+            raise TypeError("serializer_class type error!")
+        model_obj = self.get_user_data_objects(request=request)
+        try:
+            self.check_content_permission(obj=model_obj)
+            field = self.kwargs.get('field')
+            data = self.get_field_values(field=field)
+            return DataResponse(
+                data=data,
+                msg="获取信息成功！",
+                code='00000'
+            )
+        except APIException as error:
+            return DataResponse(
+                data=[],
+                msg="数据获取失败，%s" % error.default_detail,
+                code=error.status_code
+            )
+
+
+class ContentFieldGETView(DataQueryPermission, APIView):
+    serializer_class = None
+    pk = None
+
+    def get(self, request):
+        if not self.serializer_class:
+            raise TypeError("serializer_class type error!")
+        model_obj = self.get_user_data_objects(request=request)
+        try:
+            self.check_content_permission(obj=model_obj)
+            fields = self.get_model_fields()
+            return DataResponse(
+                data=fields,
+                msg="获取信息成功！",
+                code='00000'
+            )
+        except APIException as error:
+            return DataResponse(
+                data=[],
+                msg="数据获取失败，%s" % error.default_detail,
+                code=error.status_code
+            )
+
+
 class UserGETView(DataQueryPermission, APIView):
     serializer_class = None
     pk = None
@@ -425,3 +474,15 @@ class BasePUTView(BasePUTVIEW):
                 msg="数据保存失败:%s" % error.default_detail,
                 code=error.status_code
             )
+
+
+__all__ = [
+    'BaseDetailView',
+    'BaseListView',
+    'BaseGETView',
+    'BaseGetPUTView',
+    'BasePUTView',
+    'UserGETView',
+    'ContentFieldGETView',
+    'ContentFieldValueGETView'
+]

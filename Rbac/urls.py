@@ -27,4 +27,7 @@ urlpatterns = [
     path('user/roles', UserEditRoleView.as_view(), name="user_role"),
     path('current_user', CurrentUserView.as_view(), name='user'),
     path('contenttypes', ContentTypeView.as_view(), name='contenttypes'),
+    # 模型查询
+    path('field', ContentTypeView.as_view(), name='field'),
+    path('field_value', ContentTypeView.as_view(), name='field_value'),
 ]

@@ -7,7 +7,7 @@ import hashlib
 import time
 from KubernetesManagerWeb.settings import SECRET_KEY
 from lib.exceptions import *
-from Rbac.models import UserInfo, UserToken
+from Rbac.models import UserInfo, DataPermissionRule
 from django.contrib.contenttypes.models import ContentType
 
 
@@ -52,6 +52,7 @@ class DataQueryPermission(ObjectUserInfo):
         ObjectUserInfo.__init__(self)
         self.user = None
         self.__object = None
+        self.__model_class = None
         self.__model = django_apps.get_model(
             "{0}.{1}".format(
                 self.app_label, self.model_name
@@ -276,9 +277,9 @@ class DataQueryPermission(ObjectUserInfo):
 
     def get_model_fields(self):
         field_name = dict()
-        if not self.__model:
+        if not self.__model_class:
             raise ValueError("请先输入model参数实例化相关数据！")
-        for x in self.__model._meta.fields:
+        for x in self.__model_class._meta.fields:
             field_name[x.name] = x.verbose_name
         return field_name
 
@@ -287,12 +288,12 @@ class DataQueryPermission(ObjectUserInfo):
         :param field:
         :return:
         """
-        if not self.__object:
+        if not self.__model_class:
             raise ValueError("请先通过 get_user_model_data_permission实例化相关数据！")
         fields = self.get_model_fields()
         if field not in fields.keys():
             return []
-        return list(set([getattr(x, field) for x in self.__object]))
+        return self.__model_class.object.values(field).distinct()
 
     def check_user_permission(self, model_obj, request_type='POST'):
         """
@@ -359,3 +360,31 @@ class DataQueryPermission(ObjectUserInfo):
                 code=API_40003_PERMISSION_DENIED,
                 detail="没有操作权限！"
             )
+
+    def check_content_permission(self, obj):
+        """
+        :return:
+        """
+        model = None
+        if isinstance(obj, list):
+            for data in obj:
+                if not isinstance(data, DataPermissionRule):
+                    raise APIException(detail="模型类型错误！", code=API_50001_SERVER_ERROR)
+                else:
+                    model = data.content_type
+                    request_type = [x.method for x in data.request_type.all()]
+                    if 'GET' not in request_type:
+                        raise APIException('没有权限！', code=API_50001_SERVER_ERROR)
+        elif isinstance(obj, DataPermissionRule):
+            if not isinstance(obj, DataPermissionRule):
+                raise APIException(detail="模型类型错误！", code=API_50001_SERVER_ERROR)
+            else:
+                model = obj.content_type
+                request_type = [x.method for x in obj.request_type.all()]
+                if 'GET' not in request_type:
+                    raise APIException('没有权限！', code=API_50001_SERVER_ERROR)
+        else:
+            raise APIException(detail="输入数据类型错误！", code=API_50001_SERVER_ERROR)
+
+        self.__model_class = model.model_class()
+

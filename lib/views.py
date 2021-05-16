@@ -242,9 +242,13 @@ class BaseGETView(DataQueryPermission, APIView):
 class ContentFieldValueGETView(DataQueryPermission, APIView):
     serializer_class = None
     pk = None
+    field = None
 
     def get_user_data_objects(self, request):
         self.kwargs = getattr(request, "GET")
+        if 'field' not in self.kwargs:
+            raise APIException(detail="输入参数异常!!", code=API_10001_PARAMS_ERROR)
+        self.field = self.kwargs.pop('field')
         return super().get_user_data_objects(request)
 
     def get(self, request):
@@ -253,8 +257,7 @@ class ContentFieldValueGETView(DataQueryPermission, APIView):
         model_obj = self.get_user_data_objects(request=request)
         try:
             self.check_content_permission(obj=model_obj)
-            field = self.kwargs.get('field')
-            data = self.get_content_field_values(field=field)
+            data = self.get_content_field_values(field=self.field)
             return DataResponse(
                 data=data,
                 msg="获取信息成功！",

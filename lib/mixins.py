@@ -385,6 +385,7 @@ class DataQueryPermission(ObjectUserInfo):
         """
         :return:
         """
+        print(obj)
         model = None
         if isinstance(obj, list):
             for data in obj:

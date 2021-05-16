@@ -388,7 +388,7 @@ class DataQueryPermission(ObjectUserInfo):
         """
         print(obj)
         model = None
-        if len(obj) > 1:
+        if len(obj) > 0:
             for data in obj:
                 if not isinstance(data, DataPermissionRule):
                     raise APIException(detail="模型类型错误！", code=API_50001_SERVER_ERROR)
@@ -397,14 +397,14 @@ class DataQueryPermission(ObjectUserInfo):
                     request_type = [x.method for x in data.request_type.all()]
                     if 'GET' not in request_type:
                         raise APIException('没有权限！', code=API_50001_SERVER_ERROR)
-        elif isinstance(obj, DataPermissionRule):
-            if not isinstance(obj, DataPermissionRule):
-                raise APIException(detail="模型类型错误！", code=API_50001_SERVER_ERROR)
-            else:
-                model = obj.content_type
-                request_type = [x.method for x in obj.request_type.all()]
-                if 'GET' not in request_type:
-                    raise APIException('没有权限！', code=API_50001_SERVER_ERROR)
+        # elif isinstance(obj, DataPermissionRule):
+        #     if not isinstance(obj, DataPermissionRule):
+        #         raise APIException(detail="模型类型错误！", code=API_50001_SERVER_ERROR)
+        #     else:
+        #         model = obj.content_type
+        #         request_type = [x.method for x in obj.request_type.all()]
+        #         if 'GET' not in request_type:
+        #             raise APIException('没有权限！', code=API_50001_SERVER_ERROR)
         else:
             raise APIException(detail="输入数据类型错误！", code=API_50001_SERVER_ERROR)
 

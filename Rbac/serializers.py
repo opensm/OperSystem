@@ -2,7 +2,7 @@ import datetime
 from django.contrib import auth
 from django.contrib.auth import password_validation
 from django.contrib.contenttypes.models import ContentType
-from Rbac.models import Role, UserInfo, DataPermissionRule, Menu, RequestType
+from Rbac.models import Role, UserInfo, DataPermissionRule, Menu, RequestType,DataPermissionList
 from rest_framework import serializers
 
 
@@ -25,15 +25,16 @@ class ContentTypeSerializer(serializers.ModelSerializer):
 
 
 class DataPermissionSerializer(serializers.ModelSerializer):
-    # request_type = RequestTypeSerializer(
-    #     many=True, read_only=True
-    # )
-    # content_type = ContentTypeSerializer(
-    #     read_only=True
-    # )
 
     class Meta:
         model = DataPermissionRule
+        fields = ("__all__")
+
+
+class DataPermissionListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = DataPermissionList
         fields = ("__all__")
 
 
@@ -45,9 +46,6 @@ class ParentMenuSerializer(serializers.ModelSerializer):
 
 class MenuSerializer(serializers.ModelSerializer):
     children = RecursiveField(many=True, read_only=True, allow_null=True)
-
-    # parent = MenuSerializer.PrimaryKeyRelatedField(queryset=Menu.objects.all(), allow_null=True, required=False)
-    # parent = ParentMenuSerializer(allow_null=True,read_only=True)
 
     def validate_parent(self, attrs):
         """
@@ -238,5 +236,6 @@ __all__ = [
     'UserEditRoleSerializer',
     'UserStatusEditSerializer',
     'RoleMenuEditSerializer',
-    'DataPermissionSerializer'
+    'DataPermissionSerializer',
+    'DataPermissionListSerializer'
 ]

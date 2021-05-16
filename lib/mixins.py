@@ -299,13 +299,9 @@ class DataQueryPermission(ObjectUserInfo):
         """
         :return:
         """
-        print("1111111111111111111111")
         field_name = dict()
-        print("1111111111111111111112")
         if not self.__model_class:
             raise ValueError("请先输入model参数实例化相关数据！")
-        print("111111111111111111113")
-        print(self.__model_class._meta.fields)
         for x in self.__model_class._meta.fields:
             print(x)
             field_name[x.name] = x.verbose_name
@@ -339,8 +335,10 @@ class DataQueryPermission(ObjectUserInfo):
         :param request:
         :return:
         """
-        # kwargs = getattr(request, "GET")
         fields = self.get_model_fields()
+        if isinstance(self.__model,DataPermissionRule):
+            print(1111111)
+        print(fields)
         if len(self.kwargs.keys()) == 0:
             return
         else:
@@ -349,7 +347,6 @@ class DataQueryPermission(ObjectUserInfo):
                 if key not in fields or not self.kwargs.getlist(key):
                     raise APIException(detail='输入参数错误:{}'.format(key), code=API_10001_PARAMS_ERROR)
                 query_params["{}__in".format(key)] = self.kwargs.getlist(key)
-                print(query_params)
         try:
             return self.__model.objects.filter(**query_params)
         except Exception as error:

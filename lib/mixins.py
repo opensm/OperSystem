@@ -387,7 +387,7 @@ class DataQueryPermission(ObjectUserInfo):
         """
         print(obj)
         model = None
-        if isinstance(obj, list):
+        if len(obj) > 1:
             for data in obj:
                 if not isinstance(data, DataPermissionRule):
                     raise APIException(detail="模型类型错误！", code=API_50001_SERVER_ERROR)

@@ -303,7 +303,6 @@ class DataQueryPermission(ObjectUserInfo):
         if not self.__model_class:
             raise ValueError("请先输入model参数实例化相关数据！")
         for x in self.__model_class._meta.fields:
-            print(x)
             field_name[x.name] = x.verbose_name
         return field_name
 
@@ -315,7 +314,9 @@ class DataQueryPermission(ObjectUserInfo):
         if not self.__model_class:
             raise ValueError("请先通过 get_user_model_data_permission实例化相关数据！")
         fields = self.get_model_fields()
+        print(111111111111)
         print(fields)
+        print(111111111112)
         if field not in fields.keys():
             return []
         return self.__model_class.object.values(field).distinct()

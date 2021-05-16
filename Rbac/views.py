@@ -237,5 +237,7 @@ __all__ = [
     'MenusView',
     'MenuView',
     'CurrentUserView',
-    'ContentTypeView'
+    'ContentTypeView',
+    'ContentFieldView',
+    'ContentFieldValueView'
 ]

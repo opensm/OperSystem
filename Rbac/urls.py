@@ -28,6 +28,6 @@ urlpatterns = [
     path('current_user', CurrentUserView.as_view(), name='user'),
     path('contenttypes', ContentTypeView.as_view(), name='contenttypes'),
     # 模型查询
-    path('field', ContentTypeView.as_view(), name='field'),
-    path('field_value', ContentTypeView.as_view(), name='field_value'),
+    path('field', ContentFieldView.as_view(), name='field'),
+    path('field_value', ContentFieldValueView.as_view(), name='field_value'),
 ]

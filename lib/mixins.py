@@ -296,9 +296,15 @@ class DataQueryPermission(ObjectUserInfo):
         return list(set([getattr(x, field) for x in self.__object]))
 
     def get_content_fields(self):
+        """
+        :return:
+        """
+        print("1111111111111111111111")
         field_name = dict()
+        print("1111111111111111111112")
         if not self.__model_class:
             raise ValueError("请先输入model参数实例化相关数据！")
+        print("111111111111111111113")
         print(self.__model_class._meta.fields)
         for x in self.__model_class._meta.fields:
             print(x)

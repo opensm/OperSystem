@@ -398,6 +398,6 @@ class DataQueryPermission(ObjectUserInfo):
                         raise APIException('没有权限！', code=API_50001_SERVER_ERROR)
         else:
             raise APIException(detail="输入数据类型错误！", code=API_50001_SERVER_ERROR)
-
+        print(model)
         self.__model_class = model.model_class()
         print(self.__model_class)

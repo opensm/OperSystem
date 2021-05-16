@@ -356,7 +356,6 @@ class DataQueryPermission(ObjectUserInfo):
         """
         self.user = self.get_user_object(request=request)
         current_obj = self.get_request_filter(request=request)
-        print(current_obj)
         # 超级管理员直接返回结果
         if self.user.is_superuser and self.user.is_active:
             if not current_obj:

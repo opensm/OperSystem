@@ -244,6 +244,10 @@ class ContentFieldValueGETView(DataQueryPermission, APIView):
     serializer_class = None
     pk = None
 
+    def get_user_data_objects(self, request):
+        self.kwargs = getattr(request, "GET")
+        return super().get_user_data_objects(request)
+
     def get(self, request):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
@@ -268,6 +272,10 @@ class ContentFieldValueGETView(DataQueryPermission, APIView):
 class ContentFieldGETView(DataQueryPermission, APIView):
     serializer_class = None
     pk = None
+
+    def get_user_data_objects(self, request):
+        self.kwargs = getattr(request, "GET")
+        return super().get_user_data_objects(request)
 
     def get(self, request):
         if not self.serializer_class:

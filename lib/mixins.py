@@ -317,6 +317,8 @@ class DataQueryPermission(ObjectUserInfo):
         print(1111111111111111111111111112)
         fields = self.get_content_fields()
         print(1111111111111111111111111113)
+        print(field)
+        print(fields.keys())
         if field not in list(fields.keys()):
             return []
         print(self.__model_class.objects.values(field))

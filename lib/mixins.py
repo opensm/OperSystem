@@ -321,6 +321,7 @@ class DataQueryPermission(ObjectUserInfo):
             return []
         data = dict()
         for x in self.__model_class.objects.values(field[0]).distinct():
+            print(x)
             data.setdefault(field[0], []).append(getattr(x, field[0]))
         return data
 

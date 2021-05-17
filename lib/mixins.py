@@ -322,7 +322,7 @@ class DataQueryPermission(ObjectUserInfo):
         data = dict()
         for x in self.__model_class.objects.values(field[0]).distinct():
             print(x)
-            data.setdefault(field[0], []).append(getattr(x, field[0]))
+            data.setdefault(field[0], []).append(x[field[0]])
         return data
 
     def check_user_permission(self, model_obj, request_type='POST'):

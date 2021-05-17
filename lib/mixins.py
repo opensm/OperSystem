@@ -349,7 +349,7 @@ class DataQueryPermission(ObjectUserInfo):
         except Exception as error:
             raise APIException(
                 code=API_50001_SERVER_ERROR,
-                detail=error.message
+                detail=error
             )
 
     def get_user_data_objects(self, request):

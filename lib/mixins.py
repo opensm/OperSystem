@@ -316,6 +316,7 @@ class DataQueryPermission(ObjectUserInfo):
         fields = self.get_model_fields()
         if field not in list(fields.keys()):
             return []
+        print(self.__model_class.object.values(field))
         return self.__model_class.object.values(field).distinct()
 
     def check_user_permission(self, model_obj, request_type='POST'):
@@ -399,6 +400,4 @@ class DataQueryPermission(ObjectUserInfo):
                         raise APIException('没有权限！', code=API_50001_SERVER_ERROR)
         else:
             raise APIException(detail="输入数据类型错误！", code=API_50001_SERVER_ERROR)
-        print(model)
         self.__model_class = model.model_class()
-        print(self.__model_class)

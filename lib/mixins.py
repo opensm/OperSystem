@@ -321,7 +321,6 @@ class DataQueryPermission(ObjectUserInfo):
             return []
         data = list()
         for x in self.__model_class.objects.values(field[0]).distinct():
-            print(x)
             data.append(x[field[0]])
         return data
 

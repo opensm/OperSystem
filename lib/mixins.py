@@ -313,7 +313,7 @@ class DataQueryPermission(ObjectUserInfo):
         """
         if not self.__model_class:
             raise ValueError("请先通过 get_user_model_data_permission实例化相关数据！")
-        fields = self.get_model_fields()
+        fields = self.get_content_fields()
         if field not in list(fields.keys()):
             return []
         print(self.__model_class.objects.values(field))

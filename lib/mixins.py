@@ -323,8 +323,8 @@ class DataQueryPermission(ObjectUserInfo):
         # if field[0] not in list(fields.keys()):
             print("teststststs")
             return []
-        print(self.__model_class.objects.values(field[0]))
-        return self.__model_class.objects.values(field[0]).distinct()
+        print(self.__model_class.objects.values(*field))
+        return self.__model_class.objects.values(*field).distinct()
 
     def check_user_permission(self, model_obj, request_type='POST'):
         """

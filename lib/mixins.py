@@ -313,13 +313,15 @@ class DataQueryPermission(ObjectUserInfo):
         """
         if not self.__model_class:
             raise ValueError("请先通过 get_user_model_data_permission实例化相关数据！")
+        if len(field) > 1:
+            raise ValueError("请输入一个字段！")
         fields = self.get_content_fields()
         if field[0] not in list(fields.keys()):
             print("teststststs")
             return []
         data = dict()
         for x in self.__model_class.objects.values(field[0]).distinct():
-            data.setdefault(field[0],[]).append(getattr(x, field[0]))
+            data.setdefault(field[0], []).append(getattr(x, field[0]))
         return data
 
     def check_user_permission(self, model_obj, request_type='POST'):

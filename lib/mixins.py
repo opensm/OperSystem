@@ -311,9 +311,12 @@ class DataQueryPermission(ObjectUserInfo):
         :param field:
         :return:
         """
+        print(1111111111111111111111111111)
         if not self.__model_class:
             raise ValueError("请先通过 get_user_model_data_permission实例化相关数据！")
+        print(1111111111111111111111111112)
         fields = self.get_content_fields()
+        print(1111111111111111111111111113)
         if field not in list(fields.keys()):
             return []
         print(self.__model_class.objects.values(field))

@@ -77,9 +77,7 @@ class DataQueryPermission(ObjectUserInfo):
             ):
                 print(content)
                 try:
-                    permission = DataPermissionList.objects.filter(
-                        permission_rule=content
-                    )
+                    permission = DataPermissionList.objects.filter(permission_rule=content)
                 except model.DoesNotExist:
                     continue
                 if not permission:

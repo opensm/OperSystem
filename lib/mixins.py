@@ -179,7 +179,7 @@ class DataQueryPermission(ObjectUserInfo):
                 print(self.__model)
                 print(obj_filter)
                 print(method)
-                if request.method in method and self.__model.objects.filter(obj_filter):
+                if request.method in method.append('OPTIONS') and self.__model.objects.filter(obj_filter):
                     status = True
                     break
             else:

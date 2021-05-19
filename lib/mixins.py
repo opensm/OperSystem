@@ -278,8 +278,6 @@ class DataQueryPermission(ObjectUserInfo):
                 predicates, method
             )
         elif len(params.keys()) == 1:
-            print('11111111111111114')
-            print(method)
             for key, value in params.items():
                 if len(value) > 0:
                     return (

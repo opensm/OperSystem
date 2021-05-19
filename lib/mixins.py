@@ -173,7 +173,7 @@ class DataQueryPermission(ObjectUserInfo):
             if len(obj) > 1:
                 obj_filter = reduce(operator.or_, obj)
             else:
-                obj_filter = obj[0]
+                obj_filter = obj
             if not current_obj:
                 if request.method in method and self.__model.objects.filter(obj_filter):
                     status = True

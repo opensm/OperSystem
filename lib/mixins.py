@@ -151,7 +151,8 @@ class DataQueryPermission(ObjectUserInfo):
         # 用户状态为不生效，返回空
         elif not self.user.is_active:
             return []
-        for data in self.get_user_data_permission():
+        permission_data = self.get_user_data_permission()
+        for data in permission_data:
             obj, methods = self.get_permission_rule_q(data=data)
             q_query.append(obj)
         return q_query
@@ -162,7 +163,7 @@ class DataQueryPermission(ObjectUserInfo):
         :return:
         """
         self.user = self.get_user_object(request=request)
-        current_obj = self.get_request_filter(request=request)
+        current_obj = self.get_request_filter()
         if self.user.is_superuser and self.user.is_active:
             return True
         status = False
@@ -230,9 +231,6 @@ class DataQueryPermission(ObjectUserInfo):
         :return:
         """
         params = dict()
-        # if len(query_set) < 1:
-        #     raise TypeError('检验模型类型错误！')
-
         for y in query_set:
             if not isinstance(y, DataPermissionList):
                 raise TypeError('检验模型类型错误！')
@@ -250,7 +248,7 @@ class DataQueryPermission(ObjectUserInfo):
         :param data:
         :return:
         """
-        print(data)
+        predicates = list()
         if not isinstance(data, tuple):
             raise TypeError("输入参数必须为元组:{0}，请检查".format(data))
         query_set = data[0]
@@ -258,12 +256,11 @@ class DataQueryPermission(ObjectUserInfo):
         if not method:
             raise ValueError("没有相关的请求类型")
         params = self.format_query_set(query_set=query_set)
-        a = Q()
         if len(params.keys()) > 1:
             for key, value in params.items():
-                a.add(Q(**{"{}__in".format(key): value}), 'ADD')
+                predicates.append(Q(**{"{}__in".format(key): value}))
             return (
-                a, method
+                {'and': predicates}, method
             )
         elif len(params.keys()) == 1:
             for key, value in params.items():
@@ -339,9 +336,8 @@ class DataQueryPermission(ObjectUserInfo):
                 return True
         return False
 
-    def get_request_filter(self, request):
+    def get_request_filter(self):
         """
-        :param request:
         :return:
         """
         fields = self.get_model_fields()
@@ -366,7 +362,7 @@ class DataQueryPermission(ObjectUserInfo):
         :return:
         """
         self.user = self.get_user_object(request=request)
-        current_obj = self.get_request_filter(request=request)
+        current_obj = self.get_request_filter()
         # 超级管理员直接返回结果
         if self.user.is_superuser and self.user.is_active:
             if not current_obj:
@@ -379,6 +375,7 @@ class DataQueryPermission(ObjectUserInfo):
                 return []
             parent_q = Q()
             for data in permissions:
+                print(data)
                 sub_q = Q()
                 sub_q.connector = 'AND'
                 sub_q.children.append(data)

@@ -199,7 +199,7 @@ class DataQueryPermission(ObjectUserInfo):
             obj, methods = self.get_permission_rule_q(data=data)
             if not obj:
                 continue
-            if self.__model.objects.filter(obj & Q(id=params['id'])):
+            if self.__model.objects.filter(reduce(operator.or_, obj) & Q(id=params['id'])):
                 return [x.method for x in methods.all()]
             else:
                 continue

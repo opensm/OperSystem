@@ -5,6 +5,8 @@ from KubernetesManagerWeb.settings import AUTH_USER_MODEL
 import datetime
 import hashlib
 import time
+import operator
+from functools import reduce
 from KubernetesManagerWeb.settings import SECRET_KEY
 from lib.exceptions import *
 from Rbac.models import UserInfo, DataPermissionRule, DataPermissionList
@@ -170,6 +172,7 @@ class DataQueryPermission(ObjectUserInfo):
         for data in self.get_user_data_permission():
             obj, methods = self.get_permission_rule_q(data=data)
             print(obj)
+            print(reduce(operator.or_, obj))
             method = [x.method for x in methods.all()]
             if not current_obj:
                 if request.method in method and self.__model.objects.filter(obj):

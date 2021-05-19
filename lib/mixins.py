@@ -207,11 +207,11 @@ class DataQueryPermission(ObjectUserInfo):
                 obj_filter = obj
             if self.__model.objects.filter(obj_filter & Q(id=params['id'])):
                 return [x.method for x in methods.all()]
-            else:
-                raise APIException(
-                    detail="{0},不存在对应的数据格式请检查".format(params),
-                    code=API_50001_SERVER_ERROR
-                )
+            # else:
+            #     raise APIException(
+            #         detail="{0},不存在对应的数据格式请检查".format(params),
+            #         code=API_50001_SERVER_ERROR
+            #     )
 
 
     def format_return_data(self, data):

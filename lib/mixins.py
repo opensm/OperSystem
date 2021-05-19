@@ -171,7 +171,7 @@ class DataQueryPermission(ObjectUserInfo):
             print(11111111111111111111222)
             print(data)
             obj, methods = self.get_permission_rule_q(data=data)
-            print(methods)
+            print(methods.all())
             print(11111111111111111111223)
             method = [x.method for x in methods.all()].append('OPTIONS')
             if len(obj) > 1:
@@ -267,12 +267,7 @@ class DataQueryPermission(ObjectUserInfo):
         if not method:
             raise ValueError("没有相关的请求类型")
         params = self.format_query_set(query_set=query_set)
-        print('11111111111111118')
-        print(params)
-        print(data[1].all())
-        print('11111111111111119')
         if len(params.keys()) > 1:
-            print('11111111111111113')
             for key, value in params.items():
                 predicates.append(Q(**{"{}__in".format(key): value}))
             return (
@@ -290,7 +285,6 @@ class DataQueryPermission(ObjectUserInfo):
                         code=API_50001_SERVER_ERROR
                     )
         else:
-            print('11111111111111115')
             return None
 
     def get_model_fields(self):

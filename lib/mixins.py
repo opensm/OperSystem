@@ -175,7 +175,7 @@ class DataQueryPermission(ObjectUserInfo):
             print(reduce(operator.or_, obj))
             method = [x.method for x in methods.all()]
             if not current_obj:
-                if request.method in method and self.__model.objects.filter(obj):
+                if request.method in method and self.__model.objects.filter(reduce(operator.or_, obj)):
                     status = True
                     break
             else:

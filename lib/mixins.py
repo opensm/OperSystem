@@ -169,6 +169,7 @@ class DataQueryPermission(ObjectUserInfo):
         status = False
         for data in self.get_user_data_permission():
             obj, methods = self.get_permission_rule_q(data=data)
+            print(obj)
             method = [x.method for x in methods.all()]
             if not current_obj:
                 if request.method in method and self.__model.objects.filter(obj):

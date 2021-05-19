@@ -171,8 +171,6 @@ class DataQueryPermission(ObjectUserInfo):
         status = False
         for data in self.get_user_data_permission():
             obj, methods = self.get_permission_rule_q(data=data)
-            print(obj)
-            print(reduce(operator.or_, obj))
             method = [x.method for x in methods.all()]
             if not current_obj:
                 if request.method in method and self.__model.objects.filter(reduce(operator.or_, obj)):
@@ -322,7 +320,6 @@ class DataQueryPermission(ObjectUserInfo):
             raise ValueError("请输入一个字段！")
         fields = self.get_content_fields()
         if field[0] not in list(fields.keys()):
-            print("teststststs")
             return []
         data = list()
         for x in self.__model_class.objects.values(field[0]).distinct():
@@ -385,6 +382,9 @@ class DataQueryPermission(ObjectUserInfo):
                 sub_q.children.append(data)
                 parent_q.add(sub_q, 'OR')
             if current_obj:
+                print(1111111111111111111111111)
+                print(parent_q)
+                print(1111111111111111111111111)
                 return current_obj.filter(parent_q)
             else:
                 return self.__model.objects.filter(parent_q)

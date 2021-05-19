@@ -169,7 +169,7 @@ class DataQueryPermission(ObjectUserInfo):
         status = False
         for data in self.get_user_data_permission():
             obj, methods = self.get_permission_rule_q(data=data)
-            method = [x.method for x in methods.all()]
+            method = [x.method for x in methods.all()].append('OPTIONS')
             if len(obj) > 1:
                 obj_filter = reduce(operator.or_, obj)
             else:

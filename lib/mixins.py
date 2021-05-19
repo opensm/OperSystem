@@ -75,6 +75,7 @@ class DataQueryPermission(ObjectUserInfo):
             for content in role.data_permission.filter(
                     content_type=ContentType.objects.get(app_label=self.app_label, model=self.model_name)
             ):
+                print(content)
                 try:
                     permission = DataPermissionList.objects.filter(
                         permission_rule=content

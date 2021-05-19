@@ -269,6 +269,7 @@ class DataQueryPermission(ObjectUserInfo):
         params = self.format_query_set(query_set=query_set)
         print('11111111111111118')
         print(params)
+        print(data[1])
         print('11111111111111119')
         if len(params.keys()) > 1:
             print('11111111111111113')

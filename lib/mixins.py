@@ -379,19 +379,10 @@ class DataQueryPermission(ObjectUserInfo):
             permissions = self.get_user_model_data_permission()
             if not permissions:
                 return []
-            parent_q = Q()
             params_list = list()
             for data in permissions:
-                print(data)
-                # sub_q = Q()
-                # sub_q.connector = 'AND'
-                # sub_q.children.append(data)
-                # parent_q.add(sub_q, 'OR')
                 params_list.append(data)
             if current_obj:
-                print(1111111111111111111111111)
-                print(parent_q)
-                print(1111111111111111111111111)
                 return current_obj.filter(reduce(operator.or_, params_list))
             else:
                 return self.__model.objects.filter(reduce(operator.or_, params_list))

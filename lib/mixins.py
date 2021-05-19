@@ -175,17 +175,11 @@ class DataQueryPermission(ObjectUserInfo):
             else:
                 obj_filter = obj
             if not current_obj:
-                print(1111111111111111111111111111)
-
                 if request.method in method and self.__model.objects.filter(obj_filter):
-                    print(1111111111111111111111111112)
                     status = True
                     break
             else:
-                print(1111111111111111111111111113)
-                print(obj_filter)
                 if request.method in method and current_obj.filter(obj_filter):
-                    print(1111111111111111111111111114)
                     status = True
                     break
         return status
@@ -218,7 +212,6 @@ class DataQueryPermission(ObjectUserInfo):
             #         detail="{0},不存在对应的数据格式请检查".format(params),
             #         code=API_50001_SERVER_ERROR
             #     )
-
 
     def format_return_data(self, data):
         """

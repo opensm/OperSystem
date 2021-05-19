@@ -174,6 +174,7 @@ class DataQueryPermission(ObjectUserInfo):
                 obj_filter = reduce(operator.or_, obj)
             else:
                 obj_filter = obj
+                print(request)
                 print(obj_filter, method)
             if not current_obj:
                 if request.method in method and self.__model.objects.filter(obj_filter):

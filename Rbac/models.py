@@ -91,7 +91,7 @@ class DataPermissionList(models.Model):
         ("eq", "等于")
     )
     id = models.AutoField(primary_key=True)
-    permission_rule = models.ForeignKey(verbose_name="数据权限规则", to="DataPermissionRule", on_delete=False)
+    permission_rule = models.ForeignKey(verbose_name="数据权限规则", to="DataPermissionRule", on_delete=models.DEFERRED)
     operate_type = models.CharField(default="eq", max_length=20, verbose_name="运算规则", null=False)
     value = models.CharField(verbose_name="值", default="", max_length=20)
     check_field = models.CharField(verbose_name="校验的字段", max_length=20, default="pk", null=True)

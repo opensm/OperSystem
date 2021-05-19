@@ -167,9 +167,7 @@ class DataQueryPermission(ObjectUserInfo):
             return True
         status = False
         for data in self.get_user_data_permission():
-            # q = Q()
             obj, methods = self.get_permission_rule_q(data=data)
-            # q.add(obj, 'ADD')
             method = [x.method for x in methods.all()]
             if not current_obj:
                 if request.method in method and self.__model.objects.filter(obj):
@@ -232,7 +230,6 @@ class DataQueryPermission(ObjectUserInfo):
         :return:
         """
         params = dict()
-        model = django_apps.get_model("Rbac.DataPermissionList")
         if not isinstance(query_set, list):
             raise TypeError('检验模型类型错误！')
 

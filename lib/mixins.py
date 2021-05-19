@@ -256,6 +256,7 @@ class DataQueryPermission(ObjectUserInfo):
         :param data:
         :return:
         """
+        print(data)
         predicates = list()
         if not isinstance(data, tuple):
             raise TypeError("输入参数必须为元组:{0}，请检查".format(data))

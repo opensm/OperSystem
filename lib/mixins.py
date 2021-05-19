@@ -230,8 +230,8 @@ class DataQueryPermission(ObjectUserInfo):
         :return:
         """
         params = dict()
-        if not isinstance(query_set, list):
-            raise TypeError('检验模型类型错误！')
+        # if len(query_set) < 1:
+        #     raise TypeError('检验模型类型错误！')
 
         for y in query_set:
             if not isinstance(y, DataPermissionList):

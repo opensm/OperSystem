@@ -268,12 +268,14 @@ class DataQueryPermission(ObjectUserInfo):
         print(params)
         print('11111111111111119')
         if len(params.keys()) > 1:
+            print('11111111111111113')
             for key, value in params.items():
                 predicates.append(Q(**{"{}__in".format(key): value}))
             return (
                 predicates, method
             )
         elif len(params.keys()) == 1:
+            print('11111111111111114')
             for key, value in params.items():
                 if len(value) > 0:
                     return (
@@ -285,6 +287,7 @@ class DataQueryPermission(ObjectUserInfo):
                         code=API_50001_SERVER_ERROR
                     )
         else:
+            print('11111111111111115')
             return None
 
     def get_model_fields(self):

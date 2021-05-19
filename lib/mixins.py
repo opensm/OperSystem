@@ -246,7 +246,7 @@ class DataQueryPermission(ObjectUserInfo):
             for ss in split_data:
                 try:
 
-                    value = int(ss.value)
+                    value = int(ss)
                     params.setdefault(
                         x.check_field,
                         []
@@ -255,7 +255,7 @@ class DataQueryPermission(ObjectUserInfo):
                     params.setdefault(
                         x.check_field,
                         []
-                    ).append(ss.value)
+                    ).append(ss)
         a = Q()
         if len(params.keys()) > 1:
             for key, value in params.items():

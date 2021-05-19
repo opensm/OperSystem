@@ -262,6 +262,7 @@ class DataQueryPermission(ObjectUserInfo):
         query_set = data[0]
         method = data[1]
         for x in data[1].all():
+            print(x)
             print(x.method)
         if not method:
             raise ValueError("没有相关的请求类型")

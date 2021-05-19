@@ -264,7 +264,9 @@ class DataQueryPermission(ObjectUserInfo):
         if not method:
             raise ValueError("没有相关的请求类型")
         params = self.format_query_set(query_set=query_set)
+        print('11111111111111118')
         print(params)
+        print('11111111111111119')
         if len(params.keys()) > 1:
             for key, value in params.items():
                 predicates.append(Q(**{"{}__in".format(key): value}))

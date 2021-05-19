@@ -181,6 +181,7 @@ class DataQueryPermission(ObjectUserInfo):
             else:
                 obj_filter = obj
             if not current_obj:
+                print(request.method)
                 if request.method in method and self.__model.objects.filter(obj_filter):
                     status = True
                     break

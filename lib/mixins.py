@@ -394,7 +394,7 @@ class DataQueryPermission(ObjectUserInfo):
                 print(1111111111111111111111111)
                 return current_obj.filter(reduce(operator.or_, params_list))
             else:
-                return self.__model.objects.filter(parent_q)
+                return self.__model.objects.filter(reduce(operator.or_, params_list))
         else:
             raise APIException(
                 code=API_40003_PERMISSION_DENIED,

@@ -7,7 +7,7 @@ import hashlib
 import time
 from KubernetesManagerWeb.settings import SECRET_KEY
 from lib.exceptions import *
-from Rbac.models import UserInfo, DataPermissionRule
+from Rbac.models import UserInfo, DataPermissionRule, DataPermissionList
 from django.contrib.contenttypes.models import ContentType
 
 
@@ -226,44 +226,45 @@ class DataQueryPermission(ObjectUserInfo):
             )
         return data_list
 
+    def format_query_set(self, query_set):
+        """
+        :param query_set:
+        :return:
+        """
+        params = dict()
+        model = django_apps.get_model("Rbac.DataPermissionList")
+        if not isinstance(query_set, list):
+            raise TypeError('检验模型类型错误！')
+
+        for y in query_set:
+            if not isinstance(y, DataPermissionList):
+                raise TypeError('检验模型类型错误！')
+            split_value = y.value.split(',')
+            for x in split_value:
+                try:
+                    value = int(x)
+                except:
+                    value = x
+                params.setdefault(y.check_field, []).append(value)
+        return params
+
     def get_permission_rule_q(self, data):
         """
         :param data:
         :return:
         """
         print(data)
-        params = dict()
         if not isinstance(data, tuple):
             raise TypeError("输入参数必须为元组:{0}，请检查".format(data))
         query_set = data[0]
         method = data[1]
         if not method:
             raise ValueError("没有相关的请求类型")
-        if not query_set:
-            return []
-        for x in query_set:
-            split_data = x.value.split(',')
-            for ss in split_data:
-                try:
-
-                    value = int(ss)
-                    params.setdefault(
-                        x.check_field,
-                        []
-                    ).append(value)
-                except ValueError:
-                    params.setdefault(
-                        x.check_field,
-                        []
-                    ).append(ss)
+        params = self.format_query_set(query_set=query_set)
         a = Q()
         if len(params.keys()) > 1:
             for key, value in params.items():
-                a_t = Q()
-                a_t.connector = 'OR'
-                for v in value:
-                    a_t.children.append((key, v))
-                a.add(a_t, 'ADD')
+                a.add(Q(**{"{}__in".format(key): value}), 'ADD')
             return (
                 a, method
             )
@@ -278,6 +279,8 @@ class DataQueryPermission(ObjectUserInfo):
                         detail="权限表配置异常",
                         code=API_50001_SERVER_ERROR
                     )
+        else:
+            return None
 
     def get_model_fields(self):
         field_name = dict()

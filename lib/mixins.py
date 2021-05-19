@@ -75,7 +75,6 @@ class DataQueryPermission(ObjectUserInfo):
             for content in role.data_permission.filter(
                     content_type=ContentType.objects.get(app_label=self.app_label, model=self.model_name)
             ):
-                print(content)
                 try:
                     permission = DataPermissionList.objects.filter(permission_rule=content)
                 except model.DoesNotExist:
@@ -172,9 +171,15 @@ class DataQueryPermission(ObjectUserInfo):
             obj, methods = self.get_permission_rule_q(data=data)
             method = [x.method for x in methods.all()]
             if not current_obj:
-                if request.method in method and self.__model.objects.filter(reduce(operator.or_, obj)):
-                    status = True
-                    break
+                if len(obj) > 1:
+                    if request.method in method and self.__model.objects.filter(reduce(operator.or_, obj)):
+                        status = True
+                        break
+                else:
+                    if request.method in method and self.__model.objects.filter(**obj[0]):
+                        status = True
+                        break
+
             else:
                 if request.method in method and current_obj.filter(obj):
                     status = True

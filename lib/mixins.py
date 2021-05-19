@@ -261,7 +261,7 @@ class DataQueryPermission(ObjectUserInfo):
             for key, value in params.items():
                 predicates.append(Q(**{"{}__in".format(key): value}))
             return (
-                {'and': predicates}, method
+                predicates, method
             )
         elif len(params.keys()) == 1:
             for key, value in params.items():

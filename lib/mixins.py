@@ -176,7 +176,7 @@ class DataQueryPermission(ObjectUserInfo):
                         status = True
                         break
                 else:
-                    if request.method in method and self.__model.objects.filter(**obj[0]):
+                    if request.method in method and self.__model.objects.filter(obj[0]):
                         status = True
                         break
 

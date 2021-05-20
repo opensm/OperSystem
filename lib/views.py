@@ -338,7 +338,7 @@ class UserGETView(DataQueryPermission, APIView):
                 detail="输入类型错误！"
             )
         for x in menu_list:
-            print(x.parent, x.children)
+            print(x.parent, x.children,x.name)
             if not isinstance(x, Menu):
                 raise APIException(
                     code=API_50001_SERVER_ERROR,

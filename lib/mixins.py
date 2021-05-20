@@ -181,6 +181,8 @@ class DataQueryPermission(ObjectUserInfo):
                     break
             else:
                 print(obj_filter)
+                print(current_obj)
+                print(current_obj.filter(obj_filter))
                 print(3333333)
                 if request.method in method and current_obj.filter(obj_filter):
                     status = True

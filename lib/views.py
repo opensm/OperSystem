@@ -338,14 +338,12 @@ class UserGETView(DataQueryPermission, APIView):
                 detail="输入类型错误！"
             )
         for x in menu_list:
-            print(x.parent, x.children, x.name)
             if not isinstance(x, Menu):
                 raise APIException(
                     code=API_50001_SERVER_ERROR,
                     detail="输入类型错误！"
                 )
             if x.parent:
-                print("11111111111111111111111")
                 try:
                     data = SubMenuSerializer(instance=x)
                 except Exception as error:
@@ -358,7 +356,6 @@ class UserGETView(DataQueryPermission, APIView):
                     []
                 ).extend(data.data)
             elif not x.parent:
-                print("11111111111111111111112")
                 menu.append(
                     SubMenuSerializer(instance=x).data
                 )

@@ -13,6 +13,7 @@ class RewritePageNumberPagination(PageNumberPagination):
     # 最大页数不超过10
     max_page_size = 1000
     # 获取页码数的
+    page_size_param = 'limit'
     page_query_param = "page"
     sort_query_param = "sort"
 

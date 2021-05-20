@@ -170,6 +170,8 @@ class BaseListView(BaseGETVIEW, BasePOSTVIEW):
         self.kwargs = request.GET.copy()
         if self.page_size_query_param in self.kwargs:
             self.kwargs.pop(self.page_size_query_param)
+        if self.page_size_param in self.kwargs:
+            self.page_size = self.kwargs.pop(self.page_size_param)
         if self.page_query_param in self.kwargs:
             self.kwargs.pop(self.page_query_param)
         if self.sort_query_param in self.kwargs:

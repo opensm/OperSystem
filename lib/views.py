@@ -355,7 +355,7 @@ class UserGETView(DataQueryPermission, APIView):
                 menu_dict.setdefault(
                     "{}".format(x.parent.pk),
                     []
-                ).extend(data.data)
+                ).append(data.data)
             elif not x.parent:
                 menu.append(
                     SubMenuSerializer(instance=x).data

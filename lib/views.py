@@ -349,9 +349,6 @@ class UserGETView(DataQueryPermission, APIView):
                         detail=error,
                         code=API_50001_SERVER_ERROR
                     )
-                print("dddddddddddd")
-                print(data.data)
-                print("dddddddddddd")
                 menu_dict.setdefault(
                     "{}".format(x.parent.pk),
                     []
@@ -369,12 +366,7 @@ class UserGETView(DataQueryPermission, APIView):
                     detail=error,
                     code=API_50001_SERVER_ERROR
                 )
-            print(data.data)
-            print(value)
-            tmp = dict()
-            for k, v in data.data.items():
-                tmp[k] = v
-
+            tmp = data.data
             tmp['children'] = value
             menu.append(tmp)
         return menu

@@ -407,7 +407,7 @@ class UserGETView(DataQueryPermission, APIView):
             RecodeLog.info(msg="当前为超级用户，用户：{0}!".format(self.user.username))
             return ['超级用户']
         else:
-            return [self.user.roles.mame]
+            return [self.user.roles.name]
 
     def get(self, request):
         if not self.serializer_class:

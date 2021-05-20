@@ -129,6 +129,7 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
             raise TypeError("serializer_class type error!")
         try:
             if not self.check_user_permissions(request=request):
+                print(1111111111111111)
                 raise APIException(
                     detail="没有修改权限！！",
                     code=API_40003_PERMISSION_DENIED

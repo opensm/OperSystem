@@ -2,12 +2,13 @@ from rest_framework.views import APIView
 from lib.mixins import DataQueryPermission
 from lib.response import DataResponse
 from lib.page import RewritePageNumberPagination
-from Rbac.serializers import MenuSerializer
+from Rbac.serializers import MenuSerializer, SubMenuSerializer
 from Rbac.models import Menu
 from itertools import chain
 from lib.exceptions import *
 from lib.Log import RecodeLog
 from django.apps import apps as django_apps
+from django.db.models.query import QuerySet
 
 
 class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
@@ -320,9 +321,60 @@ class UserGETView(DataQueryPermission, APIView):
             return data.data
         else:
             for x in self.user.roles.all():
-                print(x)
-                instance = chain(x.menu.filter(parent=None), instance)
-        return self.get_child_menu(childs=instance)
+                self.get_user_menu(menu_list=x.menu.all())
+                # print(x)
+                # instance = chain(x.menu.filter(parent=None), instance)
+        return []
+
+    def get_user_menu(self, menu_list):
+        """
+
+        :param menu_list:
+        :return:
+        """
+        menu_dict = dict()
+        menu = list()
+        if not isinstance(menu_list, QuerySet):
+            raise APIException(
+                code=API_50001_SERVER_ERROR,
+                detail="输入类型错误！"
+            )
+        for x in menu_list:
+            if not isinstance(x, Menu):
+                raise APIException(
+                    code=API_50001_SERVER_ERROR,
+                    detail="输入类型错误！"
+                )
+            if not x.children and x.parent:
+                try:
+                    data = SubMenuSerializer(instance=x)
+                except Exception as error:
+                    raise APIException(
+                        detail=error,
+                        code=API_50001_SERVER_ERROR
+                    )
+                menu_dict.setdefault(
+                    "{}".format(x.pk),
+                    []
+                ).extend(data.data)
+            elif not x.children and not x.parent:
+                menu.append(
+                    SubMenuSerializer(instance=x).data
+                )
+            else:
+                continue
+        for key, value in menu_dict.items():
+            obj = Menu.objects.get(id=key)
+            try:
+                data = SubMenuSerializer(instance=obj)
+            except Exception as error:
+                raise APIException(
+                    detail=error,
+                    code=API_50001_SERVER_ERROR
+                )
+            data.data['children'] = value
+            menu.append(data.data)
+        return menu
 
     # 递归获取所有的子菜单
     def get_child_menu(self, childs):

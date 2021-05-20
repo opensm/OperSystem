@@ -38,7 +38,7 @@ class DataPermissionListSerializer(serializers.ModelSerializer):
         fields = ("__all__")
 
 
-class ParentMenuSerializer(serializers.ModelSerializer):
+class SubMenuSerializer(serializers.ModelSerializer):
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Menu  # 指定需要序列化的模型表
         fields = ("__all__")
@@ -51,7 +51,6 @@ class MenuSerializer(serializers.ModelSerializer):
         """
         :return:
         """
-        print(attrs)
         if attrs is None:
             return attrs
         pk = getattr(attrs, 'id')

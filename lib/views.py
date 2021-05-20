@@ -320,6 +320,7 @@ class UserGETView(DataQueryPermission, APIView):
             return data.data
         else:
             data = self.get_user_menu(menu_list=self.user.roles.menu.all())
+            print(data)
         return data
 
     def get_user_menu(self, menu_list):

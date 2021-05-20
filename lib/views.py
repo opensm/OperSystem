@@ -322,6 +322,7 @@ class UserGETView(DataQueryPermission, APIView):
         else:
             for x in self.user.roles.all():
                 data = self.get_user_menu(menu_list=x.menu.all())
+                print(data)
                 # print(x)
                 # instance = chain(x.menu.filter(parent=None), instance)
         return []

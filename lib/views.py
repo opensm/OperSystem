@@ -350,7 +350,7 @@ class UserGETView(DataQueryPermission, APIView):
                         code=API_50001_SERVER_ERROR
                     )
                 print("dddddddddddd")
-                print(data)
+                print(data.data)
                 print("dddddddddddd")
                 menu_dict.setdefault(
                     "{}".format(x.parent.pk),

@@ -371,7 +371,11 @@ class UserGETView(DataQueryPermission, APIView):
                     detail=error,
                     code=API_50001_SERVER_ERROR
                 )
-            tmp = data.data
+            print(data.data)
+            tmp = dict()
+            for k, v in data.data.items():
+                tmp[k] = v
+
             tmp['children'] = value
             menu.append(tmp)
         return menu

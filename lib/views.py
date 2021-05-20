@@ -312,7 +312,6 @@ class UserGETView(DataQueryPermission, APIView):
         if not isinstance(self.user, self.get_user_model):
             raise TypeError("传入的用户类型错误！")
         # 超级用户直接返回全部权限
-        instance = list()
         model = django_apps.get_model("Rbac.Menu")
         if self.user.is_superuser:
             RecodeLog.info(msg="当前为超级用户，用户：{0}!".format(self.user.username))

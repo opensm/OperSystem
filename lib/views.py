@@ -319,9 +319,7 @@ class UserGETView(DataQueryPermission, APIView):
             data = MenuSerializer(instance=instance, many=True)
             return data.data
         else:
-            print(self.user.roles.menu.all())
             data = self.get_user_menu(menu_list=self.user.roles.menu.all())
-            print(data)
         return data
 
     def get_user_menu(self, menu_list):

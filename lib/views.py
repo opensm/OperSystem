@@ -353,7 +353,7 @@ class UserGETView(DataQueryPermission, APIView):
                 print(data)
                 print("dddddddddddd")
                 menu_dict.setdefault(
-                    "{}".format(x.pk),
+                    "{}".format(x.parent.pk),
                     []
                 ).extend(data.data)
             elif not x.parent:

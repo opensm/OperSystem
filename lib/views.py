@@ -372,6 +372,7 @@ class UserGETView(DataQueryPermission, APIView):
                     code=API_50001_SERVER_ERROR
                 )
             print(data.data)
+            print(value)
             tmp = dict()
             for k, v in data.data.items():
                 tmp[k] = v

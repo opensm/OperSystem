@@ -3,7 +3,7 @@ from lib.mixins import DataQueryPermission
 from lib.response import DataResponse
 from lib.page import RewritePageNumberPagination
 from Rbac.serializers import MenuSerializer, SubMenuSerializer
-from Rbac.models import Menu
+from Rbac.models import Menu, UserInfo
 from itertools import chain
 from lib.exceptions import *
 from lib.Log import RecodeLog
@@ -320,12 +320,8 @@ class UserGETView(DataQueryPermission, APIView):
             data = MenuSerializer(instance=instance, many=True)
             return data.data
         else:
-            for x in self.user.roles.all():
-                data = self.get_user_menu(menu_list=x.menu.all())
-                print(data)
-                # print(x)
-                # instance = chain(x.menu.filter(parent=None), instance)
-        return []
+            data = self.get_user_menu(menu_list=self.user.roles.menu.all())
+        return data
 
     def get_user_menu(self, menu_list):
         """

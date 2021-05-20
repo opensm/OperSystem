@@ -207,6 +207,8 @@ class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
             )
         if self.page_size_query_param in self.kwargs:
             self.kwargs.pop(self.page_size_query_param)
+        if self.page_size_query_param in self.kwargs:
+            self.kwargs.pop(self.page_size_query_param)
         if self.page_query_param in self.kwargs:
             self.kwargs.pop(self.page_query_param)
         if self.sort_query_param in self.kwargs:
@@ -439,6 +441,8 @@ class BaseGetPUTView(BaseGETVIEW, BasePUTVIEW):
                 detail="传入参数错误！",
                 code=API_10001_PARAMS_ERROR
             )
+        if self.page_size_query_param in self.kwargs:
+            self.kwargs.pop(self.page_size_query_param)
         if self.page_size_query_param in self.kwargs:
             self.kwargs.pop(self.page_size_query_param)
         if self.page_query_param in self.kwargs:

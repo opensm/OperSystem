@@ -169,9 +169,7 @@ class BaseListView(BaseGETVIEW, BasePOSTVIEW):
         """
         self.kwargs = request.GET.copy()
         if self.page_size_query_param in self.kwargs:
-            self.kwargs.pop(self.page_size_query_param)
-        if self.page_size_param in self.kwargs:
-            self.page_size = self.kwargs.pop(self.page_size_param)
+            self.page_size = self.kwargs.pop(self.page_size_query_param)
         if self.page_query_param in self.kwargs:
             self.kwargs.pop(self.page_query_param)
         if self.sort_query_param in self.kwargs:
@@ -204,9 +202,7 @@ class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
                 code=API_10001_PARAMS_ERROR
             )
         if self.page_size_query_param in self.kwargs:
-            self.kwargs.pop(self.page_size_query_param)
-        if self.page_size_query_param in self.kwargs:
-            self.kwargs.pop(self.page_size_query_param)
+            self.page_size = self.kwargs.pop(self.page_size_query_param)
         if self.page_query_param in self.kwargs:
             self.kwargs.pop(self.page_query_param)
         if self.sort_query_param in self.kwargs:
@@ -440,9 +436,7 @@ class BaseGetPUTView(BaseGETVIEW, BasePUTVIEW):
                 code=API_10001_PARAMS_ERROR
             )
         if self.page_size_query_param in self.kwargs:
-            self.kwargs.pop(self.page_size_query_param)
-        if self.page_size_query_param in self.kwargs:
-            self.kwargs.pop(self.page_size_query_param)
+            self.page_size=self.kwargs.pop(self.page_size_query_param)
         if self.page_query_param in self.kwargs:
             self.kwargs.pop(self.page_query_param)
         if self.sort_query_param in self.kwargs:

@@ -100,7 +100,7 @@ class RolesView(BaseListView):
     serializer_class = RoleSerializer
     model_name = 'Role'
     app_label = 'Rbac'
-    page_size_query_param = 'size'
+    page_size_query_param = 'limit'
     sort_query_param = 'sort'
 
 
@@ -115,7 +115,7 @@ class MenusView(BaseListView):
     model_name = 'Menu'
     app_label = 'Rbac'
     serializer_class = MenuSerializer
-    page_size_query_param = 'size'
+    page_size_query_param = 'limit'
     sort_query_param = 'sort'
 
 
@@ -130,7 +130,7 @@ class UsersView(BaseListView):
     model_name = 'UserInfo'
     app_label = 'Rbac'
     serializer_class = UserInfoSerializer
-    page_size_query_param = 'size'
+    page_size_query_param = 'limit'
     sort_query_param = 'sort'
 
 
@@ -181,7 +181,7 @@ class DataPermissionsView(BaseListView):
     model_name = 'DataPermissionRule'
     app_label = 'Rbac'
     serializer_class = DataPermissionSerializer
-    page_size_query_param = 'size'
+    page_size_query_param = 'limit'
     sort_query_param = 'sort'
 
 
@@ -196,7 +196,7 @@ class DataPermissionlistsView(BaseListView):
     model_name = 'DataPermissionList'
     app_label = 'Rbac'
     serializer_class = DataPermissionListSerializer
-    page_size_query_param = 'size'
+    page_size_query_param = 'limit'
     sort_query_param = 'sort'
 
 

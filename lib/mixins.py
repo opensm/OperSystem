@@ -97,13 +97,13 @@ class DataQueryPermission(ObjectUserInfo):
         if not self.user.usertoken.expiration_time > datetime.datetime.now() or not self.user.is_active:
             return []
         permission_list = list()
-        for role in self.user.roles.all():
-            for content in role.data_permission.filter(
-                    content_type=ContentType.objects.get(app_label=self.app_label, model=self.model_name)
-            ):
-                permission_list.append(
-                    content
-                )
+        for content in self.user.roles.data_permission.filter(
+                content_type=ContentType.objects.get(app_label=self.app_label, model=self.model_name)
+        ):
+            permission_list.append(
+                content
+            )
+        # for role in self.user.roles.all():
         return permission_list
 
     def check_user_method_permissions(self, request):

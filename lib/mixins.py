@@ -168,7 +168,6 @@ class DataQueryPermission(ObjectUserInfo):
             return True
         status = False
         for data in self.get_user_data_permission():
-            print(data)
             obj, methods = self.get_permission_rule_q(data=data)
             method = [x.method for x in methods.all()]
             if len(obj) > 1:
@@ -181,6 +180,7 @@ class DataQueryPermission(ObjectUserInfo):
                     status = True
                     break
             else:
+                print(obj_filter)
                 print(3333333)
                 if request.method in method and current_obj.filter(obj_filter):
                     status = True

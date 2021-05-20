@@ -371,8 +371,9 @@ class UserGETView(DataQueryPermission, APIView):
                     detail=error,
                     code=API_50001_SERVER_ERROR
                 )
-            data.data['children'] = value
-            menu.append(data.data)
+            tmp = data.data
+            tmp['children'] = value
+            menu.append(tmp)
         return menu
 
     # 递归获取所有的子菜单

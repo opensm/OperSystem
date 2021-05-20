@@ -349,6 +349,9 @@ class UserGETView(DataQueryPermission, APIView):
                         detail=error,
                         code=API_50001_SERVER_ERROR
                     )
+                print("dddddddddddd")
+                print(data)
+                print("dddddddddddd")
                 menu_dict.setdefault(
                     "{}".format(x.pk),
                     []

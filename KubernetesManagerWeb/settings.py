@@ -173,3 +173,7 @@ CORS_ALLOW_HEADERS = (
     'x-csrftoken',
     'x-requested-with',
 )
+
+LOG_DIR = '/tmp'
+LOG_FILE = 'oper.log'
+LOG_LEVEL = "info"

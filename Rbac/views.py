@@ -6,7 +6,7 @@ from django.utils import timezone
 import datetime
 from lib.mixins import make_token
 from Rbac.serializers import *
-from lib.views import BaseDetailView, BaseListView, BaseGETView, BaseGetPUTView, BasePUTView, UserGETView
+from lib.views import *
 
 
 def format_error(data):
@@ -100,6 +100,8 @@ class RolesView(BaseListView):
     serializer_class = RoleSerializer
     model_name = 'Role'
     app_label = 'Rbac'
+    page_size_query_param = 'limit'
+    sort_query_param = 'sort'
 
 
 class RoleView(BaseDetailView):
@@ -113,18 +115,23 @@ class MenusView(BaseListView):
     model_name = 'Menu'
     app_label = 'Rbac'
     serializer_class = MenuSerializer
+    page_size_query_param = 'limit'
+    sort_query_param = 'sort'
 
 
 class MenuView(BaseDetailView):
     model_name = 'Menu'
     app_label = 'Rbac'
     serializer_class = MenuSerializer
+    pk = 'id'
 
 
 class UsersView(BaseListView):
     model_name = 'UserInfo'
     app_label = 'Rbac'
     serializer_class = UserInfoSerializer
+    page_size_query_param = 'limit'
+    sort_query_param = 'sort'
 
 
 class UserView(BaseDetailView):
@@ -161,16 +168,52 @@ class RolePermissionEditView(BaseGetPUTView):
 class CurrentUserView(UserGETView):
     model_name = 'UserInfo'
     app_label = 'Rbac'
-    serializer_class = RoleMenuEditSerializer
+    serializer_class = UserInfoSerializer
+
+
+class ContentTypeView(BaseGETView):
+    model_name = 'ContentType'
+    app_label = 'contenttypes'
+    serializer_class = ContentTypeSerializer
 
 
 class DataPermissionsView(BaseListView):
     model_name = 'DataPermissionRule'
     app_label = 'Rbac'
     serializer_class = DataPermissionSerializer
+    page_size_query_param = 'limit'
+    sort_query_param = 'sort'
 
 
 class DataPermissionView(BaseDetailView):
+    model_name = 'DataPermissionRule'
+    app_label = 'Rbac'
+    serializer_class = DataPermissionSerializer
+    pk = 'id'
+
+
+class DataPermissionlistsView(BaseListView):
+    model_name = 'DataPermissionList'
+    app_label = 'Rbac'
+    serializer_class = DataPermissionListSerializer
+    page_size_query_param = 'limit'
+    sort_query_param = 'sort'
+
+
+class DataPermissionlistView(BaseDetailView):
+    model_name = 'DataPermissionList'
+    app_label = 'Rbac'
+    serializer_class = DataPermissionListSerializer
+    pk = 'id'
+
+
+class ContentFieldValueView(ContentFieldValueGETView):
+    model_name = 'DataPermissionRule'
+    app_label = 'Rbac'
+    serializer_class = DataPermissionSerializer
+
+
+class ContentFieldView(ContentFieldGETView):
     model_name = 'DataPermissionRule'
     app_label = 'Rbac'
     serializer_class = DataPermissionSerializer
@@ -180,6 +223,8 @@ __all__ = [
     'AuthView',
     'DataPermissionView',
     'DataPermissionsView',
+    'DataPermissionlistView',
+    'DataPermissionlistsView',
     'UserView',
     'UsersView',
     'UserStatusEditView',
@@ -191,5 +236,8 @@ __all__ = [
     'LogoutView',
     'MenusView',
     'MenuView',
-    'CurrentUserView'
+    'CurrentUserView',
+    'ContentTypeView',
+    'ContentFieldView',
+    'ContentFieldValueView'
 ]

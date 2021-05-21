@@ -1,7 +1,8 @@
 import datetime
 from django.contrib import auth
 from django.contrib.auth import password_validation
-from Rbac.models import Role, UserInfo, DataPermissionRule, Menu, RequestType
+from django.contrib.contenttypes.models import ContentType
+from Rbac.models import Role, UserInfo, DataPermissionRule, Menu, RequestType,DataPermissionList
 from rest_framework import serializers
 
 
@@ -11,15 +12,40 @@ class RecursiveField(serializers.Serializer):
         return serializer.data
 
 
-# class SubPermissionSerializer(serializers.Serializer):
-#     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
-#         model = Permission  # 指定需要序列化的模型表
-#         fields = ('name', 'id')
+class RequestTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RequestType
+        fields = ("__all__")
+
+
+class ContentTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContentType
+        fields = ("__all__")
+
+
+class DataPermissionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = DataPermissionRule
+        fields = ("__all__")
+
+
+class DataPermissionListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = DataPermissionList
+        fields = ("__all__")
+
+
+class SubMenuSerializer(serializers.ModelSerializer):
+    class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
+        model = Menu  # 指定需要序列化的模型表
+        fields = ("__all__")
 
 
 class MenuSerializer(serializers.ModelSerializer):
     children = RecursiveField(many=True, read_only=True, allow_null=True)
-    parent = serializers.PrimaryKeyRelatedField(queryset=Menu.objects.all(), allow_null=True)
 
     def validate_parent(self, attrs):
         """
@@ -35,20 +61,26 @@ class MenuSerializer(serializers.ModelSerializer):
             serializers.ValidationError("{0} 父菜单不存在！".format(name))
         return attrs
 
+    def update(self, instance, validated_data):
+        if not isinstance(validated_data, dict):
+            raise serializers.ValidationError("输入数据类型错误！")
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+        instance.save()
+        return instance
+
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Menu  # 指定需要序列化的模型表
         fields = ("__all__")
 
 
-#
-# class PermissionSerializer(serializers.ModelSerializer):
-#     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
-#         model = Permission  # 指定需要序列化的模型表
-#         fields = ("__all__")
-
-
 class RoleSerializer(serializers.ModelSerializer):
-    menu = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    # menu = MenuSerializer(
+    #     many=True, read_only=True
+    # )
+    # data_permission = DataPermissionSerializer(
+    #     many=True, read_only=True,
+    # )
 
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Role  # 指定需要序列化的模型表
@@ -192,14 +224,8 @@ class RoleMenuEditSerializer(serializers.ModelSerializer):
         return instance
 
 
-class DataPermissionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DataPermissionRule
-        fields = ("__all__")
-
-
 __all__ = [
-    # 'SubPermissionSerializer',
+    'ContentTypeSerializer',
     'MenuSerializer',
     # 'PermissionSerializer',
     'RoleSerializer',
@@ -209,5 +235,6 @@ __all__ = [
     'UserEditRoleSerializer',
     'UserStatusEditSerializer',
     'RoleMenuEditSerializer',
-    'DataPermissionSerializer'
+    'DataPermissionSerializer',
+    'DataPermissionListSerializer'
 ]

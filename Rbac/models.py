@@ -13,7 +13,7 @@ class RequestType(models.Model):
         ("POST", "添加"),
         ("GET", "查询"),
         ("DELETE", "删除"),
-        ("PATCH", "修改")
+        ("PUT", "修改")
     )
     id = models.AutoField(primary_key=True)
     name = models.CharField(verbose_name="操作类型", max_length=50, default="")
@@ -39,12 +39,12 @@ class Menu(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(verbose_name="菜单名称", max_length=50, null=False, blank=False, unique=True)
     path = models.CharField(verbose_name="URL", max_length=200, null=False, blank=False, unique=True)
-    parent = models.ForeignKey('self', verbose_name='父级菜单', null=True, blank=True, related_name='children',
-                               on_delete=models.DO_NOTHING)
+    parent = models.ForeignKey(
+        'self', verbose_name='父级菜单', null=True, blank=True,
+        related_name='children', on_delete=models.DO_NOTHING
+    )
     icon = models.CharField(verbose_name="图标", max_length=50, null=True, blank=True, default="")
     index = models.IntegerField(verbose_name='菜单序列', null=False, blank=False, default=0)
-    permission = models.ForeignKey(verbose_name="数据权限", default=None, to="DataPermissionRule",
-                                   on_delete=models.DO_NOTHING)
     level = models.IntegerField(verbose_name="菜单级别", default=0, choices=menu_choice)
     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
@@ -53,24 +53,9 @@ class Menu(models.Model):
         db_table = 'sys_menus'
 
 
-# class Permission(models.Model):
-#     name = models.CharField(verbose_name='权限名称', max_length=32, unique=True)
-#     model = models.OneToOneField('DataPermissionRule', default=None, blank=True, on_delete=models.DO_NOTHING)
-#     path = models.CharField(
-#         verbose_name='URL', max_length=255, null=False, blank=False, default="/", unique=True
-#     )
-#     create_date = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
-#
-#     class Meta:
-#         db_table = 'sys_permissions'
-#
-#     def __str__(self):
-#         return self.name
-
-
 class Role(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(verbose_name='角色', max_length=32, blank=False, null=False, default="默认角色")
+    name = models.CharField(verbose_name='角色', max_length=32, blank=False, null=False, default="default")
     desc = models.TextField(verbose_name="角色描述", blank=True)
     menu = models.ManyToManyField(
         Menu,
@@ -89,13 +74,16 @@ class Role(models.Model):
 class DataPermissionRule(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(
-        verbose_name="规则名称", max_length=10, default='默认规则'
+        verbose_name="规则名称", max_length=10, default='default', null=False, unique=True
     )
-    content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING, verbose_name="关联模型", default=0)
+    content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING, verbose_name="关联模型", default=0,
+                                     null=False)
     request_type = models.ManyToManyField(RequestType, verbose_name="请求类型", default=0)
+    is_all = models.BooleanField(verbose_name="全部权限", default=False, null=False)
 
     class Meta:
         db_table = 'sys_permission_rule'
+        # unique_together = (('content_type', 'request_type'),)
 
 
 class DataPermissionList(models.Model):
@@ -103,24 +91,25 @@ class DataPermissionList(models.Model):
         ("eq", "等于")
     )
     id = models.AutoField(primary_key=True)
-    permission_rule = models.ManyToManyField(verbose_name="数据权限规则", to="DataPermissionRule")
+    permission_rule = models.ForeignKey(DataPermissionRule, verbose_name="数据权限规则", on_delete=models.CASCADE)
     operate_type = models.CharField(default="eq", max_length=20, verbose_name="运算规则", null=False)
-    value = models.CharField(verbose_name="值", default="", max_length=20)
-    check_field = models.CharField(verbose_name="校验的字段", max_length=20, default="pk", null=True)
+    value = models.CharField(verbose_name="值", default="", max_length=200)
+    check_field = models.CharField(verbose_name="校验的字段", max_length=200, default="pk", null=True)
 
     class Meta:
         db_table = 'sys_data_permission_list'
-        unique_together = (('check_field', 'value'),)
+        unique_together = (('check_field', 'value', 'permission_rule'),)
 
 
 class UserInfo(AbstractBaseUser, PermissionsMixin):
     id = models.AutoField(primary_key=True)
     username = models.CharField(verbose_name='用户名', max_length=50, null=False, unique=True)
-    name = models.CharField(verbose_name="姓名", max_length=50, default='')
+    name = models.CharField(verbose_name="姓名", max_length=50, default='default')
     mobile = models.CharField(verbose_name="手机", max_length=12, null=False, default="186000000000")
-    roles = models.ManyToManyField(
+    roles = models.ForeignKey(
         Role,
-        verbose_name='角色'
+        verbose_name='角色',
+        on_delete=models.CASCADE
     )
     email = models.EmailField(verbose_name="邮箱地址", unique=True, null=False)
     is_active = models.BooleanField(verbose_name="有效", default=True)

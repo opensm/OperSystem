@@ -1,3 +1,4 @@
+# -*- coding=utf-8
 """
 Django settings for KubernetesManagerWeb project.
 
@@ -35,7 +36,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'Rbac'
+    'Rbac',
+    'corsheaders',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -43,15 +46,17 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'Rbac.Middleware.RbacMiddlewareMixin.RbacMiddleware'
+    # 'Rbac.Middleware.ExceptionMiddleware.ExceptionBoxMiddleware'
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
 ROOT_URLCONF = 'KubernetesManagerWeb.urls'
-
+NON_FIELD_ERRORS_KEY = "field_error"
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -87,8 +92,12 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'KubernetesWeb',
         'USER': 'root',
+        'PORT': 3306,
         'PASSWORD': '123456',
         'HOST': '127.0.0.1',
+        'OPTIONS': {
+            "init_command": "SET foreign_key_checks = 0;",
+        }
     }
 }
 
@@ -121,7 +130,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
@@ -131,3 +140,40 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "template/dist/static"),
 ]
+# REST_FRAMEWORK = {
+#    'DEFAULT_PARSER_CLASSES': (
+#        'rest_framework.parsers.FormParser',
+#        'rest_framework.parsers.MultiPartParser'
+#     )
+# }
+
+# 跨域增加忽略
+CORS_ALLOW_CREDENTIALS = True
+# CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_WHITELIST = ()
+
+CORS_ALLOW_METHODS = (
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+    'VIEW',
+)
+
+CORS_ALLOW_HEADERS = (
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+)
+
+LOG_DIR = '/tmp'
+LOG_FILE = 'oper.log'
+LOG_LEVEL = "info"

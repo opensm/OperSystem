@@ -103,7 +103,6 @@ class DataQueryPermission(ObjectUserInfo):
             permission_list.append(
                 content
             )
-        # for role in self.user.roles.all():
         return permission_list
 
     def check_user_method_permissions(self, request):

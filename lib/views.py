@@ -3,8 +3,7 @@ from lib.mixins import DataQueryPermission
 from lib.response import DataResponse
 from lib.page import RewritePageNumberPagination
 from Rbac.serializers import MenuSerializer, SubMenuSerializer
-from Rbac.models import Menu, UserInfo
-from itertools import chain
+from Rbac.models import Menu
 from lib.exceptions import *
 from lib.Log import RecodeLog
 from django.apps import apps as django_apps

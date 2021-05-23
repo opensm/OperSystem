@@ -147,8 +147,9 @@ class DataQueryPermission(ObjectUserInfo):
                 code=API_50001_SERVER_ERROR,
                 detail="类型错误!!!"
             )
-        if data[2].is_all:
-            return data[2].is_all
+
+        if data[2]:
+            return data[2]
         else:
             current_obj = self.get_request_filter()
             obj, methods = self.get_permission_rule_q(data=data)

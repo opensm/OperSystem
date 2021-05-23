@@ -68,7 +68,7 @@ class ExecList(models.Model):
     )
     id = models.CharField(verbose_name="操作ID", max_length=50, null=False, blank=False, unique=True, primary_key=True)
     auth_type = models.CharField(verbose_name="操作类型", max_length=100, default='Shell')
-    auth = models.CharField('AuthKEY', verbose_name='执行认证方式', max_length=100, default='', null=True)
+    auth = models.CharField('AuthKEY', max_length=100, default='', null=True)
     exec = models.TextField(verbose_name="执行命令", max_length=2000, null=True, default='')
     status = models.CharField(
         null=False, blank=False, default='not_start_approve', max_length=20, choices=status_choice

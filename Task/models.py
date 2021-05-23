@@ -75,7 +75,7 @@ class ExecList(models.Model):
     )
     params = models.CharField(verbose_name='相关参数', max_length=200, null=True, default='')
     exec_type = models.CharField(verbose_name="操作类型", max_length=20, default='update')
-    exec_id = models.ForeignKey('self', on_delete=models.CASCADE, verbose_name='执行ID')
+    exec_id = models.ForeignKey('self', on_delete=models.CASCADE, verbose_name='执行ID', null=True)
     output = models.TextField(verbose_name="执行结果", null=True, max_length=2000)
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
@@ -137,3 +137,15 @@ class TemplateDB(models.Model):
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
+
+
+__all__ = [
+    'TemplateDB',
+    'Tasks',
+    'TemplateKubernetes',
+    'SubTask',
+    'ExecList',
+    'ExecListLog',
+    'Project',
+    'AuthKEY'
+]

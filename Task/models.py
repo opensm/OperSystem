@@ -27,8 +27,7 @@ class Tasks(models.Model):
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
 
     class Meta:
-        unique_together = (('parent', 'index'),)
-        db_table = 'sys_menus'
+        db_table = 't_tasks'
 
 
 class SubTask(models.Model):
@@ -43,10 +42,15 @@ class SubTask(models.Model):
         null=False, blank=False, default='not_start_approve', max_length=20, choices=status_choice
     )
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
-    developer = models.ForeignKey(UserInfo, on_delete=models.CASCADE, null=False)
-    create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
+    developer = models.ForeignKey(UserInfo, on_delete=models.CASCADE, null=False, related_name='developer')
+    create_user = models.ForeignKey(
+        UserInfo, on_delete=models.CASCADE, default='', null=False, related_name='create_user'
+    )
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
     finish_time = models.CharField(verbose_name="完成时间", max_length=20, default='', null=True)
+
+    class Meta:
+        db_table = 't_subtasks'
 
 
 class ExecList(models.Model):
@@ -82,6 +86,9 @@ class ExecList(models.Model):
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
     finish_time = models.CharField(verbose_name="完成时间", max_length=20, default='', null=True)
 
+    class Meta:
+        db_table = 't_execlist'
+
 
 class ExecListLog(models.Model):
     id = models.AutoField(primary_key=True)
@@ -89,6 +96,9 @@ class ExecListLog(models.Model):
     log = models.TextField(verbose_name='日志信息')
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
     create_time = models.DateTimeField(verbose_name='写入日期', auto_now_add=True)
+
+    class Meta:
+        db_table = 't_execlistlog'
 
 
 class AuthKEY(models.Model):
@@ -106,11 +116,17 @@ class AuthKEY(models.Model):
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
+    class Meta:
+        db_table = 't_authkey'
+
 
 class Project(models.Model):
     id = models.CharField(verbose_name='项目ID', max_length=200, default='', null=False, primary_key=True)
     name = models.CharField(verbose_name='项目ID', max_length=200, default='', null=False)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
+
+    class Meta:
+        db_table = 't_project'
 
 
 class TemplateKubernetes(models.Model):
@@ -129,6 +145,9 @@ class TemplateKubernetes(models.Model):
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
+    class Meta:
+        db_table = 't_template_kubernetes'
+
 
 class TemplateDB(models.Model):
     id = models.AutoField(primary_key=True)
@@ -137,6 +156,9 @@ class TemplateDB(models.Model):
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
+
+    class Meta:
+        db_table = 't_template_db'
 
 
 __all__ = [

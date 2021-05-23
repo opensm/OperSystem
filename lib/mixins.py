@@ -1,5 +1,4 @@
 from django.apps import apps as django_apps
-from django.db.models import query
 from django.db.models import Q
 from KubernetesManagerWeb.settings import AUTH_USER_MODEL
 import datetime
@@ -11,6 +10,7 @@ from KubernetesManagerWeb.settings import SECRET_KEY
 from lib.exceptions import *
 from Rbac.models import UserInfo, DataPermissionRule, DataPermissionList
 from django.contrib.contenttypes.models import ContentType
+from lib.Log import RecodeLog
 
 
 def make_token(username):
@@ -38,7 +38,6 @@ class ObjectUserInfo:
         token = request.META.get('HTTP_AUTHORIZATION')
         user = self.get_user_model
         try:
-            # return UserInfo.objects.get(usertoken__token=token)
             return user.objects.get(usertoken__token=token)
         except UserInfo.DoesNotExist:
             raise APIException(code=API_40001_AUTH_ERROR, detail="用户登录失效")
@@ -71,70 +70,49 @@ class DataQueryPermission(ObjectUserInfo):
         if not self.user.usertoken.expiration_time > datetime.datetime.now() or not self.user.is_active:
             return []
         permission_list = list()
+        try:
+            content_type = ContentType.objects.get(
+                app_label=self.app_label,
+                model=self.model_name
+            )
+        except ContentType.DoesNotExist:
+            RecodeLog.error(msg="获取模型数据异常！")
+            raise APIException(
+                code=API_50001_SERVER_ERROR,
+                detail="获取模型数据异常！"
+            )
         for content in self.user.roles.data_permission.filter(
-                content_type=ContentType.objects.get(app_label=self.app_label, model=self.model_name)
+                content_type=content_type
         ):
             try:
-                permission = DataPermissionList.objects.filter(permission_rule=content)
+                permission = DataPermissionList.objects.filter(
+                    permission_rule=content
+                )
             except model.DoesNotExist:
                 continue
             if not permission:
                 continue
             permission_list.append((
                 permission,
-                content.request_type
+                content.request_type,
+                content.is_all
             ))
-        # for role in self.user.roles.all():
-
         return permission_list
 
-    def get_user_method_permission(self):
-        """
-        :return:
-        """
-        if not isinstance(self.user, self.get_user_model):
-            raise TypeError("用户表类型错误！")
-        if not self.user.usertoken.expiration_time > datetime.datetime.now() or not self.user.is_active:
-            return []
-        permission_list = list()
-        for content in self.user.roles.data_permission.filter(
-                content_type=ContentType.objects.get(app_label=self.app_label, model=self.model_name)
-        ):
-            permission_list.append(
-                content
-            )
-        # for role in self.user.roles.all():
-        return permission_list
-
-    def check_user_method_permissions(self, request):
+    def check_user_method_permissions(self, request, method):
         """
         :param request:
+        :param method:
         :return:
         """
         self.user = self.get_user_object(request=request)
         if self.user.is_superuser and self.user.is_active:
             return True
-        data = self.get_user_method_permission()
+        data = self.get_user_data_permission()
         status = False
         for content in data:
-            request_data = [x.method for x in content.request_type.all()]
-            if request.method in request_data:
-                status = True
-        return status
-
-    def check_user_post_permissions(self, request):
-        """
-        :param request:
-        :return:
-        """
-        self.user = self.get_user_object(request=request)
-        if self.user.is_superuser and self.user.is_active:
-            return True
-        data = self.get_user_method_permission()
-        status = False
-        for content in data:
-            request_data = [x.method for x in content.request_type.all()]
-            if "POST" in request_data:
+            request_data = [x.method for x in content[1].all()]
+            if method in request_data:
                 status = True
         return status
 
@@ -158,33 +136,43 @@ class DataQueryPermission(ObjectUserInfo):
             q_query.append(obj)
         return q_query
 
+    def check_permission(self, method, data):
+        """
+        :param method:
+        :param data:
+        :return:
+        """
+        if not isinstance(data, tuple):
+            raise APIException(
+                code=API_50001_SERVER_ERROR,
+                detail="类型错误!!!"
+            )
+        if data[2].is_all:
+            return data[2].is_all
+        else:
+            current_obj = self.get_request_filter()
+            obj, methods = self.get_permission_rule_q(data=data)
+            if len(obj) > 1:
+                obj_filter = reduce(operator.or_, obj)
+            else:
+                obj_filter = obj
+            if not current_obj:
+                return method in [x.method for x in methods.all()] and self.__model.objects.filter(obj_filter)
+            else:
+                return method in [x.method for x in methods.all()] and current_obj.filter(obj_filter)
+
     def check_user_permissions(self, request):
         """
         :param request:
         :return:
         """
         self.user = self.get_user_object(request=request)
-        current_obj = self.get_request_filter()
         if self.user.is_superuser and self.user.is_active:
             return True
-        status = False
         for data in self.get_user_data_permission():
-            obj, methods = self.get_permission_rule_q(data=data)
-            method = [x.method for x in methods.all()]
-            if len(obj) > 1:
-                obj_filter = reduce(operator.or_, obj)
-            else:
-                obj_filter = obj
-            if not current_obj:
-                if request.method in method and self.__model.objects.filter(obj_filter):
-                    status = True
-                    break
-            else:
-                if request.method in method and current_obj.filter(obj_filter):
-                    status = True
-                    break
-
-        return status
+            if self.check_permission(method=request.method, data=data):
+                return True
+        return False
 
     def return_request_types(self, params):
         """
@@ -234,8 +222,10 @@ class DataQueryPermission(ObjectUserInfo):
             )
         return data_list
 
-    def format_query_set(self, query_set):
+    @staticmethod
+    def format_query_set(query_set):
         """
+        :return:
         :param query_set:
         :return:
         """
@@ -247,7 +237,7 @@ class DataQueryPermission(ObjectUserInfo):
             for x in split_value:
                 try:
                     value = int(x)
-                except:
+                except TypeError:
                     value = x
                 params.setdefault(y.check_field, []).append(value)
         return params
@@ -355,10 +345,15 @@ class DataQueryPermission(ObjectUserInfo):
             query_params = dict()
             for key in self.kwargs.keys():
                 if key not in fields or not self.kwargs.getlist(key):
-                    raise APIException(detail='输入参数错误:{}'.format(key), code=API_10001_PARAMS_ERROR)
+                    raise APIException(
+                        detail='输入参数错误:{}'.format(key),
+                        code=API_10001_PARAMS_ERROR
+                    )
                 query_params["{}__in".format(key)] = self.kwargs.getlist(key)
         try:
-            return self.__model.objects.filter(**query_params)
+            return self.__model.objects.filter(
+                **query_params
+            )
         except Exception as error:
             raise APIException(
                 code=API_50001_SERVER_ERROR,
@@ -405,8 +400,7 @@ class DataQueryPermission(ObjectUserInfo):
                     raise APIException(detail="模型类型错误！", code=API_50001_SERVER_ERROR)
                 else:
                     model = data.content_type
-                    request_type = [x.method for x in data.request_type.all()]
-                    if 'GET' not in request_type:
+                    if 'GET' not in [x.method for x in data.request_type.all()]:
                         raise APIException('没有权限！', code=API_50001_SERVER_ERROR)
         else:
             raise APIException(detail="输入数据类型错误！", code=API_50001_SERVER_ERROR)

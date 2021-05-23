@@ -2,7 +2,7 @@ import datetime
 from django.contrib import auth
 from django.contrib.auth import password_validation
 from django.contrib.contenttypes.models import ContentType
-from Rbac.models import Role, UserInfo, DataPermissionRule, Menu, RequestType,DataPermissionList
+from Rbac.models import Role, UserInfo, DataPermissionRule, Menu, RequestType, DataPermissionList
 from rest_framework import serializers
 
 
@@ -25,14 +25,12 @@ class ContentTypeSerializer(serializers.ModelSerializer):
 
 
 class DataPermissionSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = DataPermissionRule
         fields = ("__all__")
 
 
 class DataPermissionListSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = DataPermissionList
         fields = ("__all__")
@@ -236,5 +234,6 @@ __all__ = [
     'UserStatusEditSerializer',
     'RoleMenuEditSerializer',
     'DataPermissionSerializer',
-    'DataPermissionListSerializer'
+    'DataPermissionListSerializer',
+    'SubMenuSerializer'
 ]

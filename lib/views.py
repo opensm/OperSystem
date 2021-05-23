@@ -36,7 +36,7 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
             )
 
             format_data = self.format_return_data(data=data.data)
-            tag = self.check_user_post_permissions(request=request)
+            tag = self.check_user_method_permissions(request=request, method=request.method)
             return self.get_paginated_response(
                 data=format_data,
                 msg="获取数据成功",
@@ -61,7 +61,7 @@ class BasePOSTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
             data = self.serializer_class(
                 data=request.data
             )
-            if not self.check_user_method_permissions(request=request):
+            if not self.check_user_method_permissions(request=request, method=request.method):
                 raise APIException(
                     code=API_40003_PERMISSION_DENIED,
                     detail="没有权限操作"
@@ -435,7 +435,7 @@ class BaseGetPUTView(BaseGETVIEW, BasePUTVIEW):
                 code=API_10001_PARAMS_ERROR
             )
         if self.page_size_query_param in self.kwargs:
-            self.page_size=self.kwargs.pop(self.page_size_query_param)
+            self.page_size = self.kwargs.pop(self.page_size_query_param)
         if self.page_query_param in self.kwargs:
             self.kwargs.pop(self.page_query_param)
         if self.sort_query_param in self.kwargs:

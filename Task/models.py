@@ -85,7 +85,7 @@ class ExecList(models.Model):
 
 class ExecListLog(models.Model):
     id = models.AutoField(primary_key=True)
-    exec_flow = models.ForeignKey(ExecList, on_delete=False, null=False, verbose_name='操作')
+    exec_flow = models.ForeignKey(ExecList, on_delete=models.CASCADE, null=False)
     log = models.TextField(verbose_name='日志信息')
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
     create_time = models.DateTimeField(verbose_name='写入日期', auto_now_add=True)

@@ -153,6 +153,7 @@ class DataQueryPermission(ObjectUserInfo):
         else:
             current_obj = self.get_request_filter()
             obj, methods = self.get_permission_rule_q(data=data)
+            RecodeLog.info(msg="获取数据:{},{}".format(obj, methods))
             if len(obj) > 1:
                 obj_filter = reduce(operator.or_, obj)
             else:
@@ -180,6 +181,7 @@ class DataQueryPermission(ObjectUserInfo):
         if self.user.is_superuser and self.user.is_active:
             return True
         for data in self.get_user_data_permission():
+            RecodeLog.info(msg="获取权限表数据:{}".format(data))
             if self.check_permission(method=request.method, data=data):
                 return True
         return False

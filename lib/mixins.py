@@ -156,6 +156,15 @@ class DataQueryPermission(ObjectUserInfo):
                 obj_filter = reduce(operator.or_, obj)
             else:
                 obj_filter = obj
+
+            if method == 'GET' and not self.kwargs:
+                RecodeLog.info(msg="传入参数:{}".format(self.kwargs))
+                if not self.__model.objects.all():
+                    if obj_filter:
+                        return method in [x.method for x in methods.all()]
+                    else:
+                        return False
+
             if not current_obj:
                 return method in [x.method for x in methods.all()] and self.__model.objects.filter(obj_filter)
             else:

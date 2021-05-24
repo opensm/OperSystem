@@ -24,11 +24,6 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                     code=API_40003_PERMISSION_DENIED
                 )
             model_obj = self.get_user_data_objects(request=request)
-            # if not model_obj:
-            #     raise APIException(
-            #         detail="获取数据失败！",
-            #         code=API_12001_DATA_NULL_ERROR
-            #     )
             page_obj = self.paginate_queryset(queryset=model_obj, request=request, view=self)
             data = self.serializer_class(
                 instance=page_obj,

@@ -46,6 +46,7 @@ class RewritePageNumberPagination(PageNumberPagination):
         :return:
         """
         params = dict()
+        print(queryset.model.__name__)
         if queryset:
             models_queryset = deepcopy(queryset[0])
         else:

@@ -47,6 +47,7 @@ class RewritePageNumberPagination(PageNumberPagination):
         """
         params = dict()
         print(queryset.model.__name__)
+        print(queryset.model)
         if queryset:
             models_queryset = deepcopy(queryset[0])
         else:

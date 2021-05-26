@@ -135,7 +135,8 @@ class AuthKEY(models.Model):
 
 
 class Project(models.Model):
-    id = models.CharField(verbose_name='项目ID', max_length=200, default='', null=False, primary_key=True)
+    id = models.AutoField(primary_key=True)
+    projectId = models.CharField(verbose_name='项目ID', max_length=200, default='', null=False, unique=True)
     name = models.CharField(verbose_name='项目ID', max_length=200, default='', null=False)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 

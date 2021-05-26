@@ -214,6 +214,10 @@ class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
         self.format_request_params(request=request)
         return super().put(request)
 
+    def delete(self, request):
+        self.format_request_params(request=request)
+        return super().delete(request)
+
 
 class BaseGETView(DataQueryPermission, APIView):
     serializer_class = None

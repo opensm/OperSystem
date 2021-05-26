@@ -88,6 +88,8 @@ class BaseDELETEVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
     def delete(self, request):
         try:
             model_obj = self.get_user_data_objects(request=request)
+            print(self.kwargs)
+            print(model_obj)
             if not model_obj:
                 raise APIException(
                     detail="获取删除数据失败！",

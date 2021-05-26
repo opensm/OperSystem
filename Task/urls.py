@@ -19,4 +19,6 @@ urlpatterns = [
     path('templatekubernetess', TemplateKubernetessView.as_view(), name='templatekubernetess'),
     path('templatedb', TemplateDBView.as_view(), name='templatedb'),
     path('templatedbs', TemplateDBsView.as_view(), name='templatedbs'),
+    path('Tencentservice', TemplateDBView.as_view(), name='Tencentservice'),
+    path('Tencentservices', TemplateDBsView.as_view(), name='Tencentservices'),
 ]

@@ -1,8 +1,8 @@
-from Task.models import *
-from lib.response import DataResponse
-from django.utils import timezone
-import datetime
-from lib.mixins import make_token
+# from Task.models import *
+# from lib.response import DataResponse
+# from django.utils import timezone
+# import datetime
+# from lib.mixins import make_token
 from Task.serializers import *
 from lib.views import *
 
@@ -122,7 +122,22 @@ class TemplateDBsView(BaseListView):
 
 class TemplateDBView(BaseDetailView):
     serializer_class = TemplateDBSerializers
-    model_name = 'ExecList'
+    model_name = 'TemplateDB'
+    app_label = 'Task'
+    pk = 'id'
+
+
+class TemplateTencentServicesView(BaseListView):
+    serializer_class = TemplateDBSerializers
+    model_name = 'TemplateTencentService'
+    app_label = 'Task'
+    page_size_query_param = 'limit'
+    sort_query_param = 'sort'
+
+
+class TemplateTencentServiceView(BaseDetailView):
+    serializer_class = TemplateDBSerializers
+    model_name = 'TemplateTencentService'
     app_label = 'Task'
     pk = 'id'
 
@@ -143,5 +158,7 @@ __all__ = [
     'TemplateKubernetesView',
     'TemplateKubernetessView',
     'TemplateDBView',
-    'TemplateDBsView'
+    'TemplateDBsView',
+    'TemplateTencentServiceView',
+    'TemplateTencentServicesView'
 ]

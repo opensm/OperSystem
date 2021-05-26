@@ -1,5 +1,7 @@
 from django.db import models
 from Rbac.models import UserInfo
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 
 
 class Tasks(models.Model):
@@ -25,6 +27,7 @@ class Tasks(models.Model):
     finish_time = models.CharField(verbose_name="完成时间", max_length=20, default='', null=True)
     note = models.TextField(verbose_name="说明", max_length=20000)
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
+    sub_task = models.ManyToManyField('SubTask', related_name='subtask')
 
     class Meta:
         db_table = 't_tasks'
@@ -41,8 +44,10 @@ class SubTask(models.Model):
     status = models.CharField(
         null=False, blank=False, default='not_start_approve', max_length=20, choices=status_choice
     )
+    container = models.CharField(null=False, blank=False, default='', max_length=200)
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
     developer = models.ForeignKey(UserInfo, on_delete=models.CASCADE, null=False, related_name='developer')
+    exec_list = models.ManyToManyField('ExecList', related_name='execlist')
     create_user = models.ForeignKey(
         UserInfo, on_delete=models.CASCADE, default='', null=False, related_name='create_user'
     )
@@ -64,24 +69,31 @@ class ExecList(models.Model):
         ('not_start_exec', '任务还未开始'),
         ('progressing', '任务执行中'),
         ('success', '任务执行成功'),
-        ('fail', '任务执行失败')
+        ('fail', '任务执行失败'),
+        ('recover_not_start_exec', '回档还未开始'),
+        ('recover_progressing', '回档执行中'),
+        ('recover_success', '回档执行成功'),
+        ('recover_fail', '回档执行失败'),
     )
     exec_type_choice = (
         ('recover', '回档'),
         ('update', '更新')
     )
     id = models.CharField(verbose_name="操作ID", max_length=50, null=False, blank=False, unique=True, primary_key=True)
-    auth_type = models.CharField(verbose_name="操作类型", max_length=100, default='Shell')
-    auth = models.CharField('AuthKEY', max_length=100, default='', null=True)
-    exec = models.TextField(verbose_name="执行命令", max_length=2000, null=True, default='')
     status = models.CharField(
         null=False, blank=False, default='not_start_approve', max_length=20, choices=status_choice
     )
     params = models.CharField(verbose_name='相关参数', max_length=200, null=True, default='')
-    exec_type = models.CharField(verbose_name="操作类型", max_length=20, default='update')
+    exec_type = models.CharField(verbose_name="操作类型", max_length=20, default='update', choices=exec_type_choice)
     exec_id = models.ForeignKey('self', on_delete=models.CASCADE, verbose_name='执行ID', null=True)
     output = models.TextField(verbose_name="执行结果", null=True, max_length=2000)
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
+    content_type = models.ForeignKey(to=ContentType, on_delete=models.CASCADE)  # 指向ContentType这个模型
+    object_id = models.PositiveIntegerField()  # object_id为一个整数，存储了实例id
+    content_object = GenericForeignKey(
+        'content_type',
+        'object_id'
+    )  # content_object为GenericForeignKey类型，主要作用是根据content_type字段和object_id字段来定位某个模型中具体某个实例
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
     finish_time = models.CharField(verbose_name="完成时间", max_length=20, default='', null=True)
@@ -98,7 +110,7 @@ class ExecListLog(models.Model):
     create_time = models.DateTimeField(verbose_name='写入日期', auto_now_add=True)
 
     class Meta:
-        db_table = 't_execlistlog'
+        db_table = 't_execlist_log'
 
 
 class AuthKEY(models.Model):
@@ -142,6 +154,7 @@ class TemplateKubernetes(models.Model):
     control_type = models.CharField(verbose_name='操作方式', choices=control_choice, max_length=50, default='create')
     yaml = models.TextField(verbose_name='yaml模板', max_length=2000, default='')
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
+    exec_list = GenericRelation(to='ExecList')
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
@@ -151,9 +164,10 @@ class TemplateKubernetes(models.Model):
 
 class TemplateDB(models.Model):
     id = models.AutoField(primary_key=True)
-    mysql_instance = models.ForeignKey(AuthKEY, on_delete=models.CASCADE, verbose_name='实例', null=False)
-    exec_line = models.TextField(verbose_name='命令行', max_length=2000, default='')
+    instance = models.ForeignKey(AuthKEY, on_delete=models.CASCADE, verbose_name='实例', null=False)
+    exec_class = models.TextField(verbose_name='调用类', max_length=2000, default='')
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
+    exec_list = GenericRelation(to='ExecList')
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
@@ -161,8 +175,23 @@ class TemplateDB(models.Model):
         db_table = 't_template_db'
 
 
+class TemplateTencentService(models.Model):
+    id = models.AutoField(primary_key=True)
+    tencent_key = models.ForeignKey(AuthKEY, on_delete=models.CASCADE, verbose_name='验证信息', null=False)
+    exec_class = models.TextField(verbose_name='调用类', max_length=2000, default='')
+    exec_function = models.TextField(verbose_name='调用方法', max_length=2000, default='')
+    project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
+    exec_list = GenericRelation(to='ExecList')
+    create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
+    create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
+
+    class Meta:
+        db_table = 't_template_tencent'
+
+
 __all__ = [
     'TemplateDB',
+    'TemplateTencentService',
     'Tasks',
     'TemplateKubernetes',
     'SubTask',

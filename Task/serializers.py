@@ -8,6 +8,7 @@ class TaskSerializers(serializers.ModelSerializer):
         model = Tasks
         fields = ("__all__")
 
+
 class AuthKEYSerializers(serializers.ModelSerializer):
     class Meta:
         model = AuthKEY

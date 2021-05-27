@@ -8,12 +8,6 @@ class TaskSerializers(serializers.ModelSerializer):
         model = Tasks
         fields = ("__all__")
 
-    def create(self, validated_data, user):
-        obj = Tasks.objects.create(**validated_data, create_user=user)
-        obj.save()
-        return obj
-
-
 class AuthKEYSerializers(serializers.ModelSerializer):
     class Meta:
         model = AuthKEY

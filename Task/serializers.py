@@ -1,11 +1,17 @@
 from rest_framework import serializers
 from Task.models import *
+from lib.Log import RecodeLog
 
 
 class TaskSerializers(serializers.ModelSerializer):
     class Meta:
         model = Tasks
         fields = ("__all__")
+
+    def create(self, validated_data, user):
+        obj = Tasks.objects.create(**validated_data, create_user=user)
+        obj.save()
+        return obj
 
 
 class AuthKEYSerializers(serializers.ModelSerializer):

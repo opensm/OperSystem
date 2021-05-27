@@ -18,6 +18,7 @@ class Tasks(models.Model):
         ('unsubmit', '未提交')
     )
     id = models.CharField(verbose_name="任务ID", max_length=50, null=False, blank=False, unique=True, primary_key=True)
+    name = models.CharField(verbose_name="任务名称", max_length=200, default='', null=False)
     approve_flow = models.CharField(verbose_name="URL", max_length=200, null=False, blank=False, unique=True)
     status = models.CharField(
         null=False, blank=False, default='not_start_approve', max_length=20, choices=status_choice
@@ -38,7 +39,9 @@ class SubTask(models.Model):
         ('not_start_exec', '任务还未开始'),
         ('progressing', '任务执行中'),
         ('success', '任务执行成功'),
-        ('fail', '任务执行失败')
+        ('fail', '任务执行失败'),
+        ('unbond', '任务还未绑定'),
+        ('bonded', '任务已绑定')
     )
     id = models.CharField(verbose_name="子任务ID", max_length=50, null=False, blank=False, unique=True, primary_key=True)
     status = models.CharField(

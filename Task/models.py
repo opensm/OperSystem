@@ -129,7 +129,7 @@ class AuthKEY(models.Model):
     )
     id = models.AutoField(primary_key=True)
     name = models.CharField(verbose_name="验证名称", max_length=200, default='', null=False)
-    auth_host = models.IPAddressField(verbose_name="地址", max_length=200, default='127.0.0.1', null=False)
+    auth_host = models.GenericIPAddressField(verbose_name="地址", max_length=200, default='127.0.0.1', null=False)
     auth_port = models.IntegerField(verbose_name="端口", default=22, null=True, blank=True)
     auth_user = models.CharField(verbose_name="验证用户", max_length=200, default='', null=True, blank=True)
     auth_passwd = models.CharField(verbose_name="验证密码", max_length=200, default='', null=True, blank=True)

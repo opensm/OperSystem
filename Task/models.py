@@ -134,7 +134,7 @@ class AuthKEY(models.Model):
     auth_port = models.IntegerField(verbose_name="端口", max_length=200, default=22, null=True, blank=True)
     auth_user = models.IntegerField(verbose_name="验证用户", max_length=200, default=22, null=True, blank=True)
     auth_passwd = models.CharField(verbose_name="验证密码", max_length=200, default='', null=True, blank=True)
-    auth_params = models.CharField(verbose_name="验证密钥串", max_length=200, default='', null=True, blank=True)
+    auth_params = models.CharField(verbose_name="验证参数", max_length=200, default='', null=True, blank=True)
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)

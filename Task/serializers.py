@@ -44,11 +44,11 @@ class SubTaskserializers(serializers.ModelSerializer):
         :return:
         """
         exec_list = validated_data.pop('exec_list')
+        print(exec_list)
         data = ExecListSerializers(data=exec_list, many=True)
         if not data.is_valid():
             raise serializers.ValidationError('exec_list 字段校验失败！')
         data.save()
-        print(data)
         validated_data['exec_list'] = data
         return validated_data
 

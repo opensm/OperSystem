@@ -38,6 +38,24 @@ class SubTaskserializers(serializers.ModelSerializer):
         model = SubTask
         fields = ("__all__")
 
+    def validated_exec_list(self, validated_data):
+        """
+        :param validated_data:
+        :return:
+        """
+        data = ExecListSerializers(data=validated_data)
+        if not data.is_valid():
+            raise serializers.ValidationError('exec_list 字段校验失败！')
+
+    def create(self, validated_data):
+        exec_list = validated_data.pop('exec_list')
+        obj = SubTask.objects.create(**validated_data)
+        data = ExecListSerializers(data=exec_list, many=True)
+        data.save()
+        obj.exec_list.add(data)
+        obj.save()
+        return obj
+
 
 class ExecListLogSerializers(serializers.ModelSerializer):
     class Meta:

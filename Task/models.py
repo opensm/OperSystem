@@ -124,13 +124,17 @@ class AuthKEY(models.Model):
     exec_choice = (
         ('MySQL', 'MySQL'),
         ('Mongo', 'Mongo'),
-        ('Shell', 'Shell命令'),
+        ('Nacos', 'Nacos'),
         ('Kubernetes', 'Kubernetes操作')
     )
     id = models.AutoField(primary_key=True)
-    auth_type = models.CharField(verbose_name="操作类型", max_length=100, default='Shell', choices=exec_choice)
-    auth_key = models.CharField(verbose_name="验证密钥串", max_length=200, default='', null=False)
     name = models.CharField(verbose_name="验证名称", max_length=200, default='', null=False)
+    auth_type = models.CharField(verbose_name="操作类型", max_length=100, default='Shell', choices=exec_choice)
+    auth_host = models.IPAddressField(verbose_name="地址", max_length=200, default='127.0.0.1', null=False)
+    auth_port = models.IntegerField(verbose_name="端口", max_length=200, default=22, null=True, blank=True)
+    auth_user = models.IntegerField(verbose_name="验证用户", max_length=200, default=22, null=True, blank=True)
+    auth_passwd = models.CharField(verbose_name="验证密码", max_length=200, default='', null=True, blank=True)
+    auth_params = models.CharField(verbose_name="验证密钥串", max_length=200, default='', null=True, blank=True)
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)

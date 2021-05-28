@@ -145,7 +145,7 @@ class AuthKEY(models.Model):
 
 class Project(models.Model):
     id = models.CharField(verbose_name='项目ID', max_length=200, default='', null=False, primary_key=True)
-    name = models.CharField(verbose_name='项目ID', max_length=200, default='', null=False)
+    name = models.CharField(verbose_name='项目名称', max_length=200, default='', null=False)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
     class Meta:
@@ -159,6 +159,7 @@ class TemplateKubernetes(models.Model):
         ('delete', '删除'),
     )
     id = models.AutoField(primary_key=True)
+    name = models.CharField(verbose_name='模板名称', max_length=200, default='', null=False)
     cluster = models.ForeignKey(AuthKEY, on_delete=models.CASCADE, verbose_name='关联集群', null=False)
     namespace = models.CharField(verbose_name='命名空间', null=False, default='system', max_length=100)
     app_name = models.CharField(verbose_name="应用名称", max_length=200, default='', null=False)
@@ -175,9 +176,10 @@ class TemplateKubernetes(models.Model):
 
 class TemplateDB(models.Model):
     id = models.AutoField(primary_key=True)
+    name = models.CharField(verbose_name='模板名称', max_length=200, default='', null=False)
     instance = models.ForeignKey(AuthKEY, on_delete=models.CASCADE, verbose_name='实例', null=False)
     exec_class = models.TextField(verbose_name='调用类', max_length=2000, default='')
-    project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
+    exec_function = models.TextField(verbose_name='调用方法', max_length=2000, default='')
     exec_list = GenericRelation(to='ExecList')
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
@@ -188,6 +190,7 @@ class TemplateDB(models.Model):
 
 class TemplateTencentService(models.Model):
     id = models.AutoField(primary_key=True)
+    name = models.CharField(verbose_name='模板名称', max_length=200, default='', null=False)
     tencent_key = models.ForeignKey(AuthKEY, on_delete=models.CASCADE, verbose_name='验证信息', null=False)
     exec_class = models.TextField(verbose_name='调用类', max_length=2000, default='')
     exec_function = models.TextField(verbose_name='调用方法', max_length=2000, default='')

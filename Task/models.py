@@ -221,6 +221,7 @@ class TemplateNacos(models.Model):
 __all__ = [
     'TemplateDB',
     'TemplateTencentService',
+    'TemplateNacos',
     'Tasks',
     'TemplateKubernetes',
     'SubTask',

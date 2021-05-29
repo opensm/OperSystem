@@ -196,7 +196,6 @@ class TemplateTencentService(models.Model):
     tencent_key = models.ForeignKey(AuthKEY, on_delete=models.CASCADE, verbose_name='验证信息', null=False)
     exec_class = models.TextField(verbose_name='调用类', max_length=2000, default='')
     exec_function = models.TextField(verbose_name='调用方法', max_length=2000, default='')
-    project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
     exec_list = GenericRelation(to='ExecList')
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)

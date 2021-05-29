@@ -215,7 +215,7 @@ class TemplateNacos(models.Model):
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
     class Meta:
-        db_table = 't_template_db'
+        db_table = 't_template_nacos'
 
 
 __all__ = [

@@ -128,7 +128,7 @@ class TemplateDBView(BaseDetailView):
 
 
 class TemplateTencentServicesView(BaseListView):
-    serializer_class = TemplateDBSerializers
+    serializer_class = TemplateTencentServiceSerializers
     model_name = 'TemplateTencentService'
     app_label = 'Task'
     page_size_query_param = 'limit'
@@ -136,8 +136,23 @@ class TemplateTencentServicesView(BaseListView):
 
 
 class TemplateTencentServiceView(BaseDetailView):
-    serializer_class = TemplateDBSerializers
+    serializer_class = TemplateTencentServiceSerializers
     model_name = 'TemplateTencentService'
+    app_label = 'Task'
+    pk = 'id'
+
+
+class TemplateNacosesView(BaseListView):
+    serializer_class = TemplateNacosSerializers
+    model_name = 'TemplateNacos'
+    app_label = 'Task'
+    page_size_query_param = 'limit'
+    sort_query_param = 'sort'
+
+
+class TemplateNacosView(BaseDetailView):
+    serializer_class = TemplateNacosSerializers
+    model_name = 'TemplateNacos'
     app_label = 'Task'
     pk = 'id'
 
@@ -160,5 +175,7 @@ __all__ = [
     'TemplateDBView',
     'TemplateDBsView',
     'TemplateTencentServiceView',
-    'TemplateTencentServicesView'
+    'TemplateTencentServicesView',
+    'TemplateNacosView',
+    'TemplateNacosesView'
 ]

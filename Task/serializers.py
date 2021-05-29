@@ -3,21 +3,33 @@ from Task.models import *
 from lib.Log import RecodeLog
 
 
-class TaskSerializers(serializers.ModelSerializer):
-    class Meta:
-        model = Tasks
-        fields = ("__all__")
-
-
 class AuthKEYSerializers(serializers.ModelSerializer):
     class Meta:
         model = AuthKEY
         fields = ("__all__")
 
 
+class TaskSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Tasks
+        fields = ("__all__")
+
+
 class TemplateDBSerializers(serializers.ModelSerializer):
     class Meta:
         model = TemplateDB
+        fields = ("__all__")
+
+
+class TemplateNacosSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = TemplateNacos
+        fields = ("__all__")
+
+
+class TemplateTencentServiceSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = TemplateTencentService
         fields = ("__all__")
 
 
@@ -79,5 +91,7 @@ __all__ = [
     'TemplateKubernetesSerializers',
     'ExecListLogSerializers',
     'ExecListSerializers',
-    'ProjectSerializers'
+    'ProjectSerializers',
+    'TemplateNacosSerializers',
+    'TemplateTencentServiceSerializers'
 ]

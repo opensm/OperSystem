@@ -207,7 +207,7 @@ class TemplateTencentService(models.Model):
 class TemplateNacos(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(verbose_name='模板名称', max_length=200, default='', null=False)
-    auth_kay = models.ForeignKey(AuthKEY, on_delete=models.CASCADE, verbose_name='实例', null=False)
+    auth_key = models.ForeignKey(AuthKEY, on_delete=models.CASCADE, verbose_name='实例', null=False)
     exec_class = models.TextField(verbose_name='调用类', max_length=2000, default='')
     exec_function = models.TextField(verbose_name='调用方法', max_length=2000, default='')
     exec_list = GenericRelation(to='ExecList')

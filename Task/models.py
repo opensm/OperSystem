@@ -125,7 +125,8 @@ class AuthKEY(models.Model):
         ('MySQL', 'MySQL'),
         ('Mongo', 'Mongo'),
         ('Nacos', 'Nacos'),
-        ('Kubernetes', 'Kubernetes操作')
+        ('Kubernetes', 'Kubernetes操作'),
+        ('Qcloud', '腾讯云')
     )
     id = models.AutoField(primary_key=True)
     name = models.CharField(verbose_name="验证名称", max_length=200, default='', null=False)

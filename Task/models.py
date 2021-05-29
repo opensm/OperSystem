@@ -165,7 +165,6 @@ class TemplateKubernetes(models.Model):
     app_name = models.CharField(verbose_name="应用名称", max_length=200, default='', null=False)
     control_type = models.CharField(verbose_name='操作方式', choices=control_choice, max_length=50, default='create')
     yaml = models.TextField(verbose_name='yaml模板', max_length=2000, default='')
-    project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
     exec_list = GenericRelation(to='ExecList')
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)

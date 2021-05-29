@@ -19,8 +19,8 @@ urlpatterns = [
     path('templatekubernetes', TemplateKubernetessView.as_view(), name='templatekubernetes'),
     path('templatedb', TemplateDBView.as_view(), name='templatedb'),
     path('templatedbs', TemplateDBsView.as_view(), name='templatedbs'),
-    path('Tencentservice', TemplateTencentServiceView.as_view(), name='tencentservice'),
-    path('Tencentservices', TemplateTencentServicesView.as_view(), name='Tencentservices'),
+    path('tencentservice', TemplateTencentServiceView.as_view(), name='tencentservice'),
+    path('tencentservices', TemplateTencentServicesView.as_view(), name='Tencentservices'),
     path('templatenacos', TemplateNacosView.as_view(), name='tencentservice'),
     path('templatenacoses', TemplateNacosesView.as_view(), name='Tencentservices')
 ]

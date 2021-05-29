@@ -204,6 +204,20 @@ class TemplateTencentService(models.Model):
         db_table = 't_template_tencent'
 
 
+class TemplateNacos(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(verbose_name='模板名称', max_length=200, default='', null=False)
+    auth_kay = models.ForeignKey(AuthKEY, on_delete=models.CASCADE, verbose_name='实例', null=False)
+    exec_class = models.TextField(verbose_name='调用类', max_length=2000, default='')
+    exec_function = models.TextField(verbose_name='调用方法', max_length=2000, default='')
+    exec_list = GenericRelation(to='ExecList')
+    create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
+    create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
+
+    class Meta:
+        db_table = 't_template_db'
+
+
 __all__ = [
     'TemplateDB',
     'TemplateTencentService',

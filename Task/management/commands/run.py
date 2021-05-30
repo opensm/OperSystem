@@ -23,23 +23,23 @@ class Command(BaseCommand):
         if not isinstance(task, Tasks):
             raise TypeError('任务类型错误！')
         if datetime.datetime.strptime(
-                task.task_time, "%Y-%m-%d %H:%M:%S"
+                task.task_time, "%Y-%m-%d %H:%M:%S.%f"
         ).timestamp() > local_time:
             return False
         elif (local_time - datetime.datetime.strptime(
                 task.task_time,
-                "%Y-%m-%d %H:%M:%S"
+                "%Y-%m-%d %H:%M:%S.%f"
         ).timestamp()) > 60 * 20:
             task.status = 'timeout'
             task.save()
         elif datetime.datetime.strptime(
                 task.task_time,
-                "%Y-%m-%d %H:%M:%S"
+                "%Y-%m-%d %H:%M:%S.%f"
         ).timestamp() < local_time and task.status != 'ok_approved':
             return False
         elif datetime.datetime.strptime(
                 task.task_time,
-                "%Y-%m-%d %H:%M:%S"
+                "%Y-%m-%d %H:%M:%S.%f"
         ).timestamp() < local_time and task.status == 'ok_approved':
             return True
 

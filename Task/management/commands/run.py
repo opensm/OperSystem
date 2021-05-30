@@ -13,10 +13,9 @@ class Command(BaseCommand):
             for data in Tasks.objects.filter(
                     status__in=['approveing', 'not_start_approve', 'ok_approved']
             ):
-                print(data)
                 if not self.check_task_status(task=data):
-                    print('aaaaaaaaaaaaaaa')
                     continue
+                self.runSubTask(subtask=data)
 
     def check_task_status(self, task):
         """

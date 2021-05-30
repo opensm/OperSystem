@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from Task.models import Tasks, ExecList, SubTask
 import time
 import datetime
-from Task.management.commands import ClassImport
+# from Task.management.commands import ClassImport
 
 
 class Command(BaseCommand):

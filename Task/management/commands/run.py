@@ -27,8 +27,6 @@ class Command(BaseCommand):
             task.task_time,
             "%Y-%m-%dT%H:%M:%S.%fZ"
         ).timestamp()
-        print(task_unixtime, local_time)
-        print(local_time - task_unixtime)
         if not isinstance(task, Tasks):
             raise TypeError('任务类型错误！')
         if task_unixtime > local_time:
@@ -48,6 +46,7 @@ class Command(BaseCommand):
         task.save()
         for sub in task.sub_task.all():
             print(111111111111111111111)
+            print(sub)
             self.runSubTask(subtask=sub)
 
     def runSubTask(self, subtask):

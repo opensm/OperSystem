@@ -72,5 +72,6 @@ class Command(BaseCommand):
         """
         if not isinstance(data, ExecList):
             raise TypeError('任务类型错误！')
+        print(data)
         for template in data.content_object:
             print(template)

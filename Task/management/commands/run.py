@@ -13,6 +13,7 @@ class Command(BaseCommand):
             ):
                 print(data)
                 if not self.check_task_status(task=data):
+                    print('aaaaaaaaaaaaaaa')
                     continue
 
     def check_task_status(self, task):

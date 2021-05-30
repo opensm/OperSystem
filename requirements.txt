@@ -1,0 +1,4 @@
+tencentcloud-sdk-python
+nacos-sdk-python
+pymongo
+pymysql

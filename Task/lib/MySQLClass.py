@@ -2,39 +2,37 @@
 import pymysql
 import os
 import datetime
-from lib.settings import *
 from lib.Log import RecodeLog
 import sys
 from lib.lftp import FTPBackupForDB
 from lib.CosUpdate import CosUpload
-import copy
 import platform
 
 
 class MySQLClass:
-    def __init__(self, env="pre"):
-        config = copy.deepcopy(MYSQL_CONFIG[env.lower()])
-        self.host = config['host']
-        self.port = config['port']
-        self.user = config['user']
-        self.password = config['password']
+    def __init__(self, authKey):
+        self.host = authKey['host']
+        self.port = authKey['port']
+        self.user = authKey['user']
+        self.password = authKey['password']
+        self.backup_dir = authKey['backup_dir']
         self.auth_str = "-u{0} -p{1} -h{2} -P{3} --default-character-set=utf8".format(
             self.user, self.password,
             self.host, self.port
         )
-        if not os.path.exists(BACKUP_DIR):
+        if not os.path.exists(authKey['backup_dir']):
             raise Exception(
-                "{0} 不存在！".format(BACKUP_DIR)
+                "{0} 不存在！".format(authKey['backup_dir'])
             )
         if not os.path.exists("/usr/bin/mysql") or not os.path.exists("/usr/bin/mysqldump"):
             raise Exception("mysql或者mysqldump 没找到可执行程序！")
-        config['charset'] = "utf8"
+        authKey['charset'] = "utf8"
 
         try:
-            conn = pymysql.connect(**config)
+            conn = pymysql.connect(**authKey)
             self.cursor = conn.cursor()
         except Exception as error:
-            RecodeLog.error(msg="链接MySQL,host:{},port:{}失败，原因:{}".format(config['host'], config['port'], error))
+            RecodeLog.error(msg="链接MySQL,host:{},port:{}失败，原因:{}".format(authKey['host'], authKey['port'], error))
             sys.exit(1)
 
         if int(platform.python_version().strip(".")[0]) < 3:
@@ -74,7 +72,7 @@ class MySQLClass:
         cmd_str = "/usr/bin/mysqldump {0} --all-databases|gzip >{1}".format(
             self.auth_str,
             os.path.join(
-                BACKUP_DIR,
+                self.backup_dir,
                 "{0}-{1}-{2}-all-database.gz".format(
                     self.host, self.port, datetime.datetime.now().strftime("%Y%m%d%H%M%S")
                 )
@@ -90,7 +88,7 @@ class MySQLClass:
             self.auth_str,
             db,
             os.path.join(
-                BACKUP_DIR,
+                self.backup_dir,
                 "{}.gz".format(achieve)
             )
         )
@@ -103,21 +101,21 @@ class MySQLClass:
         :return:
         """
         if not os.path.exists(
-                os.path.join(BACKUP_DIR, sql)
+                os.path.join(self.backup_dir, sql)
         ):
-            raise Exception("文件不存在：{0}".format(os.path.join(BACKUP_DIR, sql)))
+            raise Exception("文件不存在：{0}".format(os.path.join(self.backup_dir, sql)))
         filename, filetype = os.path.splitext(sql)
         if filetype == ".sql":
             cmd_str = "/usr/bin/mysql {0} {1} < {2}".format(
                 self.auth_str,
                 db,
-                os.path.join(BACKUP_DIR, sql)
+                os.path.join(self.backup_dir, sql)
             )
         else:
             cmd_str = "zcat {2}|/usr/bin/mysql {0} {1}".format(
                 self.auth_str,
                 db,
-                os.path.join(BACKUP_DIR, sql)
+                os.path.join(self.backup_dir, sql)
             )
 
         if not self.cmd(cmd_str=cmd_str):
@@ -136,7 +134,7 @@ class MySQLClass:
         filename, filetype = os.path.splitext(sql)
         f.connect()
         sql_data = filename.split("#")
-        f.download(remote_path=sql_data[2], local_path=BACKUP_DIR, achieve=sql)
+        f.download(remote_path=sql_data[2], local_path=self.backup_dir, achieve=sql)
         if sql_data[1] != 'mysql':
             RecodeLog.error(msg="请检查即将导入的文件的相关信息，{}".format(sql))
             sys.exit(1)
@@ -148,8 +146,8 @@ class MySQLClass:
             achieve=filename
         )
         self.exec_sql(sql=sql, db=sql_data[3])
-        backup = os.path.join(BACKUP_DIR, '{}.gz'.format(filename))
-        exec_one = os.path.join(BACKUP_DIR, sql)
+        backup = os.path.join(self.backup_dir, '{}.gz'.format(filename))
+        exec_one = os.path.join(self.backup_dir, sql)
         if not c.upload(achieve=exec_one):
             RecodeLog.error(msg="上传文件失败：{}".format(exec_one))
         else:
@@ -161,5 +159,5 @@ class MySQLClass:
 
 
 __all__ = [
-    'MySQLExec'
+    'MySQLClass'
 ]

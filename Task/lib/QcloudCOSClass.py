@@ -4,14 +4,11 @@
 from qcloud_cos import CosConfig
 from qcloud_cos import CosS3Client
 import sys
-from settings import *
 import os
-from Log import RecodeLog
+from lib.Log import RecodeLog
+from KubernetesManagerWeb.settings import LOG_DIR
 import hashlib
 from tencentcloud.common import credential
-
-reload(sys)
-sys.setdefaultencoding('utf-8')
 
 
 def out_md5(src):
@@ -22,19 +19,20 @@ def out_md5(src):
 
 
 class QcloudCOSClass:
-    def __init__(self):
+    def __init__(self, auth_key):
         self.tag_file = os.path.join(LOG_DIR, 'cos.tag')
         try:
-            cnf = CosConfig(**COS_INIT_PARAMS)
-            self.cred = credential.Credential(COS_INIT_PARAMS['SecretId'], COS_INIT_PARAMS['SecretKey'])
+            cnf = CosConfig(**auth_key)
+            self.cred = credential.Credential(auth_key['SecretId'], auth_key['SecretKey'])
             self.client = CosS3Client(cnf)
         except Exception as error:
             RecodeLog.error(msg="初始化COS失败，{0}".format(error))
             sys.exit(1)
 
-    def upload(self, achieve):
+    def upload(self, achieve, bucket):
         """
         :param achieve:
+        :param bucket:
         :return:
         """
         if not os.path.exists(achieve):
@@ -42,7 +40,7 @@ class QcloudCOSClass:
         try:
             with open(achieve, 'rb') as fp:
                 response = self.client.put_object(
-                    Bucket=BUCKET,
+                    Bucket=bucket,
                     Body=fp,
                     Key=os.path.join(os.path.basename(achieve)),
                     StorageClass='STANDARD',
@@ -56,5 +54,5 @@ class QcloudCOSClass:
 
 
 __all__ = [
-    'CosUpload'
+    'QcloudCOSClass'
 ]

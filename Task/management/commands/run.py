@@ -16,8 +16,13 @@ class Command(BaseCommand):
             ):
                 RecodeLog.info(msg='即将开始任务:{}:{}'.format(data.id, data.name))
                 if not self.check_task_status(task=data):
+                    data.status = 'fail'
+                    data.save()
                     continue
                 self.run_task(task=data)
+                data.status = 'success'
+                data.save()
+                RecodeLog.info(msg='任务完成:{}:{}'.format(data.id, data.name))
 
     def check_task_status(self, task):
         """

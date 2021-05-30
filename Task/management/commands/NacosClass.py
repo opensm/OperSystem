@@ -1,0 +1,2 @@
+class NacosClass:
+    pass

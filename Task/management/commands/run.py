@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from Task.models import Tasks, ExecList, SubTask
 import time
 import datetime
+from lib.Log import RecodeLog
 
 
 # from Task.management.commands import ClassImport
@@ -13,6 +14,7 @@ class Command(BaseCommand):
             for data in Tasks.objects.filter(
                     status__in=['approveing', 'not_start_approve', 'ok_approved']
             ):
+                RecodeLog.info(msg='即将开始任务:{}:{}'.format(data.id, data.name))
                 if not self.check_task_status(task=data):
                     continue
                 self.run_task(task=data)

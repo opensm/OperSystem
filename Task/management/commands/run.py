@@ -29,6 +29,7 @@ class Command(BaseCommand):
             "%Y-%m-%dT%H:%M:%S.%fZ"
         ).timestamp()
         print(task_unixtime, local_time)
+        print(local_time - task_unixtime)
         if not isinstance(task, Tasks):
             raise TypeError('任务类型错误！')
         if task_unixtime > local_time:

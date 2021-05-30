@@ -64,12 +64,6 @@ class SubTask(models.Model):
 
 
 class ExecList(models.Model):
-    exec_choice = (
-        ('MySQL', 'MySQL'),
-        ('Mongo', 'Mongo'),
-        ('Shell', 'Shell命令'),
-        ('Kubernetes', 'Kubernetes操作')
-    )
     status_choice = (
         ('not_start_exec', '任务还未开始'),
         ('progressing', '任务执行中'),
@@ -91,7 +85,7 @@ class ExecList(models.Model):
     params = models.CharField(verbose_name='相关参数', max_length=200, null=True, default='')
     exec_type = models.CharField(verbose_name="操作类型", max_length=20, default='update', choices=exec_type_choice)
     exec_id = models.ForeignKey(
-        'self', on_delete=models.CASCADE, verbose_name='执行ID', null=True, related_name='parent_task'
+        'self', on_delete=models.CASCADE, verbose_name='执行ID', null=True, related_name='parent_task', blank=True
     )
     output = models.TextField(verbose_name="执行结果", null=True, max_length=2000)
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)

@@ -46,7 +46,11 @@ class Command(BaseCommand):
         task.save()
         for sub in task.sub_task.all():
             if not self.runSubTask(subtask=sub):
+                task.status = 'fail'
+                task.save()
                 return False
+        task.status = 'success'
+        task.save()
         return True
 
     def runSubTask(self, subtask):
@@ -60,7 +64,11 @@ class Command(BaseCommand):
         subtask.save()
         for line in subtask.exec_list.all():
             if not self.execLines(data=line):
+                subtask.status = 'fail'
+                subtask.save()
                 return False
+        subtask.status = 'success'
+        subtask.save()
         return True
 
     def execLines(self, data):
@@ -70,9 +78,13 @@ class Command(BaseCommand):
         """
         if not isinstance(data, ExecList):
             raise TypeError('任务类型错误！')
+        data.status = 'progressing'
+        data.save()
         print(data)
         print(data.content_object.exec_class)
         print(data.content_object.exec_function)
+        data.status = 'success'
+        data.save()
         return True
 
         # for template in data.content_object:

@@ -2,6 +2,8 @@ from django.core.management.base import BaseCommand
 from Task.models import Tasks, ExecList, SubTask
 import time
 import datetime
+
+
 # from Task.management.commands import ClassImport
 
 
@@ -22,27 +24,21 @@ class Command(BaseCommand):
         :return:
         """
         local_time = time.time()
+        task_unixtime = datetime.datetime.strptime(
+            task.task_time,
+            "%Y-%m-%dT%H:%M:%S.%fZ"
+        ).timestamp()
+        print(task_unixtime, local_time)
         if not isinstance(task, Tasks):
             raise TypeError('任务类型错误！')
-        if datetime.datetime.strptime(
-                task.task_time, "%Y-%m-%dT%H:%M:%S.%fZ"
-        ).timestamp() > local_time:
+        if task_unixtime > local_time:
             return False
-        elif (local_time - datetime.datetime.strptime(
-                task.task_time,
-                "%Y-%m-%dT%H:%M:%S.%fZ"
-        ).timestamp()) > 60 * 20:
+        elif (local_time - task_unixtime) > 60 * 20:
             task.status = 'timeout'
             task.save()
-        elif datetime.datetime.strptime(
-                task.task_time,
-                "%Y-%m-%dT%H:%M:%S.%fZ"
-        ).timestamp() < local_time and task.status != 'ok_approved':
+        elif task_unixtime < local_time and task.status != 'ok_approved':
             return False
-        elif datetime.datetime.strptime(
-                task.task_time,
-                "%Y-%m-%dT%H:%M:%S.%fZ"
-        ).timestamp() < local_time and task.status == 'ok_approved':
+        elif task_unixtime < local_time and task.status == 'ok_approved':
             return True
 
     def run_task(self, task):

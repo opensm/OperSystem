@@ -15,7 +15,7 @@ class Command(BaseCommand):
             ):
                 if not self.check_task_status(task=data):
                     continue
-                self.runSubTask(subtask=data)
+                self.run_task(task=data)
 
     def check_task_status(self, task):
         """

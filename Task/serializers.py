@@ -83,6 +83,14 @@ class SubTaskserializers(serializers.ModelSerializer):
         print(instance)
         print(validated_data)
 
+    def create(self, validated_data):
+        """
+        :param validated_data:
+        :return:
+        """
+        print("11111111111111111")
+        print(validated_data)
+
 
 class ExecListLogSerializers(serializers.ModelSerializer):
     class Meta:

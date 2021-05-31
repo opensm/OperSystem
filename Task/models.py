@@ -20,7 +20,7 @@ class Tasks(models.Model):
     )
     id = models.CharField(verbose_name="任务ID", max_length=50, null=False, blank=False, unique=True, primary_key=True)
     name = models.CharField(verbose_name="任务名称", max_length=200, default='', null=False)
-    approve_flow = models.CharField(verbose_name="URL", max_length=200, null=False, blank=False, unique=True)
+    approve_flow = models.CharField(verbose_name="URL", max_length=200, null=False, blank=False)
     status = models.CharField(
         null=False, blank=False, default='not_start_approve', max_length=20, choices=status_choice
     )

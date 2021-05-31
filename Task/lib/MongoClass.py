@@ -2,11 +2,10 @@
 import pymongo
 import datetime
 import os
-from KubernetesManagerWeb.settings import DB_BACKUP_DIR
+from Task.lib.settings import DB_BACKUP_DIR
 from lib.Log import RecodeLog
 import sys
 from Task.lib.lftp import FTPBackupForDB
-import copy
 import platform
 
 

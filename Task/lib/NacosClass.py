@@ -67,3 +67,4 @@ class NacosClass:
             if not self.upload_config(yaml_achieve=yml):
                 RecodeLog.error(msg="导入相关配置失败")
                 return False
+        return True

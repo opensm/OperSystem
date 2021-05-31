@@ -3,7 +3,7 @@ import pymysql
 import os
 import datetime
 from lib.Log import RecodeLog
-from KubernetesManagerWeb.settings import DB_BACKUP_DIR
+from Task.lib.settings import DB_BACKUP_DIR
 import sys
 from Task.lib.lftp import FTPBackupForDB
 import platform

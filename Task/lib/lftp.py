@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from lib.settings import *
+from Task.lib.settings import DB_BACKUP_DIR
 from ftplib import FTP
 from lib.Log import RecodeLog
 import sys
@@ -74,7 +74,7 @@ class FTPBackupForDB:
         :return:
         """
         self.connect()
-        if not self.download(local_path=BACKUP_DIR, remote_path=remote, achieve=achieve):
+        if not self.download(local_path=DB_BACKUP_DIR, remote_path=remote, achieve=achieve):
             sys.exit(1)
         else:
             sys.exit(0)
@@ -85,11 +85,8 @@ class FTPBackupForDB:
         :param achieve:
         :return:
         """
-        # achieve_list = self.ls_dir(path=remote)
         remote_achieve = os.path.join(remote, achieve)
         try:
-            # if achieve not in achieve_list:
-            #     raise Exception("远端不存在该文件")
             self.ftp.delete(filename=achieve)
             RecodeLog.info(msg="删除远端文件成功，{}!".format(remote_achieve))
             return True

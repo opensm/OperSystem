@@ -46,7 +46,7 @@ class SubTask(models.Model):
     )
     id = models.CharField(verbose_name="子任务ID", max_length=50, null=False, blank=False, unique=True, primary_key=True)
     status = models.CharField(
-        null=False, blank=False, default='not_start_approve', max_length=20, choices=status_choice
+        null=False, blank=False, default='unbond', max_length=20, choices=status_choice
     )
     container = models.CharField(null=False, blank=False, default='', max_length=200)
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
@@ -80,7 +80,7 @@ class ExecList(models.Model):
     )
     id = models.AutoField(primary_key=True)
     status = models.CharField(
-        null=False, blank=False, default='not_start_approve', max_length=30, choices=status_choice
+        null=False, blank=False, default='not_start_exec', max_length=30, choices=status_choice
     )
     params = models.CharField(verbose_name='相关参数', max_length=200, null=True, default='')
     exec_type = models.CharField(verbose_name="操作类型", max_length=20, default='update', choices=exec_type_choice)

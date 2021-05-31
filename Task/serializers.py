@@ -60,6 +60,7 @@ class SubTaskserializers(serializers.ModelSerializer):
         exec_list = validated_data.pop('exec_list')
         data = ExecListSerializers(data=exec_list, many=True)
         if not data.is_valid():
+            print(data.errors)
             raise serializers.ValidationError('exec_list 字段校验失败！')
         data.save()
         validated_data['exec_list'] = data

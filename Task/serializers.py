@@ -80,16 +80,20 @@ class SubTaskserializers(serializers.ModelSerializer):
         :param validated_data:
         :return:
         """
-        print(instance)
-        print(validated_data)
+        exec_list = validated_data.pop("exec_list")
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+        instance.save()
+        for many in instance.exec_list.all():
+            instance.exec_list.remove(many.id)
+        for x in exec_list:
+            instance.exec_list.add(x)
 
     def create(self, validated_data):
         """
         :param validated_data:
         :return:
         """
-        print("11111111111111111")
-        print(validated_data)
         exec_list = validated_data.pop('exec_list')
         obj = SubTask.objects.create(**validated_data)
         obj.save()

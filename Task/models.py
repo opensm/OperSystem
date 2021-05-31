@@ -96,7 +96,7 @@ class ExecList(models.Model):
         'content_type',
         'object_id'
     )  # content_object为GenericForeignKey类型，主要作用是根据content_type字段和object_id字段来定位某个模型中具体某个实例
-    create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
+    # create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
     finish_time = models.CharField(verbose_name="完成时间", max_length=20, default='', null=True)
 

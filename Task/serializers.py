@@ -53,11 +53,12 @@ class SubTaskserializers(serializers.ModelSerializer):
         model = SubTask
         fields = ("__all__")
 
-    def validate_exec_list(self, validated_data):
+    def validation(self, validated_data):
         """
         :param validated_data:
         :return:
         """
+        print(11111111111111111)
         print(validated_data)
 
     def validate(self, validated_data):

@@ -79,7 +79,7 @@ class ExecList(models.Model):
         ('recover', '回档'),
         ('update', '更新')
     )
-    id = models.CharField(verbose_name="操作ID", max_length=50, null=False, blank=False, unique=True, primary_key=True)
+    id = models.AutoField(primary_key=True)
     status = models.CharField(
         null=False, blank=False, default='not_start_approve', max_length=30, choices=status_choice
     )
@@ -89,7 +89,7 @@ class ExecList(models.Model):
         'self', on_delete=models.CASCADE, verbose_name='执行ID', null=True, related_name='parent_task', blank=True
     )
     output = models.TextField(verbose_name="执行结果", null=True, max_length=2000)
-    project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
+    # project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
     content_type = models.ForeignKey(to=ContentType, on_delete=models.CASCADE)  # 指向ContentType这个模型
     object_id = models.PositiveIntegerField()  # object_id为一个整数，存储了实例id
     content_object = GenericForeignKey(

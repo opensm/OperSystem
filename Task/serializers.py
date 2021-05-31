@@ -16,6 +16,41 @@ class TaskSerializers(serializers.ModelSerializer):
         model = Tasks
         fields = ("__all__")
 
+    def create(self, validated_data):
+        """
+        :param validated_data:
+        :return:
+        """
+        sub_task = validated_data.pop('sub_task')
+        obj = Tasks.objects.create(**validated_data)
+        obj.save()
+        for exe in sub_task:
+            obj.sub_task.add(exe)
+            exe.status = 'not_start_exec'
+            exe.save()
+        return obj
+
+    def update(self, instance, validated_data):
+        """
+        :param instance:
+        :param validated_data:
+        :return:
+        """
+        sub_task = validated_data.pop("sub_task")
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+        instance.save()
+        for many in instance.sub_task.all():
+            instance.sub_task.remove(many)
+            many.status = 'unbond'
+            many.save()
+        for x in sub_task:
+            instance.sub_task.add(x)
+            x.status = 'not_start_exec'
+            x.save()
+
+        return instance
+
 
 class TemplateDBSerializers(serializers.ModelSerializer):
     class Meta:

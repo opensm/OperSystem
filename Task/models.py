@@ -42,8 +42,7 @@ class SubTask(models.Model):
         ('progressing', '任务执行中'),
         ('success', '任务执行成功'),
         ('fail', '任务执行失败'),
-        ('unbond', '任务还未绑定'),
-        ('bonded', '任务已绑定')
+        ('unbond', '任务还未绑定')
     )
     id = models.CharField(verbose_name="子任务ID", max_length=50, null=False, blank=False, unique=True, primary_key=True)
     status = models.CharField(

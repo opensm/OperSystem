@@ -65,6 +65,7 @@ class SubTaskserializers(serializers.ModelSerializer):
             print(data)
             object_id = data.pop('object_id')
             tmp_model = data.pop('content_type').model_class()
+            print(object_id)
             data['content_object'] = tmp_model.object.get(id=object_id).id
             format_list.append(data)
 

@@ -50,6 +50,7 @@ class BasePOSTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
     serializer_class = None
 
     def post(self, request):
+        print(request.data)
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         try:

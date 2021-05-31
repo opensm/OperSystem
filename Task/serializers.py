@@ -124,6 +124,8 @@ class SubTaskserializers(serializers.ModelSerializer):
         for x in exec_list:
             instance.exec_list.add(x)
 
+        return instance
+
     def create(self, validated_data):
         """
         :param validated_data:

@@ -62,21 +62,26 @@ class SubTaskserializers(serializers.ModelSerializer):
         exec_list = validated_data.pop('exec_list')
         format_list = []
         for data in exec_list:
-            print(data)
             object_id = data.get('object_id')
             tmp_model = data.get('content_type').model_class()
             data['content_type'] = data.get('content_type').id
-            print(object_id)
             data['content_object'] = tmp_model.objects.get(id=object_id)
             format_list.append(data)
 
         data = ExecListSerializers(data=format_list, many=True)
         if not data.is_valid():
-            print(data.errors)
             raise serializers.ValidationError('exec_list 字段校验失败！')
-        print(data.save())
         validated_data['exec_list'] = data.save()
         return validated_data
+
+    def update(self, instance, validated_data):
+        """
+        :param instance:
+        :param validated_data:
+        :return:
+        """
+        print(instance)
+        print(validated_data)
 
 
 class ExecListLogSerializers(serializers.ModelSerializer):

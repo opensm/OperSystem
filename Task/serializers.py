@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from Task.models import *
 from lib.Log import RecodeLog
+from django.contrib.contenttypes.models import ContentType
 from Task import models
 
 
@@ -53,14 +54,6 @@ class SubTaskserializers(serializers.ModelSerializer):
         model = SubTask
         fields = ("__all__")
 
-    def validation(self, validated_data):
-        """
-        :param validated_data:
-        :return:
-        """
-        print(11111111111111111)
-        print(validated_data)
-
     def validate(self, validated_data):
         """
         :param validated_data:
@@ -72,7 +65,7 @@ class SubTaskserializers(serializers.ModelSerializer):
             print(data)
             content_type = data.pop('content_type')
             object_id = data.pop('object_id')
-            tmp_model = getattr(models, content_type)
+            tmp_model = ContentType.objects.get(id=content_type).model_class()
             data['content_object'] = tmp_model.object.get(id=object_id)
             format_list.append(data)
 

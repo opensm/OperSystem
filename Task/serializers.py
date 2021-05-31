@@ -46,6 +46,8 @@ class ExecListSerializers(serializers.ModelSerializer):
 
 
 class SubTaskserializers(serializers.ModelSerializer):
+    exec_list = ExecListSerializers(many=True)
+
     class Meta:
         model = SubTask
         fields = ("__all__")

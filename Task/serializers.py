@@ -90,6 +90,12 @@ class SubTaskserializers(serializers.ModelSerializer):
         """
         print("11111111111111111")
         print(validated_data)
+        exec_list = validated_data.pop('exec_list')
+        obj = SubTask.objects.create(**validated_data)
+        obj.save()
+        for exe in exec_list:
+            obj.exec_list.add(exe)
+        return obj
 
 
 class ExecListLogSerializers(serializers.ModelSerializer):

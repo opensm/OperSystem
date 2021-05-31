@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from Task.models import *
 from lib.Log import RecodeLog
+from Task import models
 
 
 class AuthKEYSerializers(serializers.ModelSerializer):
@@ -58,20 +59,22 @@ class SubTaskserializers(serializers.ModelSerializer):
         :return:
         """
         exec_list = validated_data.pop('exec_list')
-        data = ExecListSerializers(data=exec_list, many=True)
+        format_list = []
+        for data in exec_list:
+            print(data)
+            content_type = data.pop('content_type')
+            object_id = data.pop('object_id')
+            tmp_model = getattr(models, content_type)
+            data['content_object'] = tmp_model.object.get(id=object_id)
+            format_list.append(data)
+
+        data = ExecListSerializers(data=format_list, many=True)
         if not data.is_valid():
             print(data.errors)
             raise serializers.ValidationError('exec_list 字段校验失败！')
         data.save()
         validated_data['exec_list'] = data
         return validated_data
-
-    def create(self, validated_data):
-        exec_list = validated_data.pop('exec_list')
-        obj = SubTask.objects.create(**validated_data)
-
-        obj.save()
-        return obj
 
 
 class ExecListLogSerializers(serializers.ModelSerializer):

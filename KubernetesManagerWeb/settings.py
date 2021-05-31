@@ -178,3 +178,5 @@ CORS_ALLOW_HEADERS = (
 LOG_DIR = '/tmp'
 LOG_FILE = 'oper.log'
 LOG_LEVEL = "info"
+# 数据库备份目录
+DB_BACKUP_DIR = '/data/db_backup'

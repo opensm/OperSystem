@@ -3,36 +3,36 @@ import pymysql
 import os
 import datetime
 from lib.Log import RecodeLog
+from KubernetesManagerWeb.settings import DB_BACKUP_DIR
 import sys
-from lib.lftp import FTPBackupForDB
-from lib.CosUpdate import CosUpload
+from Task.lib.lftp import FTPBackupForDB
 import platform
 
 
 class MySQLClass:
-    def __init__(self, authKey):
-        self.host = authKey['host']
-        self.port = authKey['port']
-        self.user = authKey['user']
-        self.password = authKey['password']
-        self.backup_dir = authKey['backup_dir']
+    def __init__(self, auth_key):
+        self.host = auth_key['host']
+        self.port = auth_key['port']
+        self.user = auth_key['user']
+        self.password = auth_key['password']
+        self.backup_dir = DB_BACKUP_DIR
         self.auth_str = "-u{0} -p{1} -h{2} -P{3} --default-character-set=utf8".format(
             self.user, self.password,
             self.host, self.port
         )
-        if not os.path.exists(authKey['backup_dir']):
+        if not os.path.exists(self.backup_dir):
             raise Exception(
-                "{0} 不存在！".format(authKey['backup_dir'])
+                "{0} 不存在！".format(self.backup_dir)
             )
         if not os.path.exists("/usr/bin/mysql") or not os.path.exists("/usr/bin/mysqldump"):
             raise Exception("mysql或者mysqldump 没找到可执行程序！")
-        authKey['charset'] = "utf8"
+        auth_key['charset'] = "utf8"
 
         try:
-            conn = pymysql.connect(**authKey)
+            conn = pymysql.connect(**auth_key)
             self.cursor = conn.cursor()
         except Exception as error:
-            RecodeLog.error(msg="链接MySQL,host:{},port:{}失败，原因:{}".format(authKey['host'], authKey['port'], error))
+            RecodeLog.error(msg="链接MySQL,host:{},port:{}失败，原因:{}".format(auth_key['host'], auth_key['port'], error))
             sys.exit(1)
 
         if int(platform.python_version().strip(".")[0]) < 3:
@@ -57,7 +57,7 @@ class MySQLClass:
             return True
         except Exception as error:
             RecodeLog.error(msg="执行:{0},失败，原因:{1}".format(cmd_str, error).replace(self.password, '********'))
-            sys.exit(1)
+            return False
 
     def check_db(self, db):
         self.cursor.execute("show databases like '{0}';".format(db))
@@ -120,9 +120,10 @@ class MySQLClass:
 
         if not self.cmd(cmd_str=cmd_str):
             RecodeLog.error(msg="导入数据失败:{}".format(cmd_str).replace(self.password, '********'))
-            sys.exit(1)
+            return False
         else:
             RecodeLog.info(msg="导入数据成功:{}".format(cmd_str).replace(self.password, '********'))
+            return True
 
     def run(self, sql):
         """
@@ -130,32 +131,22 @@ class MySQLClass:
         :return:
         """
         f = FTPBackupForDB(db='mysql')
-        c = CosUpload()
         filename, filetype = os.path.splitext(sql)
         f.connect()
         sql_data = filename.split("#")
         f.download(remote_path=sql_data[2], local_path=self.backup_dir, achieve=sql)
         if sql_data[1] != 'mysql':
             RecodeLog.error(msg="请检查即将导入的文件的相关信息，{}".format(sql))
-            sys.exit(1)
+            return False
         if len(sql_data) != 4:
             RecodeLog.error(msg="文件格式错误，请按照：20210426111742#mongodb#pre#member.sql")
-            sys.exit(1)
+            return False
         self.backup_one(
             db=sql_data[3],
             achieve=filename
         )
         self.exec_sql(sql=sql, db=sql_data[3])
-        backup = os.path.join(self.backup_dir, '{}.gz'.format(filename))
-        exec_one = os.path.join(self.backup_dir, sql)
-        if not c.upload(achieve=exec_one):
-            RecodeLog.error(msg="上传文件失败：{}".format(exec_one))
-        else:
-            RecodeLog.info(msg="上传文件成功：{},归档地址：{}/{}".format(exec_one, ONLINE_URL, sql))
-        if not c.upload(achieve=backup):
-            RecodeLog.error(msg="上传文件失败：{}".format(backup))
-        else:
-            RecodeLog.info(msg="上传文件成功：{},归档地址：{}/{}.gz".format(backup, ONLINE_URL, filename))
+        return True
 
 
 __all__ = [

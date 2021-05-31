@@ -11,13 +11,6 @@ import hashlib
 from tencentcloud.common import credential
 
 
-def out_md5(src):
-    # 简单封装
-    m = hashlib.md5()
-    m.update(src)
-    return m.hexdigest()
-
-
 class QcloudCOSClass:
     def __init__(self, auth_key):
         self.tag_file = os.path.join(LOG_DIR, 'cos.tag')

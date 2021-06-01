@@ -16,8 +16,8 @@ class KubernetesClass:
         if not isinstance(obj, AuthKEY):
             return False
         try:
-            self.configuration.api_key['authorization'] = obj.auth_passwd
-            self.configuration.host = "http://{}:{}".format(obj.auth_host, obj.auth_port)
+            self.configuration.api_key['authorization'] = {"authorization": "Bearer " + obj.auth_passwd}
+            self.configuration.host = "https://{}:{}".format(obj.auth_host, obj.auth_port)
             api_client = kubernetes.client.ApiClient(self.configuration)
             self.api_instance = kubernetes.client.AppsV1Api(api_client)
             RecodeLog.info(msg="认证成功!")

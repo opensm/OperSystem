@@ -19,6 +19,7 @@ class KubernetesClass:
         self.configuration.host = "https://{}:{}".format(obj.auth_host, obj.auth_port)
         api_client = kubernetes.client.ApiClient(self.configuration)
         self.api_instance = kubernetes.client.AppsV1Api(api_client)
+        return True
 
     def run(self, exec_list):
         """
@@ -30,8 +31,10 @@ class KubernetesClass:
         sql = exec_list.params
         template = exec_list.content_object
         if not isinstance(template, TemplateKubernetes):
+            RecodeLog.error(msg="传入模板类型错误!")
             return False
         if not self.connect(obj=template.cluster):
+            RecodeLog.error(msg="链接K8S集群失败!")
             return False
         try:
             api_response = self.api_instance.list_namespaced_deployment(

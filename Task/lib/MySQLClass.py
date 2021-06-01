@@ -6,33 +6,29 @@ from lib.Log import RecodeLog
 from Task.lib.settings import DB_BACKUP_DIR
 import sys
 from Task.lib.lftp import FTPBackupForDB
+from Task.lib.base import cmd
+from Task.models import AuthKEY, TemplateDB, ExecList
 
 
 class MySQLClass:
-    def __init__(self, auth_key):
-        self.host = auth_key['host']
-        self.port = auth_key['port']
-        self.user = auth_key['user']
-        self.password = auth_key['password']
+    def __init__(self):
+        self.host = None
+        self.port = None
+        self.user = None
+        self.password = None
         self.backup_dir = DB_BACKUP_DIR
-        self.auth_str = "-u{0} -p{1} -h{2} -P{3} --default-character-set=utf8".format(
-            self.user, self.password,
-            self.host, self.port
-        )
+        self.auth_str = None
+        self.cursor = None
+        self.auth_dump_str = None
         if not os.path.exists(self.backup_dir):
             raise Exception(
                 "{0} 不存在！".format(self.backup_dir)
             )
         if not os.path.exists("/usr/bin/mysql") or not os.path.exists("/usr/bin/mysqldump"):
             raise Exception("mysql或者mysqldump 没找到可执行程序！")
-        auth_key['charset'] = "utf8"
 
-        try:
-            conn = pymysql.connect(**auth_key)
-            self.cursor = conn.cursor()
-        except Exception as error:
-            RecodeLog.error(msg="链接MySQL,host:{},port:{}失败，原因:{}".format(auth_key['host'], auth_key['port'], error))
-            sys.exit(1)
+        self.ftp = FTPBackupForDB(db='mysql')
+        self.ftp.connect()
 
     def connect(self, params):
         """
@@ -61,7 +57,7 @@ class MySQLClass:
             )
 
         )
-        self.cmd(cmd_str=cmd_str)
+        cmd(cmd_str=cmd_str, replace=self.password)
 
     def backup_one(self, db, achieve):
         if not self.check_db(db=db):
@@ -74,7 +70,7 @@ class MySQLClass:
                 "{}.gz".format(achieve)
             )
         )
-        self.cmd(cmd_str=cmd_str)
+        cmd(cmd_str=cmd_str, replace=self.password)
 
     def exec_sql(self, db, sql):
         """
@@ -100,23 +96,61 @@ class MySQLClass:
                 os.path.join(self.backup_dir, sql)
             )
 
-        if not self.cmd(cmd_str=cmd_str):
+        if not cmd(cmd_str=cmd_str):
             RecodeLog.error(msg="导入数据失败:{}".format(cmd_str).replace(self.password, '********'))
             return False
         else:
             RecodeLog.info(msg="导入数据成功:{}".format(cmd_str).replace(self.password, '********'))
             return True
 
-    def run(self, sql):
+    def connect(self, content):
         """
-        :param sql:
+        :param content:
         :return:
         """
-        f = FTPBackupForDB(db='mysql')
+        if not isinstance(content, AuthKEY):
+            RecodeLog.error(msg="选择模板错误：{}！".format(content))
+            return False
+        try:
+            self.host = content.auth_host
+            self.port = content.auth_port
+            self.user = content.auth_user
+            self.password = content.auth_passwd
+            conn = pymysql.connect(
+                user=self.user,
+                password=self.password,
+                host=self.host,
+                port=self.port,
+                connect_timeout=10,
+                charset='utf8'
+            )
+            self.cursor = conn.cursor()
+        except Exception as error:
+            RecodeLog.error(msg="Mongodb登录验证失败,{}".format(error))
+            return False
+        self.auth_dump_str = "-u{0} -p{1} -h{2} -P{3} --default-character-set=utf8 ".format(
+            self.host, self.port, self.user, self.password
+        )
+        return True
+
+    def run(self, exec_list):
+        """
+        :param exec_list:
+        :return:
+        """
+        if not isinstance(exec_list, ExecList):
+            raise TypeError("输入任务类型错误！")
+        sql = exec_list.params
+        if not sql.endswith('.js'):
+            RecodeLog.error(msg="输入的文件名错误:{}!".format(sql))
+        template = exec_list.content_object
+        if not isinstance(template, TemplateDB):
+            return False
+        if not self.connect(template.instance):
+            return False
         filename, filetype = os.path.splitext(sql)
-        f.connect()
         sql_data = filename.split("#")
-        f.download(remote_path=sql_data[2], local_path=self.backup_dir, achieve=sql)
+        self.ftp.download(remote_path=sql_data[2], local_path=self.backup_dir, achieve=sql)
         if sql_data[1] != 'mysql':
             RecodeLog.error(msg="请检查即将导入的文件的相关信息，{}".format(sql))
             return False

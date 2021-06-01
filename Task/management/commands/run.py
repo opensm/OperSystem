@@ -88,6 +88,10 @@ class Command(BaseCommand):
             raise TypeError('任务类型错误！')
         data.status = 'progressing'
         data.save()
+        if not hasattr(ClassImport, data.content_object.exec_class):
+            data.status = 'fail'
+            data.save()
+            return False
         run_class = getattr(ClassImport, data.content_object.exec_class)
         a = run_class()
         run_function = getattr(a, data.content_object.exec_function)

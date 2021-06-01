@@ -12,15 +12,18 @@ class Command(BaseCommand):
             for data in Tasks.objects.filter(
                     status__in=['approveing', 'not_start_approve', 'ok_approved']
             ):
-                RecodeLog.info(msg='即将开始任务:{}:{}'.format(data.id, data.name))
                 if not self.checkTaskStatus(task=data):
+
+                    continue
+                RecodeLog.info(msg='即将开始任务:{}:{}'.format(data.id, data.name))
+                if not self.runTask(task=data):
                     data.status = 'fail'
                     data.save()
-                    continue
-                self.runTask(task=data)
-                data.status = 'success'
-                data.save()
-                RecodeLog.info(msg='任务完成:{}:{}'.format(data.id, data.name))
+                    RecodeLog.error(msg='任务完成:{}:{}'.format(data.id, data.name))
+                else:
+                    data.status = 'success'
+                    data.save()
+                    RecodeLog.info(msg='任务完成:{}:{}'.format(data.id, data.name))
 
     def checkTaskStatus(self, task):
         """

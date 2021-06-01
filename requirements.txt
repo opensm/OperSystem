@@ -4,3 +4,4 @@ pymongo
 pymysql
 django
 djangorestframework
+kubernetes

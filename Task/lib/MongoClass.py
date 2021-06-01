@@ -6,7 +6,8 @@ from Task.lib.settings import DB_BACKUP_DIR
 from lib.Log import RecodeLog
 import sys
 from Task.lib.lftp import FTPBackupForDB
-import platform
+from Task.lib.base import cmd
+from Task.models import ExecList
 
 
 class MongoClass:
@@ -32,30 +33,6 @@ class MongoClass:
             RecodeLog.error(msg="链接Mongo,host:{},port:{}失败，原因:{}".format(auth_key['host'], auth_key['port'], error))
             sys.exit(1)
 
-        if int(platform.python_version().strip(".")[0]) < 3:
-            import commands
-
-            self.exec_proc = commands
-        else:
-            import subprocess
-
-            self.exec_proc = subprocess
-
-    def cmd(self, cmd_str):
-        """
-        :param cmd_str:
-        :return:
-        """
-        try:
-            status, output = self.exec_proc.getstatusoutput(cmd_str)
-            if status != 0:
-                raise Exception(output)
-            RecodeLog.info("执行:{0},成功!".format(cmd_str).replace(self.password, '********'))
-            return True
-        except Exception as error:
-            RecodeLog.error(msg="执行:{0},失败，原因:{1}".format(cmd_str, error).replace(self.password, '********'))
-            return False
-
     def check_db(self, db):
         res = self.conn.list_database_names()
         if db in res:
@@ -73,9 +50,8 @@ class MongoClass:
                     self.host, self.port, datetime.datetime.now().strftime("%Y%m%d%H%M%S")
                 )
             )
-
         )
-        self.cmd(cmd_str=cmd_str)
+        cmd(cmd_str=cmd_str, replace=self.password)
 
     def backup_one(self, db, achieve):
         if not self.check_db(db=db):
@@ -88,7 +64,7 @@ class MongoClass:
                 "{}.gz".format(achieve)
             )
         )
-        if not self.cmd(cmd_str=cmd_str):
+        if not cmd(cmd_str=cmd_str, replace=self.password):
             return False
         else:
             return True
@@ -119,18 +95,23 @@ class MongoClass:
         else:
             RecodeLog.error(msg="不能识别的文件类型:{}".format(sql))
             return False
-        if not self.cmd(cmd_str=cmd_str):
+        if not cmd(cmd_str=cmd_str, replace=self.password):
             RecodeLog.error(msg="导入数据失败:{}".format(cmd_str).replace(self.password, '********'))
             return False
         else:
             RecodeLog.info(msg="导入数据成功:{}".format(cmd_str).replace(self.password, '********'))
             return True
 
-    def run(self, sql):
+    def run(self, exec_list):
         """
-        :param sql:
+        :param exec_list:
         :return:
         """
+        if not isinstance(exec_list, ExecList):
+            raise TypeError("输入任务类型错误！")
+        sql = ExecList.params
+        if not sql.endswith('.js'):
+            RecodeLog.error(msg="输入的文件名错误:{}!".format(sql))
         f = FTPBackupForDB(db='mongo')
         filename, filetype = os.path.splitext(sql)
         f.connect()

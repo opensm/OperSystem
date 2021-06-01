@@ -30,7 +30,7 @@ class Command(BaseCommand):
         local_time = time.time()
         task_unixtime = datetime.datetime.strptime(
             task.task_time,
-            "%Y-%m-%dT%H:%M:%S.%fZ"
+            "%Y-%m-%d %H:%M:%S"
         ).timestamp()
         if not isinstance(task, Tasks):
             raise TypeError('任务类型错误！')

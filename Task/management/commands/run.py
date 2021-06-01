@@ -99,6 +99,7 @@ class Command(BaseCommand):
         a = run_class()
         print(a)
         run_function = getattr(a, data.content_object.exec_function)
+        print(run_function)
         print(1111111111111111111114)
         run_function(exec_list=data)
         print(122222222222222222222)

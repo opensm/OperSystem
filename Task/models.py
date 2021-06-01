@@ -202,6 +202,7 @@ class TemplateNacos(models.Model):
     name = models.CharField(verbose_name='模板名称', max_length=200, default='', null=False)
     auth_key = models.ForeignKey(AuthKEY, on_delete=models.CASCADE, verbose_name='实例', null=False)
     namespace = models.CharField(verbose_name="命名空间", max_length=200, default='public', null=False, blank=False)
+    config_type = models.CharField(verbose_name="命名空间", max_length=200, default='public', null=False, blank=False)
     exec_class = models.TextField(verbose_name='调用类', max_length=2000, default='')
     exec_function = models.TextField(verbose_name='调用方法', max_length=2000, default='')
     exec_list = GenericRelation(to='ExecList')

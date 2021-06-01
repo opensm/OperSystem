@@ -103,7 +103,7 @@ class MySQLClass:
             RecodeLog.info(msg="导入数据成功:{}".format(cmd_str).replace(self.password, '********'))
             return True
 
-    def connect(self, content):
+    def connect_mysql(self, content):
         """
         :param content:
         :return:
@@ -146,7 +146,7 @@ class MySQLClass:
         template = exec_list.content_object
         if not isinstance(template, TemplateDB):
             return False
-        if not self.connect(template.instance):
+        if not self.connect_mysql(content=template.instance):
             return False
         filename, filetype = os.path.splitext(sql)
         sql_data = filename.split("#")

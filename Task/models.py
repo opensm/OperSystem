@@ -173,7 +173,6 @@ class TemplateDB(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(verbose_name='模板名称', max_length=200, default='', null=False)
     instance = models.ForeignKey(AuthKEY, on_delete=models.CASCADE, verbose_name='实例', null=False)
-    db_name = models.CharField(verbose_name="数据库名称", max_length=200, default='mysql', null=False, blank=False)
     exec_class = models.TextField(verbose_name='调用类', max_length=200, default='')
     exec_function = models.TextField(verbose_name='调用方法', max_length=2000, default='')
     exec_list = GenericRelation(to='ExecList')

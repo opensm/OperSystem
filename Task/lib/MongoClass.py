@@ -8,30 +8,25 @@ import sys
 from Task.lib.lftp import FTPBackupForDB
 from Task.lib.base import cmd
 from Task.models import ExecList
+from Task.models import AuthKEY, TemplateDB
 
 
 class MongoClass:
-    def __init__(self, auth_key):
-        self.host = auth_key['host']
-        self.port = auth_key['port']
-        self.user = auth_key['user']
-        self.password = auth_key['password']
-        self.auth_dump_str = "--host {} --port {} -u {} -p {}  --authenticationDatabase admin ".format(
-            self.host, self.port,
-            self.user, self.password
-        )
+    def __init__(self):
+        self.host = None
+        self.port = None
+        self.user = None
+        self.password = None
+        self.auth_dump_str = None
         if not os.path.exists(DB_BACKUP_DIR):
             raise Exception(
                 "{0} 不存在！".format(DB_BACKUP_DIR)
             )
         if not os.path.exists("/usr/bin/mongodump") or not os.path.exists("/usr/bin/mongorestore"):
             raise Exception("mongo或者mongodump, mongorestore没找到可执行程序！")
-
-        try:
-            self.conn = pymongo.MongoClient(host=self.host, port=self.port, username=self.user, password=self.password)
-        except Exception as error:
-            RecodeLog.error(msg="链接Mongo,host:{},port:{}失败，原因:{}".format(auth_key['host'], auth_key['port'], error))
-            sys.exit(1)
+        self.conn = None
+        self.ftp = FTPBackupForDB(db='mongo')
+        self.ftp.connect()
 
     def check_db(self, db):
         res = self.conn.list_database_names()
@@ -102,6 +97,32 @@ class MongoClass:
             RecodeLog.info(msg="导入数据成功:{}".format(cmd_str).replace(self.password, '********'))
             return True
 
+    def connect(self, content):
+        """
+        :param content:
+        :return:
+        """
+        if not isinstance(content, AuthKEY):
+            RecodeLog.error(msg="选择模板错误：{}！".format(content))
+            return False
+        try:
+            self.host = content.auth_host
+            self.port = content.auth_port
+            self.user = content.auth_user
+            self.password = content.auth_passwd
+            self.conn = pymongo.MongoClient(
+                host=self.host,
+                port=self.port,
+                username=self.user,
+                password=self.password
+            )
+        except Exception as error:
+            RecodeLog.error(msg="Mongodb登录验证失败,{}".format(error))
+            return False
+        self.auth_dump_str = "--host {} --port {} -u {} -p {}  --authenticationDatabase admin ".format(
+            self.host, self.port, self.user, self.password
+        )
+
     def run(self, exec_list):
         """
         :param exec_list:
@@ -112,11 +133,15 @@ class MongoClass:
         sql = ExecList.params
         if not sql.endswith('.js'):
             RecodeLog.error(msg="输入的文件名错误:{}!".format(sql))
-        f = FTPBackupForDB(db='mongo')
+        template = exec_list.content_object
+        if not isinstance(template, TemplateDB):
+            return False
+        dbname = template.db_name
+        if not self.connect(template.instance):
+            return False
         filename, filetype = os.path.splitext(sql)
-        f.connect()
         sql_data = filename.split("#")
-        f.download(remote_path=sql_data[2], local_path=DB_BACKUP_DIR, achieve=sql)
+        self.ftp.download(remote_path=sql_data[2], local_path=DB_BACKUP_DIR, achieve=sql)
         sql_data = filename.split("#")
         if sql_data[1] != 'mongodb':
             RecodeLog.error(msg="请检查即将导入的文件的相关信息，{}".format(sql))

@@ -6,7 +6,6 @@ from lib.Log import RecodeLog
 from Task.lib.settings import DB_BACKUP_DIR
 import sys
 from Task.lib.lftp import FTPBackupForDB
-import platform
 
 
 class MySQLClass:
@@ -35,29 +34,12 @@ class MySQLClass:
             RecodeLog.error(msg="链接MySQL,host:{},port:{}失败，原因:{}".format(auth_key['host'], auth_key['port'], error))
             sys.exit(1)
 
-        if int(platform.python_version().strip(".")[0]) < 3:
-            import commands
-
-            self.exec_proc = commands
-        else:
-            import subprocess
-
-            self.exec_proc = subprocess
-
-    def cmd(self, cmd_str):
+    def connect(self, params):
         """
-        :param cmd_str:
+        :param params:
         :return:
         """
-        try:
-            status, output = self.exec_proc.getstatusoutput(cmd_str)
-            if status != 0:
-                raise Exception(output)
-            RecodeLog.info("执行:{0},成功!".format(cmd_str).replace(self.password, '********'))
-            return True
-        except Exception as error:
-            RecodeLog.error(msg="执行:{0},失败，原因:{1}".format(cmd_str, error).replace(self.password, '********'))
-            return False
+        self.password = params[1]
 
     def check_db(self, db):
         self.cursor.execute("show databases like '{0}';".format(db))

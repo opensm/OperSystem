@@ -3,9 +3,7 @@ from Task.models import Tasks, ExecList, SubTask
 import time
 import datetime
 from lib.Log import RecodeLog
-
-
-# from Task.management.commands import ClassImport
+from Task.lib import ClassImport
 
 
 class Command(BaseCommand):
@@ -87,13 +85,10 @@ class Command(BaseCommand):
             raise TypeError('任务类型错误！')
         data.status = 'progressing'
         data.save()
-        print(data)
-        print(data.content_object.exec_class)
-        print(data.content_object.exec_function)
+        run_class = getattr(ClassImport, data.content_object.exec_class)
+        a = run_class()
+        run_function = getattr(a, data.content_object.exec_function)
+        run_function(exec_list=data)
         data.status = 'success'
         data.save()
         return True
-
-        # for template in data.content_object:
-        #     print()
-        #     print(template)

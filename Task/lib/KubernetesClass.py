@@ -45,8 +45,9 @@ class KubernetesClass:
             return False
         try:
             print(template.namespace)
+            print(type(template.namespace))
             api_response = self.api_instance.list_namespaced_deployment(
-                template.namespace
+                str(template.namespace)
             )
             pprint(api_response)
         except ApiException as e:

@@ -44,6 +44,7 @@ class KubernetesClass:
             RecodeLog.error(msg="链接K8S集群失败!")
             return False
         try:
+            print(template.namespace)
             api_response = self.api_instance.list_namespaced_deployment(
                 template.namespace
             )

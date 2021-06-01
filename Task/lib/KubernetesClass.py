@@ -28,8 +28,6 @@ class KubernetesClass:
         if not isinstance(exec_list, ExecList):
             raise TypeError("输入任务类型错误！")
         sql = exec_list.params
-        if not sql.endswith('.js'):
-            RecodeLog.error(msg="输入的文件名错误:{}!".format(sql))
         template = exec_list.content_object
         if not isinstance(template, TemplateKubernetes):
             return False

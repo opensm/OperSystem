@@ -68,7 +68,7 @@ class Command(BaseCommand):
         subtask.status = 'progressing'
         subtask.save()
         for line in subtask.exec_list.all():
-            if not self.execLines(data=line):
+            if not self.execLine(data=line):
                 subtask.status = 'fail'
                 subtask.save()
                 return False
@@ -76,7 +76,7 @@ class Command(BaseCommand):
         subtask.save()
         return True
 
-    def execLines(self, data):
+    def execLine(self, data):
         """
         :param data:
         :return:

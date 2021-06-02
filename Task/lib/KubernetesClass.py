@@ -43,8 +43,36 @@ class KubernetesClass:
             )
             return api_response
         except ApiException as error:
-            print(error)
+            RecodeLog.error(msg="获取delployment失败:{}!".format(error))
             return False
+
+    def update_deployment(self, namespace, deployment, name, image):
+        """
+        :param namespace:
+        :param deployment:
+        :param name:
+        :param image:
+        :return:
+        """
+        containers = deployment.spec.template.spec.containers
+        for i in range(len(containers)):
+            if containers[i].name != name:
+                continue
+            else:
+                containers[i].image = image
+                deployment.spec.template.spec.containers = containers
+                try:
+                    api_response = self.api_instance.patch_namespaced_deployment(
+                        namespace=namespace,
+                        name=name,
+                        body=deployment
+                    )
+                    pprint(api_response)
+                    return True
+                except ApiException as e:
+                    print("Exception when calling AppsV1Api->create_namespaced_deployment: %s\n" % e)
+                    return False
+        return False
 
     def run(self, exec_list):
         """
@@ -61,19 +89,20 @@ class KubernetesClass:
             RecodeLog.error(msg="链接K8S集群失败!")
             return False
         deployment = self.get_deployment(
-                deployment_name=template.app_name,
-                namespace=template.namespace
+            deployment_name=template.app_name,
+            namespace=template.namespace
         )
-        print(deployment)
-        print(deployment.spec.template.spec.containers)
+
         if not deployment:
             return False
-        try:
-            api_response = self.api_instance.patch_namespaced_deployment(
+        if not self.update_deployment(
+                deployment=deployment,
+                name=template.app_name,
+                image=exec_list.params,
                 namespace=template.namespace
-            )
-            pprint(api_response)
-            return True
-        except ApiException as e:
-            print("Exception when calling AppsV1Api->create_namespaced_deployment: %s\n" % e)
+        ):
+            RecodeLog.error(msg="镜像发布失败")
             return False
+        else:
+            RecodeLog.info(msg="镜像发布成功！")
+            return True

@@ -61,18 +61,17 @@ class KubernetesClass:
             else:
                 containers[i].image = image
                 deployment.spec.template.spec.containers = containers
-                try:
-                    api_response = self.api_instance.patch_namespaced_deployment(
-                        namespace=namespace,
-                        name=name,
-                        body=deployment
-                    )
-                    pprint(api_response)
-                    return True
-                except ApiException as e:
-                    print("Exception when calling AppsV1Api->create_namespaced_deployment: %s\n" % e)
-                    return False
-        return False
+        try:
+            api_response = self.api_instance.patch_namespaced_deployment(
+                namespace=namespace,
+                name=name,
+                body=deployment
+            )
+            RecodeLog.info(msg=api_response)
+            return True
+        except ApiException as e:
+            RecodeLog.error(msg="Exception when calling AppsV1Api->create_namespaced_deployment: %s\n" % e)
+            return False
 
     def run(self, exec_list):
         """

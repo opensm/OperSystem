@@ -65,6 +65,7 @@ class KubernetesClass:
                 namespace=template.namespace
         )
         print(deployment)
+        print(deployment.spec.template.spec.containers)
         if not deployment:
             return False
         try:

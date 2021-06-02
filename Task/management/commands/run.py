@@ -55,9 +55,11 @@ class Command(BaseCommand):
         for sub in task.sub_task.all():
             if not self.runSubTask(subtask=sub):
                 task.status = 'fail'
+                task.finish_time = datetime.datetime.now()
                 task.save()
                 return False
         task.status = 'success'
+        task.finish_time = datetime.datetime.now()
         task.save()
         return True
 
@@ -73,9 +75,11 @@ class Command(BaseCommand):
         for line in subtask.exec_list.all():
             if not self.execLine(data=line):
                 subtask.status = 'fail'
+                subtask.finish_time = datetime.datetime.now()
                 subtask.save()
                 return False
         subtask.status = 'success'
+        subtask.finish_time = datetime.datetime.now()
         subtask.save()
         return True
 
@@ -97,9 +101,11 @@ class Command(BaseCommand):
         run_function = getattr(a, data.content_object.exec_function)
         if not run_function(exec_list=data):
             data.status = 'fail'
+            data.finish_time = datetime.datetime.now()
             data.save()
             return False
         else:
             data.status = 'success'
+            data.finish_time = datetime.datetime.now()
             data.save()
             return True

@@ -92,7 +92,6 @@ class KubernetesClass:
             deployment_name=template.app_name,
             namespace=template.namespace
         )
-
         if not deployment:
             return False
         if not self.update_deployment(

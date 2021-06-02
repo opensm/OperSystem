@@ -26,7 +26,7 @@ class Tasks(models.Model):
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
     task_time = models.CharField(verbose_name="任务时间", max_length=50, default='', null=True)
-    finish_time = models.CharField(verbose_name="完成时间", max_length=20, default='', null=True, blank=True)
+    finish_time = models.CharField(verbose_name="完成时间", max_length=50, default='', null=True, blank=True)
     note = models.TextField(verbose_name="说明", max_length=20000)
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
     sub_task = models.ManyToManyField('SubTask', related_name='subtask')
@@ -56,7 +56,7 @@ class SubTask(models.Model):
     )
     note = models.TextField(verbose_name="说明", max_length=20000)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
-    finish_time = models.DateTimeField(verbose_name="完成时间", null=True, blank=True)
+    finish_time = models.CharField(verbose_name="完成时间", null=True, blank=True,max_length=50)
 
     class Meta:
         db_table = 't_subtasks'
@@ -96,7 +96,7 @@ class ExecList(models.Model):
     )  # content_object为GenericForeignKey类型，主要作用是根据content_type字段和object_id字段来定位某个模型中具体某个实例
     # create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
-    finish_time = models.DateTimeField(verbose_name="完成时间", null=True, blank=True)
+    finish_time = models.CharField(verbose_name="完成时间", null=True, blank=True,max_length=50)
 
     class Meta:
         db_table = 't_execlist'

@@ -36,7 +36,6 @@ class KubernetesClass:
         """
         if not isinstance(exec_list, ExecList):
             raise TypeError("输入任务类型错误！")
-        sql = exec_list.params
         template = exec_list.content_object
         if not isinstance(template, TemplateKubernetes):
             RecodeLog.error(msg="传入模板类型错误!")
@@ -45,12 +44,11 @@ class KubernetesClass:
             RecodeLog.error(msg="链接K8S集群失败!")
             return False
         try:
-            print(template.namespace)
-            print(type(template.namespace))
-            namespace = base64.b64encode(bytes(template.namespace, 'UTF-8'))
             api_response = self.api_instance.list_namespaced_deployment(
                 namespace=bytes(template.namespace, 'UTF-8')
             )
             pprint(api_response)
+            return True
         except ApiException as e:
             print("Exception when calling AppsV1Api->create_namespaced_deployment: %s\n" % e)
+            return False

@@ -17,7 +17,7 @@ class KubernetesClass:
         if not isinstance(obj, AuthKEY):
             return False
         try:
-            self.configuration.api_key['authorization'] = {"authorization": "Bearer " + obj.auth_passwd}
+            self.configuration.api_key['authorization'] = '{"authorization": "Bearer {}"}'.format(obj.auth_passwd)
             self.configuration.host = "https://{}:{}".format(obj.auth_host, obj.auth_port)
             self.configuration.verify_ssl = False
             self.configuration.debug = False

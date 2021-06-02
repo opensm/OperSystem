@@ -127,7 +127,7 @@ class AuthKEY(models.Model):
     auth_port = models.IntegerField(verbose_name="端口", default=22, null=True, blank=True)
     auth_user = models.CharField(verbose_name="验证用户", max_length=200, default='', null=True, blank=True)
     auth_passwd = models.TextField(verbose_name="验证密码", max_length=2000, default='', null=True, blank=True)
-    auth_params = models.CharField(verbose_name="验证参数", max_length=200, default='', null=True, blank=True)
+    auth_params = models.TextField(verbose_name="验证参数", max_length=2000, default='', null=True, blank=True)
     auth_type = models.CharField(verbose_name="操作类型", max_length=100, default='Shell', choices=exec_choice)
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)

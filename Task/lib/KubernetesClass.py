@@ -46,19 +46,29 @@ class KubernetesClass:
             RecodeLog.error(msg="获取delployment失败:{}!".format(error))
             return False
 
-    def update_deployment(self, namespace, deployment, name, image):
+    def update_deployment(self, namespace, deployment, name, image, exec_list):
         """
         :param namespace:
         :param deployment:
         :param name:
         :param image:
+        :param exec_list:
         :return:
         """
+        if not isinstance(exec_list, ExecList):
+            raise TypeError("输入任务类型错误！")
         containers = deployment.spec.template.spec.containers
         for i in range(len(containers)):
             if containers[i].name != name:
                 continue
             else:
+                try:
+                    exec_list.output = containers[i].image
+                    exec_list.save()
+                    RecodeLog.error(msg="保存老镜像成功:{}".format(containers[i].image))
+                except Exception as error:
+                    RecodeLog.error(msg="保存老镜像失败:{}".format(error))
+                    return False
                 containers[i].image = image
                 deployment.spec.template.spec.containers = containers
         try:
@@ -70,7 +80,7 @@ class KubernetesClass:
             RecodeLog.info(msg=api_response)
             return True
         except ApiException as e:
-            RecodeLog.error(msg="Exception when calling AppsV1Api->create_namespaced_deployment: %s\n" % e)
+            RecodeLog.error(msg="更新镜像失败: %s\n" % e)
             return False
 
     def run(self, exec_list):
@@ -97,7 +107,8 @@ class KubernetesClass:
                 deployment=deployment,
                 name=template.app_name,
                 image=exec_list.params,
-                namespace=template.namespace
+                namespace=template.namespace,
+                exec_list=exec_list
         ):
             RecodeLog.error(msg="镜像发布失败")
             return False

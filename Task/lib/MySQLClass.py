@@ -70,7 +70,9 @@ class MySQLClass:
                 "{}.gz".format(achieve)
             )
         )
-        cmd(cmd_str=cmd_str, replace=self.password)
+        if not cmd(cmd_str=cmd_str, replace=self.password):
+            return False
+        return True
 
     def exec_sql(self, db, sql):
         """
@@ -150,19 +152,29 @@ class MySQLClass:
             return False
         filename, filetype = os.path.splitext(sql)
         sql_data = filename.split("#")
-        self.ftp.download(remote_path=sql_data[2], local_path=self.backup_dir, achieve=sql)
+        if not self.ftp.download(remote_path=sql_data[2], local_path=self.backup_dir, achieve=sql):
+            return False
         if sql_data[1] != 'mysql':
             RecodeLog.error(msg="请检查即将导入的文件的相关信息，{}".format(sql))
             return False
         if len(sql_data) != 4:
             RecodeLog.error(msg="文件格式错误，请按照：20210426111742#mongodb#pre#member.sql")
             return False
-        self.backup_one(
+        if not self.backup_one(
             db=sql_data[3],
             achieve=filename
-        )
-        self.exec_sql(sql=sql, db=sql_data[3])
-        return True
+        ):
+            return False
+        if not self.exec_sql(sql=sql, db=sql_data[3]):
+            return False
+        try:
+            exec_list.output = "{}.gz".format(filename)
+            exec_list.save()
+            RecodeLog.info(msg="保存备份数据情况成功:{}!".format("{}.gz".format(filename)))
+            return True
+        except Exception as error:
+            RecodeLog.error(msg="保存备份数据情况失败:{}!".format(error))
+            return False
 
 
 __all__ = [

@@ -148,12 +148,21 @@ class MongoClass:
         if len(sql_data) != 4:
             RecodeLog.error(msg="文件格式错误，请按照：20210426111742#mongodb#pre#member.js")
             return False
-        self.backup_one(
-            db=sql_data[3],
-            achieve=filename
-        )
-        self.exec_sql(sql=sql, db=sql_data[3])
-        return True
+        if not self.backup_one(
+                db=sql_data[3],
+                achieve=filename
+        ):
+            return False
+        if not self.exec_sql(sql=sql, db=sql_data[3]):
+            return False
+        try:
+            exec_list.output = "{}.gz".format(filename)
+            exec_list.save()
+            RecodeLog.info(msg="保存备份数据情况成功:{}!".format("{}.gz".format(filename)))
+            return True
+        except Exception as error:
+            RecodeLog.error(msg="保存备份数据情况失败:{}!".format(error))
+            return False
 
 
 __all__ = [

@@ -47,7 +47,7 @@ class KubernetesClass:
         try:
             print(template.namespace)
             print(type(template.namespace))
-            namespace = base64.b64encode(template.namespace)
+            namespace = base64.b64encode(bytes(template.namespace, 'UTF-8'))
             api_response = self.api_instance.list_namespaced_deployment(
                 namespace=namespace
             )

@@ -1,11 +1,9 @@
 from __future__ import print_function
-import time
 import kubernetes.client
 from kubernetes.client.rest import ApiException
 from pprint import pprint
 from Task.models import AuthKEY, TemplateKubernetes, ExecList
 from lib.Log import RecodeLog
-import base64
 
 
 class KubernetesClass:
@@ -29,6 +27,25 @@ class KubernetesClass:
             RecodeLog.error(msg="认证异常！{}".format(error))
             return False
 
+    def get_deployment(self, deployment_name, namespace):
+        """
+        :param deployment_name:
+        :param namespace:
+        :return:
+        """
+        try:
+            api_response = self.api_instance.read_namespaced_deployment(
+                name=deployment_name,
+                namespace=namespace,
+                pretty='true',
+                exact=True,
+                export=True
+            )
+            return api_response
+        except ApiException as error:
+            print(error)
+            return False
+
     def run(self, exec_list):
         """
         :param exec_list:
@@ -43,9 +60,16 @@ class KubernetesClass:
         if not self.connect(obj=template.cluster):
             RecodeLog.error(msg="链接K8S集群失败!")
             return False
+        deployment = self.get_deployment(
+                deployment_name=template.app_name,
+                namespace=template.namespace
+        )
+        print(deployment)
+        if not deployment:
+            return False
         try:
-            api_response = self.api_instance.list_namespaced_deployment(
-                namespace=bytes(template.namespace, 'UTF-8')
+            api_response = self.api_instance.patch_namespaced_deployment(
+                namespace=template.namespace
             )
             pprint(api_response)
             return True

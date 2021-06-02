@@ -5,6 +5,7 @@ from kubernetes.client.rest import ApiException
 from pprint import pprint
 from Task.models import AuthKEY, TemplateKubernetes, ExecList
 from lib.Log import RecodeLog
+import base64
 
 
 class KubernetesClass:
@@ -46,8 +47,9 @@ class KubernetesClass:
         try:
             print(template.namespace)
             print(type(template.namespace))
+            namespace = base64.b64encode(template.namespace)
             api_response = self.api_instance.list_namespaced_deployment(
-                str(template.namespace)
+                namespace=namespace
             )
             pprint(api_response)
         except ApiException as e:

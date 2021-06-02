@@ -4,6 +4,8 @@ import time
 import datetime
 from lib.Log import RecodeLog
 from Task.lib import ClassImport
+import base64
+
 
 
 class Command(BaseCommand):

@@ -14,3 +14,17 @@ FTP_CONFIG = {
         "password": "S8jSS14ParKt9MwY"
     }
 }
+# 企业微信
+SECRET = ""
+CORPID = ""
+AGENTID = ""
+PARTY = ""
+
+__all__ = [
+    SECRET,
+    CORPID,
+    AGENTID,
+    PARTY,
+    FTP_CONFIG,
+    DB_BACKUP_DIR
+]

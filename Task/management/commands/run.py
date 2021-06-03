@@ -4,6 +4,7 @@ import time
 import datetime
 from lib.Log import RecodeLog
 from Task.lib import ClassImport
+from Task.lib.settings import AGENTID, CORPID, SECRET, PARTY
 
 
 class Command(BaseCommand):
@@ -19,11 +20,14 @@ class Command(BaseCommand):
                 if not self.runTask(task=data):
                     data.status = 'fail'
                     data.save()
-                    RecodeLog.error(msg='任务失败:{}:{}'.format(data.id, data.name))
+                    massage = '任务失败,任务ID:{},任务名称:{}'.format(data.id, data.name)
+                    RecodeLog.error(msg=massage)
                 else:
                     data.status = 'success'
                     data.save()
-                    RecodeLog.info(msg='任务完成:{}:{}'.format(data.id, data.name))
+                    massage = '任务完成,任务ID:{},任务名称:{}'.format(data.id, data.name)
+                    RecodeLog.info(msg=massage)
+                self.alert(message=massage)
 
     def checkTaskStatus(self, task):
         """
@@ -109,3 +113,38 @@ class Command(BaseCommand):
             data.finish_time = datetime.datetime.now()
             data.save()
             return True
+
+    def alert(self, message):
+        """
+        :param message:
+        :return:
+        """
+        import requests
+        import json
+        url = 'https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={}&corpsecret={}'
+        try:
+            getr = requests.get(url=url.format(CORPID, SECRET))
+            access_token = getr.json().get('access_token')
+        except Exception as error:
+            RecodeLog.error(msg="获取token失败，{}".format(error))
+            return False
+        data = {
+            "toparty": PARTY,  # 向这些部门发送
+            "msgtype": "text",
+            "agentid": AGENTID,  # 应用的 id 号
+            "text": {
+                "content": message
+            }
+        }
+        try:
+            r = requests.post(
+                url="https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token={}".format(access_token),
+                data=json.dumps(data)
+            )
+            if r.json()['errcode'] != 0:
+                raise Exception(r.json()['errmsg'])
+            RecodeLog.info(msg="发送消息成功:{}".format(r.json()['errmsg']))
+            return True
+        except Exception as error:
+            RecodeLog.info(msg="发送消息失败,{}".format(error))
+            return False

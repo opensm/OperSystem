@@ -109,7 +109,8 @@ class UserInfo(AbstractBaseUser, PermissionsMixin):
     roles = models.ForeignKey(
         Role,
         verbose_name='角色',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        default=''
     )
     email = models.EmailField(verbose_name="邮箱地址", unique=True, null=False)
     is_active = models.BooleanField(verbose_name="有效", default=True)

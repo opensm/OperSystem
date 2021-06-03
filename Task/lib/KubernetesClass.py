@@ -85,52 +85,35 @@ class KubernetesClass:
             RecodeLog.error(msg="更新镜像失败: %s\n" % e)
             return False
 
-    def get_deployment_pods(self, namespace, name, label):
+    def check_pods_status(self, namespace, name, label, count):
         """
         :param namespace:
         :param name:
         :param label:
-        :return:
-        """
-        pods = list()
-        data = self.api_core.list_namespaced_pod(
-            namespace=namespace,
-            label_selector=label.format(name)
-        )
-        for x in data.items:
-            print(x.status)
-            pods.append(x.metadata.name)
-        return pods
-
-    def check_pod_status(self, pod, namespace, count=20):
-        """
-        :param pod:
-        :param namespace:
         :param count:
         :return:
         """
         while count > 0:
-            status = self.api_core.read_namespaced_pod_status(
-                name=pod,
-                namespace=namespace
+            pods = list()
+            data = self.api_core.list_namespaced_pod(
+                namespace=namespace,
+                label_selector=label.format(name)
             )
-            count -= 1
+            for x in data.items:
+                if x.status.phase != 'Running':
+                    count -= 1
+                    continue
+                pods.append(x.metadata.name)
+            return pods
 
-    def check_pods_status(self, pods, namespace, count):
+    def check_pod_logs(self, pod, namespace):
         """
-        :param pods:
+        :param pod:
         :param namespace:
-        :param count:
         :return:
         """
-        if not isinstance(pods, list):
-            raise TypeError("类型错误：{}".format(pods))
-        for pod in pods:
-            if self.check_pod_status(pod=pod, namespace=namespace, count=count):
-                continue
-            else:
-                return False
-        return True
+        data = self.api_core.read_namespaced_pod_log(name=pod, namespace=namespace)
+        print(data)
 
     def run(self, exec_list):
         """
@@ -162,14 +145,16 @@ class KubernetesClass:
             RecodeLog.error(msg="镜像发布失败")
             return False
         else:
-            pods = self.get_deployment_pods(
+            pods = self.check_pods_status(
                 namespace=template.namespace,
                 name=template.app_name,
-                label=template.label
+                label=template.label,
+                count=20
             )
             if not pods:
                 RecodeLog.error(msg="获取到deployment：{},pod为空，请检查！".format(template.app_name))
                 return False
-            self.check_pods_status(pods=pods, namespace=template.namespace, count=20)
+            for x in pods:
+                self.check_pod_logs(pod=x, namespace=template.namespace)
             RecodeLog.info(msg="镜像发布成功！")
             return True

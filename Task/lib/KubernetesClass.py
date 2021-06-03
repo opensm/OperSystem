@@ -9,7 +9,8 @@ from lib.Log import RecodeLog
 class KubernetesClass:
     def __init__(self):
         self.configuration = kubernetes.client.Configuration()
-        self.api_instance = None
+        self.api_apps = None
+        self.api_core = None
 
     def connect(self, obj):
         if not isinstance(obj, AuthKEY):
@@ -20,7 +21,8 @@ class KubernetesClass:
             self.configuration.verify_ssl = False
             self.configuration.debug = False
             api_client = kubernetes.client.ApiClient(self.configuration)
-            self.api_instance = kubernetes.client.AppsV1Api(api_client)
+            self.api_apps = kubernetes.client.AppsV1Api(api_client)
+            self.api_core = kubernetes.client.CoreV1Api(api_client)
             RecodeLog.info(msg="认证成功!")
             return True
         except Exception as error:
@@ -34,7 +36,7 @@ class KubernetesClass:
         :return:
         """
         try:
-            api_response = self.api_instance.read_namespaced_deployment(
+            api_response = self.api_apps.read_namespaced_deployment(
                 name=deployment_name,
                 namespace=namespace,
                 pretty='true',
@@ -72,7 +74,7 @@ class KubernetesClass:
                 containers[i].image = image
                 deployment.spec.template.spec.containers = containers
         try:
-            api_response = self.api_instance.patch_namespaced_deployment(
+            api_response = self.api_apps.patch_namespaced_deployment(
                 namespace=namespace,
                 name=name,
                 body=deployment
@@ -82,6 +84,15 @@ class KubernetesClass:
         except ApiException as e:
             RecodeLog.error(msg="更新镜像失败: %s\n" % e)
             return False
+
+    def check_deployment_status(self, namespace, name):
+        """
+        :param namespace:
+        :param name:
+        :return:
+        """
+        data = self.api_apps.read_namespaced_deployment_status(namespace=namespace, name=name)
+        print(data)
 
     def run(self, exec_list):
         """

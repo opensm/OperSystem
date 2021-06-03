@@ -94,7 +94,7 @@ class KubernetesClass:
         :return:
         """
         data = self.api_core.list_namespaced_pod(namespace=namespace, label_selector=label.format(name))
-        print(data)
+        print(data.items)
         print("Ended.")
 
     def run(self, exec_list):

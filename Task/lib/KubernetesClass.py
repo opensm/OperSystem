@@ -146,6 +146,7 @@ class KubernetesClass:
             RecodeLog.error(msg="镜像发布失败")
             return False
         else:
+            time.sleep(8)
             pods = self.check_pods_status(
                 namespace=template.namespace,
                 name=template.app_name,

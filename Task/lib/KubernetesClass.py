@@ -94,7 +94,7 @@ class KubernetesClass:
         """
         count = 10
         while count > 0:
-            data = self.api_apps.read_namespaced_deployment_status(namespace=namespace, name=name)
+            data = self.api_apps.read_namespaced_deployment(namespace=namespace, name=name)
             print(data)
             time.sleep(3)
         print("Ended.")

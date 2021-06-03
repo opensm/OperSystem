@@ -1,9 +1,10 @@
 from __future__ import print_function
 import kubernetes.client
 from kubernetes.client.rest import ApiException
-from pprint import pprint
 from Task.models import AuthKEY, TemplateKubernetes, ExecList
 from lib.Log import RecodeLog
+from kubernetes import client, config, watch
+import time
 
 
 class KubernetesClass:
@@ -92,6 +93,19 @@ class KubernetesClass:
         :return:
         """
         data = self.api_apps.read_namespaced_deployment_status(namespace=namespace, name=name)
+        count = 10
+        w = watch.Watch()
+        for event in w.stream(
+                self.api_apps.read_namespaced_deployment_status(namespace=namespace, name=name),
+                _request_timeout=60
+        ):
+            time.sleep(1)
+            print("Event: %s %s" % (event['type'], event['object'].metadata.name))
+            count -= 1
+            if not count:
+                w.stop()
+
+        print("Ended.")
         print(data)
 
     def run(self, exec_list):

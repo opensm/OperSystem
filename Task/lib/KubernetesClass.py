@@ -85,7 +85,7 @@ class KubernetesClass:
             RecodeLog.error(msg="更新镜像失败: %s\n" % e)
             return False
 
-    def check_pods_status(self, namespace, name, label, count):
+    def check_pods_status(self, namespace, name, label, count=30):
         """
         :param namespace:
         :param name:

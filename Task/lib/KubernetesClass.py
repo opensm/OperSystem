@@ -102,6 +102,7 @@ class KubernetesClass:
             for x in data.items:
                 if x.status.phase != 'Running':
                     count -= 1
+                    time.sleep(2)
                     continue
                 pods.append(x.metadata.name)
             return pods

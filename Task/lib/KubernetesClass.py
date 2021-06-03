@@ -99,7 +99,7 @@ class KubernetesClass:
                 _request_timeout=60
         ):
             time.sleep(1)
-            print("Event: %s %s" % (event['type'], event['object'].metadata.name))
+            print("Event: %s" % event)
             count -= 1
             if not count:
                 w.stop()

@@ -90,6 +90,16 @@ class UserInfoSerializer(serializers.ModelSerializer):
         model = UserInfo
         exclude = ('password',)
 
+    def create(self, validated_data):
+        """
+        :param validated_data:
+        :return:
+        """
+        obj = UserInfo.objects.create(**validated_data)
+        obj.password = 'Abc@1234'
+        obj.save()
+        return obj
+
 
 class SignInSerializer(serializers.Serializer):
     username = serializers.CharField(

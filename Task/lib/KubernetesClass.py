@@ -127,6 +127,6 @@ class KubernetesClass:
             RecodeLog.error(msg="镜像发布失败")
             return False
         else:
-            self.check_deployment_status(namespace=template.namespace, name=template.app_name)
+            self.check_deployment_status(namespace=template.namespace, name=template.app_name,label=template.label)
             RecodeLog.info(msg="镜像发布成功！")
             return True

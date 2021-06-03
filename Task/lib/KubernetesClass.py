@@ -92,7 +92,7 @@ class KubernetesClass:
         :param name:
         :return:
         """
-        data = self.api_core.list_namespaced_pod(namespace=namespace)
+        data = self.api_core.list_namespaced_pod(namespace=namespace, label_selector="apps={apps: }")
         print(data)
         print("Ended.")
 

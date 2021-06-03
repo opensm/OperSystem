@@ -56,7 +56,7 @@ class SubTask(models.Model):
     )
     note = models.TextField(verbose_name="说明", max_length=20000)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
-    finish_time = models.CharField(verbose_name="完成时间", null=True, blank=True,max_length=50)
+    finish_time = models.CharField(verbose_name="完成时间", null=True, blank=True, max_length=50)
 
     class Meta:
         db_table = 't_subtasks'
@@ -96,7 +96,7 @@ class ExecList(models.Model):
     )  # content_object为GenericForeignKey类型，主要作用是根据content_type字段和object_id字段来定位某个模型中具体某个实例
     # create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
-    finish_time = models.CharField(verbose_name="完成时间", null=True, blank=True,max_length=50)
+    finish_time = models.CharField(verbose_name="完成时间", null=True, blank=True, max_length=50)
 
     class Meta:
         db_table = 't_execlist'
@@ -161,6 +161,7 @@ class TemplateKubernetes(models.Model):
     yaml = models.TextField(verbose_name='yaml模板', max_length=2000, default='')
     exec_class = models.TextField(verbose_name='调用类', max_length=2000, default='')
     exec_function = models.TextField(verbose_name='调用方法', max_length=2000, default='')
+    label = models.CharField(verbose_name="标签", max_length=200, default='apps={}')
     exec_list = GenericRelation(to='ExecList')
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)

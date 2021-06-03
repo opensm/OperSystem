@@ -86,13 +86,14 @@ class KubernetesClass:
             RecodeLog.error(msg="更新镜像失败: %s\n" % e)
             return False
 
-    def check_deployment_status(self, namespace, name):
+    def check_deployment_status(self, namespace, name, label):
         """
         :param namespace:
         :param name:
+        :param label:
         :return:
         """
-        data = self.api_core.list_namespaced_pod(namespace=namespace, label_selector="apps={apps: }")
+        data = self.api_core.list_namespaced_pod(namespace=namespace, label_selector=label.format(name))
         print(data)
         print("Ended.")
 

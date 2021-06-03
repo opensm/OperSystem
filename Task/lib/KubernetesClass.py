@@ -92,12 +92,8 @@ class KubernetesClass:
         :param name:
         :return:
         """
-        count = 10
-        while count > 0:
-            data = self.api_apps.read_namespaced_deployment(namespace=namespace, name=name)
+        for data in self.api_core.list_namespaced_pod(namespace=namespace):
             print(data)
-            time.sleep(1)
-            count -= 1
         print("Ended.")
 
     def run(self, exec_list):

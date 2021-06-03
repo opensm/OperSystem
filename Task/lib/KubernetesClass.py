@@ -93,7 +93,9 @@ class KubernetesClass:
         :return:
         """
         data = self.api_core.list_namespaced_pod(namespace=namespace, label_selector=label.format(name))
-        print(data.items)
+        for x in data.items:
+            print(x.metadata.name)
+        # print(data.items)
         print("Ended.")
 
     def run(self, exec_list):
@@ -126,6 +128,6 @@ class KubernetesClass:
             RecodeLog.error(msg="镜像发布失败")
             return False
         else:
-            self.check_deployment_status(namespace=template.namespace, name=template.app_name,label=template.label)
+            self.check_deployment_status(namespace=template.namespace, name=template.app_name, label=template.label)
             RecodeLog.info(msg="镜像发布成功！")
             return True

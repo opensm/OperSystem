@@ -92,8 +92,8 @@ class KubernetesClass:
         :param name:
         :return:
         """
-        for data in self.api_core.list_namespaced_pod(namespace=namespace):
-            print(data)
+        data = self.api_core.list_namespaced_pod(namespace=namespace)
+        print(data)
         print("Ended.")
 
     def run(self, exec_list):

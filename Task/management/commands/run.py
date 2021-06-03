@@ -14,7 +14,6 @@ class Command(BaseCommand):
                     status__in=['approveing', 'not_start_approve', 'ok_approved']
             ):
                 if not self.checkTaskStatus(task=data):
-                    RecodeLog.warn(msg='任务还未准备OK:{}:{}'.format(data.id, data.name))
                     continue
                 RecodeLog.info(msg='即将开始任务:{}:{}'.format(data.id, data.name))
                 if not self.runTask(task=data):

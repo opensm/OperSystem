@@ -5,3 +5,6 @@ pymysql
 django
 djangorestframework
 kubernetes
+pipenv
+django-cors-headers
+cryptography

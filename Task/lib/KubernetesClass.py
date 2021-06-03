@@ -92,7 +92,6 @@ class KubernetesClass:
         :param name:
         :return:
         """
-        data = self.api_apps.read_namespaced_deployment_status(namespace=namespace, name=name)
         count = 10
         w = watch.Watch()
         for event in w.stream(
@@ -106,7 +105,6 @@ class KubernetesClass:
                 w.stop()
 
         print("Ended.")
-        print(data)
 
     def run(self, exec_list):
         """

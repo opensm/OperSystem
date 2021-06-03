@@ -94,9 +94,30 @@ class KubernetesClass:
         """
         data = self.api_core.list_namespaced_pod(namespace=namespace, label_selector=label.format(name))
         for x in data.items:
-            print(x.metadata.name)
+            print(x.metadata.status)
         # print(data.items)
         print("Ended.")
+
+    def get_deployment_pods(self, namespace, name, label):
+        """
+        :param namespace:
+        :param name:
+        :param label:
+        :return:
+        """
+        pods = list()
+        data = self.api_core.list_namespaced_pod(namespace=namespace, label_selector=label.format(name))
+        for x in data.items:
+            pods.append(x.metadata.name)
+        return pods
+
+    def check_pods_status(self, pod, namespace):
+        """
+        :param pod:
+        :param namespace:
+        :return:
+        """
+        pass
 
     def run(self, exec_list):
         """

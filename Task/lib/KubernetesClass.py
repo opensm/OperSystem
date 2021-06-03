@@ -98,6 +98,7 @@ class KubernetesClass:
             label_selector=label.format(name)
         )
         for x in data.items:
+            print(x.status)
             pods.append(x.metadata.name)
         return pods
 
@@ -113,7 +114,6 @@ class KubernetesClass:
                 name=pod,
                 namespace=namespace
             )
-            print(status)
             count -= 1
 
     def check_pods_status(self, pods, namespace, count):

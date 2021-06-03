@@ -19,6 +19,11 @@ SECRET = ""
 CORPID = ""
 AGENTID = ""
 PARTY = ""
+# Kubernetes 日志检查关键字段
+POD_CHECK_KEYS = [
+    'Error',
+    'Exception'
+]
 
 __all__ = [
     SECRET,
@@ -28,3 +33,4 @@ __all__ = [
     FTP_CONFIG,
     DB_BACKUP_DIR
 ]
+

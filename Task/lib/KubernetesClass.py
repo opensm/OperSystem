@@ -3,8 +3,8 @@ import kubernetes.client
 from kubernetes.client.rest import ApiException
 from Task.models import AuthKEY, TemplateKubernetes, ExecList
 from lib.Log import RecodeLog
-from kubernetes import client, config, watch
 import time
+from Task.lib.settings import POD_CHECK_KEYS
 
 
 class KubernetesClass:
@@ -114,7 +114,11 @@ class KubernetesClass:
         :return:
         """
         data = self.api_core.read_namespaced_pod_log(name=pod, namespace=namespace)
-        print(data)
+        for key in POD_CHECK_KEYS:
+            if key in data:
+                return False
+            else:
+                return True
 
     def run(self, exec_list):
         """
@@ -157,6 +161,11 @@ class KubernetesClass:
                 RecodeLog.error(msg="获取到deployment：{},pod为空，请检查！".format(template.app_name))
                 return False
             for x in pods:
-                self.check_pod_logs(pod=x, namespace=template.namespace)
+                if not self.check_pod_logs(pod=x, namespace=template.namespace):
+                    RecodeLog.error(msg="镜像:{}发布完成，但是Pod:{},存在报错！".format(exec_list.params, x))
+                    return False
+                else:
+                    RecodeLog.error(msg="镜像:{}发布完成，但是Pod:{},存在报错！".format(exec_list.params, x))
+                    return True
             RecodeLog.info(msg="镜像发布成功！")
             return True

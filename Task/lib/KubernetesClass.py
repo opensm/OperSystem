@@ -75,12 +75,11 @@ class KubernetesClass:
                 containers[i].image = image
                 deployment.spec.template.spec.containers = containers
         try:
-            api_response = self.api_apps.patch_namespaced_deployment(
+            self.api_apps.patch_namespaced_deployment(
                 namespace=namespace,
                 name=name,
                 body=deployment
             )
-            RecodeLog.info(msg=api_response)
             return True
         except ApiException as e:
             RecodeLog.error(msg="更新镜像失败: %s\n" % e)

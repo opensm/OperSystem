@@ -5,7 +5,6 @@ from django.contrib.auth.models import UserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 
 
 class RequestType(models.Model):

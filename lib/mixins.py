@@ -132,8 +132,11 @@ class DataQueryPermission(ObjectUserInfo):
             return []
         permission_data = self.get_user_data_permission()
         for data in permission_data:
-            obj, methods = self.get_permission_rule_q(data=data)
-            q_query.append(obj)
+            if data[2]:
+                q_query.append('all')
+            else:
+                obj, methods = self.get_permission_rule_q(data=data)
+                q_query.append(obj)
         return q_query
 
     def check_permission(self, method, data):
@@ -148,6 +151,7 @@ class DataQueryPermission(ObjectUserInfo):
                 detail="类型错误!!!"
             )
 
+        # 判断是否为全部权限
         if data[2]:
             return data[2]
         else:
@@ -207,7 +211,9 @@ class DataQueryPermission(ObjectUserInfo):
                 obj_filter = reduce(operator.or_, obj)
             else:
                 obj_filter = obj
-            if self.__model.objects.filter(obj_filter & Q(id=params['id'])):
+            if self.__model.objects.filter(
+                    obj_filter & Q(id=params['id'])
+            ):
                 return [x.method for x in methods.all()]
             else:
                 raise APIException(
@@ -269,7 +275,9 @@ class DataQueryPermission(ObjectUserInfo):
         params = self.format_query_set(query_set=query_set)
         if len(params.keys()) > 1:
             for key, value in params.items():
-                predicates.append(Q(**{"{}__in".format(key): value}))
+                predicates.append(
+                    Q(**{"{}__in".format(key): value})
+                )
             return (
                 predicates, method
             )
@@ -301,7 +309,7 @@ class DataQueryPermission(ObjectUserInfo):
         :return:
         """
         if not self.__object:
-            raise ValueError("请先通过 get_user_model_data_permission实例化相关数据！")
+            raise ValueError("请先实例化相关数据！")
         fields = self.get_model_fields()
         if field not in fields.keys():
             return []
@@ -324,7 +332,7 @@ class DataQueryPermission(ObjectUserInfo):
         :return:
         """
         if not self.__model_class:
-            raise ValueError("请先通过 get_user_model_data_permission实例化相关数据！")
+            raise ValueError("请先实例化相关数据！")
         if len(field) > 1:
             raise ValueError("请输入一个字段！")
         fields = self.get_content_fields()
@@ -388,17 +396,28 @@ class DataQueryPermission(ObjectUserInfo):
             permissions = self.get_user_model_data_permission()
             if not permissions:
                 return []
-            params_list = list()
-            for data in permissions:
-                params_list.append(data)
-            if current_obj:
-                return current_obj.filter(reduce(operator.or_, params_list))
+            # all permission
+            if 'all' in permissions:
+                if current_obj:
+                    return current_obj.all()
+                else:
+                    return self.__model.objects.all()
             else:
-                return self.__model.objects.filter(reduce(operator.or_, params_list))
+                params_list = list()
+                for data in permissions:
+                    params_list.append(data)
+                if current_obj:
+                    return current_obj.filter(
+                        reduce(operator.or_, params_list)
+                    )
+                else:
+                    return self.__model.objects.filter(
+                        reduce(operator.or_, params_list)
+                    )
         else:
             raise APIException(
                 code=API_40003_PERMISSION_DENIED,
-                detail="没有操作权限！"
+                detail="User not active！"
             )
 
     def check_content_permission(self, obj):
@@ -406,14 +425,23 @@ class DataQueryPermission(ObjectUserInfo):
         :return:
         """
         model = None
-        if len(obj) > 0:
-            for data in obj:
-                if not isinstance(data, DataPermissionRule):
-                    raise APIException(detail="模型类型错误！", code=API_50001_SERVER_ERROR)
-                else:
-                    model = data.content_type
-                    if 'GET' not in [x.method for x in data.request_type.all()]:
-                        raise APIException('没有权限！', code=API_50001_SERVER_ERROR)
-        else:
-            raise APIException(detail="输入数据类型错误！", code=API_50001_SERVER_ERROR)
+        if len(obj) == 0:
+            raise APIException(
+                detail="输入数据类型错误！",
+                code=API_50001_SERVER_ERROR
+            )
+
+        for data in obj:
+            if not isinstance(data, DataPermissionRule):
+                raise APIException(
+                    detail="模型类型错误！",
+                    code=API_50001_SERVER_ERROR
+                )
+            else:
+                model = data.content_type
+                if 'GET' not in [x.method for x in data.request_type.all()]:
+                    raise APIException(
+                        detail='没有权限！',
+                        code=API_50001_SERVER_ERROR
+                    )
         self.__model_class = model.model_class()

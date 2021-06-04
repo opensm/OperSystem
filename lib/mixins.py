@@ -249,7 +249,7 @@ class DataQueryPermission(ObjectUserInfo):
             for x in split_value:
                 try:
                     value = int(x)
-                except TypeError:
+                except ValueError:
                     value = x
                 params.setdefault(y.check_field, []).append(value)
         return params

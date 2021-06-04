@@ -74,7 +74,7 @@ class Role(models.Model):
 class DataPermissionRule(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(
-        verbose_name="规则名称", max_length=10, default='default', null=False, unique=True
+        verbose_name="规则名称", max_length=200, default='default', null=False, unique=True
     )
     content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING, verbose_name="关联模型", default=0,
                                      null=False)

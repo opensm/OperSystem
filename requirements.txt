@@ -8,3 +8,4 @@ kubernetes
 pipenv
 django-cors-headers
 cryptography
+cos-python-sdk-v5

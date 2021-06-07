@@ -68,7 +68,7 @@ class KubernetesClass:
                 try:
                     exec_list.output = containers[i].image
                     exec_list.save()
-                    RecodeLog.error(msg="保存老镜像成功:{}".format(containers[i].image))
+                    RecodeLog.info(msg="保存老镜像成功:{}".format(containers[i].image))
                 except Exception as error:
                     RecodeLog.error(msg="保存老镜像失败:{}".format(error))
                     return False

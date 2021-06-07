@@ -116,9 +116,11 @@ class KubernetesClass:
         data = self.api_core.read_namespaced_pod_log(name=pod, namespace=namespace)
         for key in POD_CHECK_KEYS:
             if key in data:
+                RecodeLog.error(msg="关键字:{},存在日志:{}".format(key, data))
                 return False
             else:
-                return True
+                continue
+        return True
 
     def run(self, exec_list):
         """
@@ -165,7 +167,7 @@ class KubernetesClass:
                     RecodeLog.error(msg="镜像:{}发布完成，但是Pod:{},存在报错！".format(exec_list.params, x))
                     return False
                 else:
-                    RecodeLog.error(msg="镜像:{}发布完成，Pod:{},不存在报错！".format(exec_list.params, x))
-                    return True
+                    RecodeLog.info(msg="镜像:{}发布完成，Pod:{},不存在报错！".format(exec_list.params, x))
+                    continue
             RecodeLog.info(msg="镜像发布成功！")
             return True

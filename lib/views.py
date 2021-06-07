@@ -50,7 +50,6 @@ class BasePOSTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
     serializer_class = None
 
     def post(self, request):
-        print(request.data)
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         try:
@@ -132,7 +131,9 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                 )
             model_objs = self.get_user_data_objects(request=request)
             if not model_objs or len(model_objs) > 1:
-                RecodeLog.error(msg="返回:{0}".format(model_objs))
+                RecodeLog.error(
+                    msg="返回:{0}".format(model_objs)
+                )
                 raise APIException(
                     detail="获取到修改数据异常，请检查,数据为:{0}".format(model_objs),
                     code=API_12001_DATA_NULL_ERROR
@@ -142,11 +143,22 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
                 data=request.data
             )
             if not data.is_valid():
-                raise APIException(detail="修改数据格式不匹配，{}！".format(data.errors), code=API_10001_PARAMS_ERROR)
+                raise APIException(
+                    detail="修改数据格式不匹配，{}！".format(data.errors),
+                    code=API_10001_PARAMS_ERROR
+                )
             data.save()
-            return DataResponse(msg="数据保存成功：{}".format(request.data), code=API_00000_OK)
+            return DataResponse(
+                msg="数据保存成功：{}".format(request.data),
+                code=API_00000_OK
+            )
         except APIException as error:
-            RecodeLog.error(msg="返回状态码:{1},错误信息:{0}".format(error.default_detail, error.status_code))
+            RecodeLog.error(
+                msg="返回状态码:{1},错误信息:{0}".format(
+                    error.default_detail,
+                    error.status_code
+                )
+            )
             return DataResponse(
                 data=[],
                 msg="数据保存失败，%s" % error.default_detail,

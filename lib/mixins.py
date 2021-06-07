@@ -124,8 +124,6 @@ class DataQueryPermission(ObjectUserInfo):
 
         if not isinstance(self.model_name, str):
             return []
-        if not self.__model:
-            raise ValueError("french model value error!")
 
         # 用户状态为不生效，返回空
         elif not self.user.is_active:
@@ -163,6 +161,7 @@ class DataQueryPermission(ObjectUserInfo):
             else:
                 obj_filter = obj
 
+            # 判断GET请求的时候数据为空和没有数据权限的两种情况
             if method == 'GET' and not self.kwargs:
                 RecodeLog.info(msg="传入参数:{}".format(self.kwargs))
                 if not self.__model.objects.all():
@@ -190,17 +189,18 @@ class DataQueryPermission(ObjectUserInfo):
                 return True
         return False
 
-    def return_request_types(self, params):
+    def request_method(self, params):
         """
         :return:
         """
         if not isinstance(self.model_name, str):
             return []
-        if not self.__model:
-            raise ValueError("french model value error!")
         # 用户状态为不生效，返回空
         if not self.user.is_active:
-            return []
+            raise APIException(
+                detail="用户未激活！",
+                code=API_40003_PERMISSION_DENIED
+            )
         if self.user.is_superuser:
             return [x.method for x in django_apps.get_model("Rbac.RequestType").objects.all()]
         for data in self.get_user_data_permission():
@@ -211,15 +211,14 @@ class DataQueryPermission(ObjectUserInfo):
                 obj_filter = reduce(operator.or_, obj)
             else:
                 obj_filter = obj
-            if self.__model.objects.filter(
+            if not self.__model.objects.filter(
                     obj_filter & Q(id=params['id'])
             ):
-                return [x.method for x in methods.all()]
-            else:
                 raise APIException(
                     detail="{0},不存在对应的数据格式请检查".format(params),
                     code=API_50001_SERVER_ERROR
                 )
+            return [x.method for x in methods.all()]
 
     def format_return_data(self, data):
         """
@@ -233,8 +232,8 @@ class DataQueryPermission(ObjectUserInfo):
                 code=API_50001_SERVER_ERROR
             )
         for x in data:
-            requests = self.return_request_types(params=x)
-            x['button'] = requests
+            methods = self.request_method(params=x)
+            x['button'] = methods
             data_list.append(
                 x
             )

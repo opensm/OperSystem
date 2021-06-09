@@ -36,10 +36,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'Rbac',
-    'corsheaders',
     'rest_framework',
-    'Task'
+    'corsheaders',
+    'Rbac',
+    'Task',
+    'Flow'
 ]
 
 MIDDLEWARE = [
@@ -178,4 +179,3 @@ CORS_ALLOW_HEADERS = (
 LOG_DIR = '/tmp'
 LOG_FILE = 'oper.log'
 LOG_LEVEL = "info"
-

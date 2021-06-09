@@ -27,4 +27,5 @@ urlpatterns = [
     # 验证登录
     path('api/v1/auth/', include("Rbac.urls")),
     path('api/v1/task/', include("Task.urls")),
+    path('api/v1/flow/', include("Flow.urls"))
 ]

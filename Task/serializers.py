@@ -2,7 +2,8 @@ from rest_framework import serializers
 from Task.models import *
 from lib.Log import RecodeLog
 from django.contrib.contenttypes.models import ContentType
-from Task import models
+from Flow.models import FlowTask, FlowEngine, FlowNode
+from Flow.serializers import FlowTaskSerializers
 
 
 class AuthKEYSerializers(serializers.ModelSerializer):
@@ -16,18 +17,39 @@ class TaskSerializers(serializers.ModelSerializer):
         model = Tasks
         fields = ("__all__")
 
+    def create_flow(self, obj, approval_flow):
+
+        data = dict()
+        object_list = list()
+        for node in FlowNode.objects.filter(flow=approval_flow):
+            data['node'] = node
+            data['approval_role'] = node.approval_role
+            data['level'] = node.level
+            data['status'] = 'unprocessed'
+            data['task'] = obj.pk
+            data['flow'] = approval_flow
+            object_list.append(FlowTask(**data))
+        objs = FlowTask.objects.bulk_create(objs=object_list)
+        # objs.save()
+
+    def recreate_flow(self, obj, approval_flow):
+        FlowTask.objects.filter(task=obj.id).delete()
+        self.create_flow(obj=obj, approval_flow=approval_flow)
+
     def create(self, validated_data):
         """
         :param validated_data:
         :return:
         """
         sub_task = validated_data.pop('sub_task')
+        approval_flow = validated_data['approval_flow']
         obj = Tasks.objects.create(**validated_data)
         obj.save()
         for exe in sub_task:
             obj.sub_task.add(exe)
             exe.status = 'not_start_exec'
             exe.save()
+        self.create_flow(obj=obj, approval_flow=approval_flow)
         return obj
 
     def update(self, instance, validated_data):
@@ -37,6 +59,7 @@ class TaskSerializers(serializers.ModelSerializer):
         :return:
         """
         sub_task = validated_data.pop("sub_task")
+        approval_flow = validated_data['approval_flow']
         for key, value in validated_data.items():
             setattr(instance, key, value)
         instance.save()
@@ -48,38 +71,38 @@ class TaskSerializers(serializers.ModelSerializer):
             instance.sub_task.add(x)
             x.status = 'not_start_exec'
             x.save()
-
+        self.recreate_flow(obj=instance, approval_flow=approval_flow)
         return instance
 
 
 class TemplateDBSerializers(serializers.ModelSerializer):
     class Meta:
         model = TemplateDB
-        fields = ("__all__")
+        fields = "__all__"
 
 
 class TemplateNacosSerializers(serializers.ModelSerializer):
     class Meta:
         model = TemplateNacos
-        fields = ("__all__")
+        fields = "__all__"
 
 
 class TemplateTencentServiceSerializers(serializers.ModelSerializer):
     class Meta:
         model = TemplateTencentService
-        fields = ("__all__")
+        fields = "__all__"
 
 
 class TemplateKubernetesSerializers(serializers.ModelSerializer):
     class Meta:
         model = TemplateKubernetes
-        fields = ("__all__")
+        fields = "__all__"
 
 
 class ExecListSerializers(serializers.ModelSerializer):
     class Meta:
         model = ExecList
-        fields = ("__all__")
+        fields = "__all__"
 
 
 class SubTaskserializers(serializers.ModelSerializer):
@@ -87,7 +110,7 @@ class SubTaskserializers(serializers.ModelSerializer):
 
     class Meta:
         model = SubTask
-        fields = ("__all__")
+        fields = "__all__"
 
     def validate(self, validated_data):
         """
@@ -142,13 +165,13 @@ class SubTaskserializers(serializers.ModelSerializer):
 class ExecListLogSerializers(serializers.ModelSerializer):
     class Meta:
         model = ExecList
-        fields = ("__all__")
+        fields = "__all__"
 
 
 class ProjectSerializers(serializers.ModelSerializer):
     class Meta:
         model = Project
-        fields = ("__all__")
+        fields = "__all__"
 
 
 __all__ = [

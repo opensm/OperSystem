@@ -9,6 +9,8 @@ from functools import reduce
 from KubernetesManagerWeb.settings import SECRET_KEY
 from lib.exceptions import *
 from Rbac.models import UserInfo, DataPermissionRule, DataPermissionList
+from Flow.models import FlowTask
+from Task.models import Tasks
 from django.contrib.contenttypes.models import ContentType
 from lib.Log import RecodeLog
 
@@ -215,7 +217,7 @@ class DataQueryPermission(ObjectUserInfo):
                     obj_filter & Q(id=params['id'])
             ):
                 raise APIException(
-                    detail="{0},不存在对应的数据格式请检查".format(params),
+                    detail="{0},请检查数据权限配置是否正确！".format(params['id']),
                     code=API_50001_SERVER_ERROR
                 )
             return [x.method for x in methods.all()]
@@ -234,6 +236,41 @@ class DataQueryPermission(ObjectUserInfo):
         for x in data:
             methods = self.request_method(params=x)
             x['button'] = methods
+            data_list.append(
+                x
+            )
+        return data_list
+
+    def format_flow_data(self, data):
+        """
+        :param data:
+        :return:
+        """
+        data_list = list()
+        if not isinstance(data, list):
+            raise APIException(
+                detail="输入的数据类型错误，请输入list类型!",
+                code=API_50001_SERVER_ERROR
+            )
+        for x in data:
+            methods = self.request_method(params=x)
+            for y in FlowTask.objects.filter(
+                    id=x['id']
+            ).values('task', 'flow', 'level'):
+                level = y.pop('level')
+                flow_data = FlowTask.objects.filter(
+                    **y,
+                    level__lt=level,
+                    status__in=['unprocessed', 'refuse']
+                )
+                flowing_data = FlowTask.objects.filter(**y, level__gt=level, status__in=['pass', 'refuse'])
+                if Tasks.objects.get(id=y['task']).status in ['fail_approve', 'ok_approved']:
+                    x['button'] = []
+                else:
+                    if not flow_data and 'PUT' in methods and not flowing_data:
+                        x['button'] = 'PUT'
+                    else:
+                        x['button'] = []
             data_list.append(
                 x
             )

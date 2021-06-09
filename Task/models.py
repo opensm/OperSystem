@@ -2,6 +2,7 @@ from django.db import models
 from Rbac.models import UserInfo
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from Flow.models import FlowEngine
 
 
 class Tasks(models.Model):
@@ -19,10 +20,10 @@ class Tasks(models.Model):
     )
     id = models.CharField(verbose_name="任务ID", max_length=50, null=False, blank=False, unique=True, primary_key=True)
     name = models.CharField(verbose_name="任务名称", max_length=200, default='', null=False)
-    approve_flow = models.CharField(verbose_name="URL", max_length=200, null=False, blank=False)
     status = models.CharField(
         null=False, blank=False, default='not_start_approve', max_length=20, choices=status_choice
     )
+    approval_flow = models.ForeignKey(FlowEngine, on_delete=models.CASCADE, null=False, blank=False)
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
     task_time = models.CharField(verbose_name="任务时间", max_length=50, default='', null=True)

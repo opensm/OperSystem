@@ -3,6 +3,6 @@ KubernetesManagerWeb/settings.py
 venv
 venv2.7
 Task/lib/settings.py
-Task/migrations
-Flow/migrations
-Rbac/migrations
+Task/migrations/0*.py
+Flow/migrations/0*.py
+Rbac/migrations/0*.py

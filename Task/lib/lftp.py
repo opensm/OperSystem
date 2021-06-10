@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from Task.lib.settings import DB_BACKUP_DIR
+from Task.lib.settings import DB_BACKUP_DIR, FTP_CONFIG
 from ftplib import FTP
 from lib.Log import RecodeLog
 import sys

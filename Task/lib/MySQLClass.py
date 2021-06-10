@@ -61,7 +61,7 @@ class MySQLClass:
 
     def backup_one(self, db, achieve):
         if not self.check_db(db=db):
-            sys.exit(1)
+            return False
         cmd_str = "/usr/bin/mysqldump {0} {1}|gzip >{2}".format(
             self.auth_str,
             db,
@@ -98,7 +98,7 @@ class MySQLClass:
                 os.path.join(self.backup_dir, sql)
             )
 
-        if not cmd(cmd_str=cmd_str):
+        if not cmd(cmd_str=cmd_str, replace=self.password):
             RecodeLog.error(msg="导入数据失败:{}".format(cmd_str).replace(self.password, '********'))
             return False
         else:
@@ -130,7 +130,7 @@ class MySQLClass:
         except Exception as error:
             RecodeLog.error(msg="Mongodb登录验证失败,{}".format(error))
             return False
-        self.auth_dump_str = "-u{0} -p{1} -h{2} -P{3} --default-character-set=utf8 ".format(
+        self.auth_str = "-u{0} -p{1} -h{2} -P{3} --default-character-set=utf8 ".format(
             self.host, self.port, self.user, self.password
         )
         return True
@@ -143,8 +143,9 @@ class MySQLClass:
         if not isinstance(exec_list, ExecList):
             raise TypeError("输入任务类型错误！")
         sql = exec_list.params
-        if not sql.endswith('.js'):
+        if not sql.endswith('.sql'):
             RecodeLog.error(msg="输入的文件名错误:{}!".format(sql))
+            return False
         template = exec_list.content_object
         if not isinstance(template, TemplateDB):
             return False
@@ -161,8 +162,8 @@ class MySQLClass:
             RecodeLog.error(msg="文件格式错误，请按照：20210426111742#mongodb#pre#member.sql")
             return False
         if not self.backup_one(
-            db=sql_data[3],
-            achieve=filename
+                db=sql_data[3],
+                achieve=filename
         ):
             return False
         if not self.exec_sql(sql=sql, db=sql_data[3]):

@@ -90,7 +90,7 @@ class UserInfoSerializer(serializers.ModelSerializer):
         :return:
         """
         obj = UserInfo.objects.create(**validated_data)
-        obj.password = 'Abc@1234'
+        obj.set_password('Abc@1234')
         obj.save()
         return obj
 

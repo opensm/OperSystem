@@ -15,31 +15,31 @@ class RecursiveField(serializers.Serializer):
 class RequestTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = RequestType
-        fields = ("__all__")
+        fields = "__all__"
 
 
 class ContentTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContentType
-        fields = ("__all__")
+        fields = "__all__"
 
 
 class DataPermissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = DataPermissionRule
-        fields = ("__all__")
+        fields = "__all__"
 
 
 class DataPermissionListSerializer(serializers.ModelSerializer):
     class Meta:
         model = DataPermissionList
-        fields = ("__all__")
+        fields = "__all__"
 
 
 class SubMenuSerializer(serializers.ModelSerializer):
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Menu  # 指定需要序列化的模型表
-        fields = ("__all__")
+        fields = "__all__"
 
 
 class MenuSerializer(serializers.ModelSerializer):
@@ -69,14 +69,13 @@ class MenuSerializer(serializers.ModelSerializer):
 
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Menu  # 指定需要序列化的模型表
-        fields = ("__all__")
+        fields = "__all__"
 
 
 class RoleSerializer(serializers.ModelSerializer):
-
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Role  # 指定需要序列化的模型表
-        fields = ("__all__")
+        fields = "__all__"
 
 
 class UserInfoSerializer(serializers.ModelSerializer):

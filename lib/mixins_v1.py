@@ -27,19 +27,20 @@ def make_token(username):
 
 
 class ObjectUserInfo:
-    def __init__(self):
+    def __init__(self, request):
         self.user_object_type = django_apps.get_model(AUTH_USER_MODEL)
         self.token = None
-        self.button_code = 999
+        self.request = request
 
     @property
     def get_user_model(self):
         return django_apps.get_model(AUTH_USER_MODEL)
 
-    def get_user_object(self, request):
-        token = request.META.get('HTTP_AUTHORIZATION')
-        user = self.get_user_model
+    def get_user_object(self):
+
         try:
+            token = self.request.META.get('HTTP_AUTHORIZATION')
+            user = self.get_user_model
             return user.objects.get(usertoken__token=token)
         except UserInfo.DoesNotExist:
             raise APIException(
@@ -49,23 +50,36 @@ class ObjectUserInfo:
 
 
 class DataQueryPermission(ObjectUserInfo):
-    model_name = None
-    app_label = None
-    error_message = []
     kwargs = None
 
-    def __init__(self):
-        ObjectUserInfo.__init__(self)
-        self.user = None
+    def __init__(self, request, app_label, model_name):
+        ObjectUserInfo.__init__(self, request=request)
+        self.user = self.get_user_object()
         self.__object = None
         self.__model_class = None
-        self.__model = django_apps.get_model(
-            "{0}.{1}".format(
-                self.app_label, self.model_name
+        self.__data_permission = django_apps.get_model("Rbac.DataPermissionList")
+        try:
+            self.__model = django_apps.get_model(
+                "{0}.{1}".format(
+                    app_label, model_name
+                )
             )
-        )
+            self.__content_type = ContentType.objects.get(
+                app_label=app_label,
+                model=model_name
+            )
+        except ContentType.DoesNotExist:
+            raise APIException(
+                code=API_50001_SERVER_ERROR,
+                detail="获取模型数据异常！"
+            )
+        if not self.user.usertoken.expiration_time > datetime.datetime.now() or not self.user.is_active:
+            raise APIException(
+                code=API_40003_PERMISSION_DENIED,
+                detail="认证超时或者用户未激活！"
+            )
 
-    def get_user_data_permission(self):
+    def get_data_permission_params(self):
         """
         获取所有用户的数据权限
         :return:
@@ -73,30 +87,16 @@ class DataQueryPermission(ObjectUserInfo):
         if not isinstance(self.user, self.get_user_model):
             raise TypeError("用户表类型错误！")
         permission_list = list()
-        model = django_apps.get_model("Rbac.DataPermissionList")
-        if not self.user.usertoken.expiration_time > datetime.datetime.now() or not self.user.is_active:
-            return []
-        try:
-            content_type = ContentType.objects.get(
-                app_label=self.app_label,
-                model=self.model_name
-            )
-        except ContentType.DoesNotExist:
-            RecodeLog.error(msg="获取模型数据异常！")
-            raise APIException(
-                code=API_50001_SERVER_ERROR,
-                detail="获取模型数据异常！"
-            )
         for content in self.user.roles.data_permission.filter(
-                content_type=content_type
+                content_type=self.__content_type
         ):
             try:
                 permission = DataPermissionList.objects.filter(
                     permission_rule=content
                 )
-            except model.DoesNotExist:
+            except self.__data_permission.DoesNotExist:
                 continue
-            if not permission:
+            if not permission and not content.is_all:
                 continue
             permission_list.append((
                 permission,
@@ -105,16 +105,14 @@ class DataQueryPermission(ObjectUserInfo):
             ))
         return permission_list
 
-    def check_user_method_permissions(self, request, method):
+    def check_user_method_permissions(self, method):
         """
-        :param request:
         :param method:
         :return:
         """
-        self.user = self.get_user_object(request=request)
         if self.user.is_superuser and self.user.is_active:
             return True
-        data = self.get_user_data_permission()
+        data = self.get_data_permission_params()
         status = False
         for content in data:
             request_data = [x.method for x in content[1].all()]
@@ -122,19 +120,12 @@ class DataQueryPermission(ObjectUserInfo):
                 status = True
         return status
 
-    def get_user_model_data_permission(self):
+    def get_permission_rule_q_sum(self):
         """
         :return:
         """
         q_query = list()
-
-        if not isinstance(self.model_name, str):
-            return []
-
-        # 用户状态为不生效，返回空
-        elif not self.user.is_active:
-            return []
-        permission_data = self.get_user_data_permission()
+        permission_data = self.get_data_permission_params()
         for data in permission_data:
             if data[2]:
                 q_query.append('all')
@@ -186,10 +177,9 @@ class DataQueryPermission(ObjectUserInfo):
         :param request:
         :return:
         """
-        self.user = self.get_user_object(request=request)
         if self.user.is_superuser and self.user.is_active:
             return True
-        for data in self.get_user_data_permission():
+        for data in self.get_data_permission_params():
             RecodeLog.info(msg="获取权限表数据:{}".format(data))
             if self.check_permission(method=request.method, data=data):
                 return True
@@ -199,8 +189,6 @@ class DataQueryPermission(ObjectUserInfo):
         """
         :return:
         """
-        if not isinstance(self.model_name, str):
-            return []
         # 用户状态为不生效，返回空
         if not self.user.is_active:
             raise APIException(
@@ -209,7 +197,7 @@ class DataQueryPermission(ObjectUserInfo):
             )
         if self.user.is_superuser:
             return [x.method for x in django_apps.get_model("Rbac.RequestType").objects.all()]
-        for data in self.get_user_data_permission():
+        for data in self.get_data_permission_params():
             obj, methods = self.get_permission_rule_q(data=data)
             if not obj:
                 continue
@@ -390,7 +378,7 @@ class DataQueryPermission(ObjectUserInfo):
         :param request_type:
         :return:
         """
-        for data in self.get_user_data_permission():
+        for data in self.get_data_permission_params():
             if model_obj in data[0] and request_type in data[1]:
                 return True
         return False
@@ -411,55 +399,61 @@ class DataQueryPermission(ObjectUserInfo):
                         code=API_10001_PARAMS_ERROR
                     )
                 query_params["{}__in".format(key)] = self.kwargs.getlist(key)
-        try:
-            return self.__model.objects.filter(
-                **query_params
-            )
-        except Exception as error:
-            raise APIException(
-                code=API_50001_SERVER_ERROR,
-                detail=error
-            )
+            return Q(**query_params)
 
-    def get_user_data_objects(self, request):
+    def get_user_data_objects(self):
         """
         :return:
         """
-        self.user = self.get_user_object(request=request)
         current_obj = self.get_request_filter()
         # 超级管理员直接返回结果
-        if self.user.is_superuser and self.user.is_active:
+        if self.user.is_superuser:
             if not current_obj:
                 return self.__model.objects.all()
             else:
-                return current_obj.all()
-        elif not self.user.is_superuser and self.user.is_active:
-            permissions = self.get_user_model_data_permission()
+                return self.__model.objects.filter(current_obj)
+        else:
+            permissions = self.get_permission_rule_q_sum()
             if not permissions:
-                return []
+                raise APIException(
+                    code=API_40003_PERMISSION_DENIED,
+                    detail="没有权限"
+                )
             # all permission
             if 'all' in permissions:
                 if current_obj:
-                    return current_obj.all()
+                    operator_params = current_obj
                 else:
-                    return self.__model.objects.all()
+                    operator_params = 'all'
             else:
-                params_list = list()
-                for data in permissions:
-                    params_list.append(data)
                 if current_obj:
-                    return current_obj.filter(
-                        reduce(operator.or_, params_list)
-                    )
+                    if len(permissions) > 1:
+                        operator_params = reduce(
+                            operator.and_, [
+                                current_obj,
+                                reduce(operator.or_, permissions)
+                            ])
+                    else:
+                        operator_params = reduce(
+                            operator.and_,
+                            [current_obj, permissions]
+                        )
+                    select_obj = self.__model.objects.filter(current_obj)
+                    request_obj = self.__model.objects.filter(operator_params)
+                    if select_obj and not request_obj:
+                        raise APIException(
+                            code=API_40003_PERMISSION_DENIED,
+                            detail="没有权限！"
+                        )
                 else:
-                    return self.__model.objects.filter(
-                        reduce(operator.or_, params_list)
+                    operator_params = reduce(
+                        operator.or_,
+                        permissions
                     )
-        else:
-            raise APIException(
-                code=API_40003_PERMISSION_DENIED,
-                detail="User not active！"
-            )
+            if operator_params == 'all':
+                return self.__model.objects.all()
+            else:
+                return self.__model.objects.filter(operator_params)
 
     def check_content_permission(self, obj):
         """
@@ -486,3 +480,29 @@ class DataQueryPermission(ObjectUserInfo):
                         code=API_50001_SERVER_ERROR
                     )
         self.__model_class = model.model_class()
+
+
+class DataPermissionMixins:
+    model_name = None
+    app_label = None
+    kwargs = None
+
+    def __init__(self):
+        self.request = None
+        self.data_params_quarry = None
+
+    def init_request(self, request):
+        self.request = request
+        self.data_params_quarry = DataQueryPermission(
+            request=request,
+            app_label=self.app_label,
+            model_name=self.model_name
+        )
+
+    def get_model_objects(self):
+        if not isinstance(self.data_params_quarry, DataQueryPermission):
+            raise APIException(
+                code=API_50001_SERVER_ERROR,
+                detail="输出话请求失败！"
+            )
+        return self.data_params_quarry.get_user_data_objects()

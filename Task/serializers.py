@@ -1,21 +1,37 @@
 from rest_framework import serializers
 from Task.models import *
-from lib.Log import RecodeLog
-from django.contrib.contenttypes.models import ContentType
-from Flow.models import FlowTask, FlowEngine, FlowNode
-from Flow.serializers import FlowTaskSerializers
+from Flow.models import FlowNode
 
 
 class AuthKEYSerializers(serializers.ModelSerializer):
+    project_st = serializers.CharField(source='project.name', read_only=True)
+    create_user_st = serializers.CharField(source='create_user.name', read_only=True)
+
     class Meta:
         model = AuthKEY
-        fields = ("__all__")
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        self.user = None
+        if 'user' in kwargs:
+            kwargs.pop('user')
+        super(AuthKEYSerializers, self).__init__(*args, **kwargs)
 
 
 class TaskSerializers(serializers.ModelSerializer):
+    approval_flow_st = serializers.CharField(source='approval_flow.name', read_only=True)
+    project_st = serializers.CharField(source='project.name', read_only=True)
+    create_user_st = serializers.CharField(source='create_user.name', read_only=True)
+
     class Meta:
         model = Tasks
-        fields = ("__all__")
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        self.user = None
+        if 'user' in kwargs:
+            kwargs.pop('user')
+        super(TaskSerializers, self).__init__(*args, **kwargs)
 
     def create_flow(self, obj, approval_flow):
 
@@ -26,11 +42,10 @@ class TaskSerializers(serializers.ModelSerializer):
             data['approval_role'] = node.approval_role
             data['level'] = node.level
             data['status'] = 'unprocessed'
-            data['task'] = obj.pk
+            data['task'] = obj
             data['flow'] = approval_flow
             object_list.append(FlowTask(**data))
-        objs = FlowTask.objects.bulk_create(objs=object_list)
-        # objs.save()
+        FlowTask.objects.bulk_create(objs=object_list)
 
     def recreate_flow(self, obj, approval_flow):
         FlowTask.objects.filter(task=obj.id).delete()
@@ -76,37 +91,92 @@ class TaskSerializers(serializers.ModelSerializer):
 
 
 class TemplateDBSerializers(serializers.ModelSerializer):
+    create_user_st = serializers.CharField(source='create_user.name', read_only=True)
+    instance_st = serializers.CharField(source='instance.name', read_only=True)
+    project_st = serializers.CharField(source='project.name', read_only=True)
+
     class Meta:
         model = TemplateDB
         fields = "__all__"
 
+    def __init__(self, *args, **kwargs):
+        self.user = None
+        if 'user' in kwargs:
+            kwargs.pop('user')
+        super(TemplateDBSerializers, self).__init__(*args, **kwargs)
+
 
 class TemplateNacosSerializers(serializers.ModelSerializer):
+    create_user_st = serializers.CharField(source='create_user.name', read_only=True)
+    instance_st = serializers.CharField(source='auth_key.name', read_only=True)
+    project_st = serializers.CharField(source='project.name', read_only=True)
+
     class Meta:
         model = TemplateNacos
         fields = "__all__"
 
+    def __init__(self, *args, **kwargs):
+        self.user = None
+        if 'user' in kwargs:
+            kwargs.pop('user')
+        super(TemplateNacosSerializers, self).__init__(*args, **kwargs)
+
 
 class TemplateTencentServiceSerializers(serializers.ModelSerializer):
+    create_user_st = serializers.CharField(source='create_user.name', read_only=True)
+    instance_st = serializers.CharField(source='tencent_key.name', read_only=True)
+    project_st = serializers.CharField(source='project.name', read_only=True)
+
     class Meta:
         model = TemplateTencentService
         fields = "__all__"
 
+    def __init__(self, *args, **kwargs):
+        self.user = None
+        if 'user' in kwargs:
+            kwargs.pop('user')
+        super(TemplateTencentServiceSerializers, self).__init__(*args, **kwargs)
+
 
 class TemplateKubernetesSerializers(serializers.ModelSerializer):
+    create_user_st = serializers.CharField(source='create_user.name', read_only=True)
+    instance_st = serializers.CharField(source='cluster.name', read_only=True)
+    project_st = serializers.CharField(source='project.name', read_only=True)
+
     class Meta:
         model = TemplateKubernetes
         fields = "__all__"
 
+    def __init__(self, *args, **kwargs):
+        self.user = None
+        if 'user' in kwargs:
+            kwargs.pop('user')
+        super(TemplateKubernetesSerializers, self).__init__(*args, **kwargs)
+
 
 class ExecListSerializers(serializers.ModelSerializer):
+
     class Meta:
         model = ExecList
         fields = "__all__"
 
+    def __init__(self, *args, **kwargs):
+        self.user = None
+        if 'user' in kwargs:
+            kwargs.pop('user')
+        super(ExecListSerializers, self).__init__(*args, **kwargs)
 
-class SubTaskserializers(serializers.ModelSerializer):
+
+class SubTaskSerializers(serializers.ModelSerializer):
     exec_list = ExecListSerializers(many=True)
+    project_st = serializers.CharField(source='project.name', read_only=True)
+    create_user_st = serializers.CharField(source='create_user.name', read_only=True)
+
+    def __init__(self, *args, **kwargs):
+        self.user = None
+        if 'user' in kwargs:
+            self.user = kwargs.pop('user')
+        super(SubTaskSerializers, self).__init__(*args, **kwargs)
 
     class Meta:
         model = SubTask
@@ -155,6 +225,7 @@ class SubTaskserializers(serializers.ModelSerializer):
         :return:
         """
         exec_list = validated_data.pop('exec_list')
+        validated_data['create_user'] = self.user
         obj = SubTask.objects.create(**validated_data)
         obj.save()
         for exe in exec_list:
@@ -173,10 +244,16 @@ class ProjectSerializers(serializers.ModelSerializer):
         model = Project
         fields = "__all__"
 
+    def __init__(self, *args, **kwargs):
+        self.user = None
+        if 'user' in kwargs:
+            kwargs.pop('user')
+        super(ProjectSerializers, self).__init__(*args, **kwargs)
+
 
 __all__ = [
     'TaskSerializers',
-    'SubTaskserializers',
+    'SubTaskSerializers',
     'AuthKEYSerializers',
     'TemplateDBSerializers',
     'TemplateKubernetesSerializers',

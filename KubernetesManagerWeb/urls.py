@@ -25,7 +25,7 @@ urlpatterns = [
     # url('api/', include(urls)),  # vue前端获取数据的url
     # url('^$', TemplateView.as_view(template_name="index.html")),
     # 验证登录
-    path('api/v1/auth/', include("Rbac.urls")),
-    path('api/v1/task/', include("Task.urls")),
-    path('api/v1/flow/', include("Flow.urls"))
+    path('api/v1/auth/', include("Rbac.urls_v2")),
+    path('api/v1/task/', include("Task.urls_v2")),
+    path('api/v1/flow/', include("Flow.urls_v2"))
 ]

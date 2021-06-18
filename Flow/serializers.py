@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from Flow.models import *
-from Task.models import Tasks
+from Task.models import Tasks, FlowTask
 
 
 class DynamicFieldsModelSerializer(serializers.ModelSerializer):
@@ -25,18 +25,18 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
 class FlowEngineSerializers(serializers.ModelSerializer):
     class Meta:
         model = FlowEngine
-        fields = ("__all__")
+        fields = "__all__"
 
 
 class FlowNodeSerializers(serializers.ModelSerializer):
     class Meta:
         model = FlowNode
-        fields = ("__all__")
+        fields = "__all__"
 
 
-# class FlowTaskSerializers(serializers.ModelSerializer):
 class FlowTaskSerializers(DynamicFieldsModelSerializer):
-    flow = FlowEngineSerializers()
+    task_st = serializers.CharField(source='task.name', read_only=True)
+    engine_st = serializers.CharField(source='flow.name', read_only=True)
 
     class Meta:
         model = FlowTask
@@ -50,7 +50,10 @@ class FlowTaskSerializers(DynamicFieldsModelSerializer):
         if validated_data['status'] == 'refuse':
             Tasks.objects.filter(id=instance.task).update(status='fail_approve')
         else:
-            if not FlowTask.objects.filter(task=instance.task, status__in=['refuse', 'unprocessed']):
+            if not FlowTask.objects.filter(
+                    task=instance.task,
+                    status__in=['refuse', 'unprocessed']
+            ):
                 Tasks.objects.filter(id=instance.task).update(status='ok_approved')
         return instance
 

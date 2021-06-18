@@ -6,7 +6,7 @@ from django.utils import timezone
 import datetime
 from lib.mixins import make_token
 from Rbac.serializers import *
-from lib.views import *
+from lib.views_v2 import *
 
 
 def format_error(data):
@@ -211,7 +211,6 @@ class ContentFieldValueView(ContentFieldValueGETView):
     model_name = 'DataPermissionRule'
     app_label = 'Rbac'
     serializer_class = DataPermissionSerializer
-    pk = 'id'
 
 
 class ContentFieldView(ContentFieldGETView):

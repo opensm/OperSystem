@@ -79,6 +79,8 @@ class RoleSerializer(serializers.ModelSerializer):
 
 
 class UserInfoSerializer(serializers.ModelSerializer):
+    role_set = serializers.CharField(source='roles.name', read_only=True)
+
     class Meta:
         model = UserInfo
         exclude = ('password',)

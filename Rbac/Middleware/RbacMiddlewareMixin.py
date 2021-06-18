@@ -4,10 +4,10 @@ from django.urls import resolve
 import datetime
 
 RESPONSE_STATUS = {
-    'TOKEN_NOT_EXIST': "Token值不存在，请校验上传参数！",
-    'TOKEN_EXPIRATION': "Token已超时，请重新登录！",
-    'TOKEN_ERROR_AUTH': "Token校验异常，请重试！",
-    'TOKEN_SUCCESS_AUTH': "Token校验成功！"
+    'TOKEN_NOT_EXIST': "登录校验异常，请校验上传参数！",
+    'TOKEN_EXPIRATION': "登录超时，请重新登录！",
+    'TOKEN_ERROR_AUTH': "登录校验异常，请重试！",
+    'TOKEN_SUCCESS_AUTH': "登录成功！"
 }
 
 

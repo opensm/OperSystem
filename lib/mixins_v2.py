@@ -9,8 +9,8 @@ from functools import reduce
 from KubernetesManagerWeb.settings import SECRET_KEY
 from lib.exceptions import *
 from Rbac.models import UserInfo, DataPermissionRule, DataPermissionList
-from Flow.models import FlowTask
-from Task.models import Tasks
+# from Flow.models import FlowTask
+from Task.models import Tasks,FlowTask
 from django.contrib.contenttypes.models import ContentType
 from lib.Log import RecodeLog
 
@@ -52,9 +52,10 @@ class ObjectUserInfo:
 class DataQueryPermission(ObjectUserInfo):
     kwargs = None
 
-    def __init__(self, request, app_label, model_name):
+    def __init__(self, request, app_label, model_name, kwargs):
         ObjectUserInfo.__init__(self, request=request)
         self.user = self.get_user_object()
+        self.kwargs = kwargs
         self.__object = None
         self.__model_class = None
         self.__data_permission = django_apps.get_model("Rbac.DataPermissionList")
@@ -88,7 +89,8 @@ class DataQueryPermission(ObjectUserInfo):
             raise TypeError("用户表类型错误！")
         permission_list = list()
         for content in self.user.roles.data_permission.filter(
-                content_type=self.__content_type
+                content_type=self.__content_type,
+                request_type__method=self.request.method
         ):
             try:
                 permission = DataPermissionList.objects.filter(
@@ -115,8 +117,7 @@ class DataQueryPermission(ObjectUserInfo):
         data = self.get_data_permission_params()
         status = False
         for content in data:
-            request_data = [x.method for x in content[1].all()]
-            if method in request_data:
+            if method in [x.method for x in content[1].all()]:
                 status = True
         return status
 
@@ -196,23 +197,30 @@ class DataQueryPermission(ObjectUserInfo):
                 code=API_40003_PERMISSION_DENIED
             )
         if self.user.is_superuser:
-            return [x.method for x in django_apps.get_model("Rbac.RequestType").objects.all()]
-        for data in self.get_data_permission_params():
-            obj, methods = self.get_permission_rule_q(data=data)
-            if not obj:
-                continue
-            if len(obj) > 1:
-                obj_filter = reduce(operator.or_, obj)
-            else:
-                obj_filter = obj
-            if not self.__model.objects.filter(
-                    obj_filter & Q(id=params['id'])
-            ):
+            method_type = django_apps.get_model("Rbac.RequestType").objects.values('method')
+            if not method_type:
                 raise APIException(
-                    detail="{0},请检查数据权限配置是否正确！".format(params['id']),
-                    code=API_50001_SERVER_ERROR
+                    code=API_50001_SERVER_ERROR,
+                    detail='请初始化method表！'
                 )
-            return [x.method for x in methods.all()]
+            return [x['method'] for x in method_type]
+        for data in self.get_data_permission_params():
+            if data[2]:
+                return [x.method for x in data[1].all()]
+            else:
+                obj, methods = self.get_permission_rule_q(data=data)
+                if not obj:
+                    continue
+                if len(obj) > 1:
+                    obj_filter = reduce(operator.or_, obj)
+                else:
+                    obj_filter = obj
+                if not self.__model.objects.filter(
+                        obj_filter & Q(id=params['id'])
+                ):
+                    continue
+                else:
+                    return [x.method for x in methods.all()]
 
     def format_return_data(self, data):
         """
@@ -256,7 +264,11 @@ class DataQueryPermission(ObjectUserInfo):
                     level__lt=level,
                     status__in=['unprocessed', 'refuse']
                 )
-                flowing_data = FlowTask.objects.filter(**y, level__gt=level, status__in=['pass', 'refuse'])
+                flowing_data = FlowTask.objects.filter(
+                    **y,
+                    level__gt=level,
+                    status__in=['pass', 'refuse']
+                )
                 if Tasks.objects.get(id=y['task']).status in status_for_approved:
                     x['button'] = []
                 else:
@@ -322,7 +334,9 @@ class DataQueryPermission(ObjectUserInfo):
                         code=API_50001_SERVER_ERROR
                     )
         else:
-            return None
+            return (
+                None, None
+            )
 
     def get_model_fields(self):
         field_name = dict()
@@ -362,14 +376,14 @@ class DataQueryPermission(ObjectUserInfo):
         """
         if not self.__model_class:
             raise ValueError("请先实例化相关数据！")
-        if len(field) > 1:
-            raise ValueError("请输入一个字段！")
+        # if len(field) > 1:
+        #     raise ValueError("请输入一个字段！")
         fields = self.get_content_fields()
-        if field[0] not in list(fields.keys()):
+        if field not in list(fields.keys()):
             return []
         data = list()
-        for x in self.__model_class.objects.values(field[0]).distinct():
-            data.append(str(x[field[0]]))
+        for x in self.__model_class.objects.values('{0}'.format(field)).distinct():
+            data.append(str(x[field]))
         return data
 
     def check_user_permission(self, model_obj, request_type='POST'):
@@ -417,7 +431,7 @@ class DataQueryPermission(ObjectUserInfo):
             if not permissions:
                 raise APIException(
                     code=API_40003_PERMISSION_DENIED,
-                    detail="没有权限"
+                    detail="没有相关权限！"
                 )
             # all permission
             if 'all' in permissions:
@@ -490,19 +504,22 @@ class DataPermissionMixins:
     def __init__(self):
         self.request = None
         self.data_params_quarry = None
+        self.user = None
 
     def init_request(self, request):
         self.request = request
         self.data_params_quarry = DataQueryPermission(
             request=request,
             app_label=self.app_label,
-            model_name=self.model_name
+            model_name=self.model_name,
+            kwargs=self.kwargs
         )
+        self.user = self.data_params_quarry.user
 
     def get_model_objects(self):
         if not isinstance(self.data_params_quarry, DataQueryPermission):
             raise APIException(
                 code=API_50001_SERVER_ERROR,
-                detail="输出话请求失败！"
+                detail="初始化参数失败！"
             )
         return self.data_params_quarry.get_user_data_objects()

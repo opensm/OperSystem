@@ -9,8 +9,7 @@ from functools import reduce
 from KubernetesManagerWeb.settings import SECRET_KEY
 from lib.exceptions import *
 from Rbac.models import UserInfo, DataPermissionRule, DataPermissionList
-from Flow.models import FlowTask
-from Task.models import Tasks
+from Task.models import Tasks, FlowTask
 from django.contrib.contenttypes.models import ContentType
 from lib.Log import RecodeLog
 

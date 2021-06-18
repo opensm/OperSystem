@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from lib.mixins import DataQueryPermission
+from lib.mixins_v2 import DataPermissionMixins
 from lib.response import DataResponse
 from lib.page import RewritePageNumberPagination
 from Rbac.serializers import MenuSerializer, SubMenuSerializer
@@ -10,28 +10,38 @@ from django.apps import apps as django_apps
 from django.db.models.query import QuerySet
 
 
-class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
+class BaseGETVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination):
     serializer_class = None
 
+    def init_request(self, request):
+        """
+        """
+        self.kwargs = self.request.GET.copy()
+        if self.page_size_query_param in self.kwargs:
+            self.page_size = self.kwargs.pop(self.page_size_query_param)
+        if self.page_query_param in self.kwargs:
+            self.kwargs.pop(self.page_query_param)
+        if self.sort_query_param in self.kwargs:
+            self.kwargs.pop(self.sort_query_param)
+        super(BaseGETVIEW, self).init_request(request=request)
+
     def get(self, request):
-        self.error_message = []
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         try:
-            if not self.check_user_permissions(request=request):
-                raise APIException(
-                    detail="没有相关权限！",
-                    code=API_40003_PERMISSION_DENIED
-                )
-            model_obj = self.get_user_data_objects(request=request)
+
+            self.init_request(request=request)
+            model_obj = self.get_model_objects()
             page_obj = self.paginate_queryset(queryset=model_obj, request=request, view=self)
             data = self.serializer_class(
                 instance=page_obj,
                 many=True
             )
 
-            format_data = self.format_return_data(data=data.data)
-            tag = self.check_user_method_permissions(request=request, method=request.method)
+            format_data = self.data_params_quarry.format_return_data(data=data.data)
+            tag = self.data_params_quarry.check_user_method_permissions(
+                method='POST'
+            )
             return self.get_paginated_response(
                 data=format_data,
                 msg="获取数据成功",
@@ -49,24 +59,25 @@ class BaseGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
             )
 
 
-class BasePOSTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
+class BasePOSTVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination):
     serializer_class = None
 
     def post(self, request):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         try:
-            data = self.serializer_class(
-                data=request.data
-            )
-            if not self.check_user_method_permissions(
-                    request=request,
-                    method=request.method
+            self.init_request(request=request)
+            if not self.data_params_quarry.check_user_method_permissions(
+                    method=self.request.method
             ):
                 raise APIException(
                     code=API_40003_PERMISSION_DENIED,
                     detail="没有权限操作"
                 )
+            data = self.serializer_class(
+                data=self.request.data,
+                user=self.user
+            )
             if not data.is_valid():
                 RecodeLog.error(msg="数据验证错误:{0}".format(data.errors))
                 raise APIException(
@@ -87,26 +98,18 @@ class BasePOSTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
             )
 
 
-class BaseDELETEVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
+class BaseDELETEVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination):
     serializer_class = None
     pk = None
 
     def delete(self, request):
         try:
-            model_obj = self.get_user_data_objects(
-                request=request
-            )
+            self.init_request(request=request)
+            model_obj = self.get_model_objects()
             if not model_obj:
                 raise APIException(
                     detail="获取删除数据失败！",
                     code=API_12001_DATA_NULL_ERROR
-                )
-            if not self.check_user_permissions(
-                    request=request
-            ):
-                raise APIException(
-                    detail="没有删除权限！！",
-                    code=API_40003_PERMISSION_DENIED
                 )
             model_obj.delete()
             return DataResponse(
@@ -123,7 +126,7 @@ class BaseDELETEVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
             )
 
 
-class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
+class BasePUTVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination):
     serializer_class = None
     pk = None
 
@@ -135,12 +138,8 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         try:
-            if not self.check_user_permissions(request=request):
-                raise APIException(
-                    detail="没有修改权限！！",
-                    code=API_40003_PERMISSION_DENIED
-                )
-            model_objs = self.get_user_data_objects(request=request)
+            self.init_request(request=request)
+            model_objs = self.get_model_objects()
             if not model_objs or len(model_objs) > 1:
                 RecodeLog.error(
                     msg="返回:{0}".format(model_objs)
@@ -180,27 +179,6 @@ class BasePUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
 class BaseListView(BaseGETVIEW, BasePOSTVIEW):
     """A base view for displaying a single object."""
     serializer_class = None
-
-    def format_request_params(self, request):
-        """
-        :param request:
-        :return:
-        """
-        self.kwargs = request.GET.copy()
-        if self.page_size_query_param in self.kwargs:
-            self.page_size = self.kwargs.pop(self.page_size_query_param)
-        if self.page_query_param in self.kwargs:
-            self.kwargs.pop(self.page_query_param)
-        if self.sort_query_param in self.kwargs:
-            self.kwargs.pop(self.sort_query_param)
-
-    def get(self, request):
-        self.format_request_params(request=request)
-        return super().get(request)
-
-    def post(self, request):
-        self.format_request_params(request=request)
-        return super().post(request)
 
 
 class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
@@ -242,14 +220,15 @@ class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
         return super().delete(request)
 
 
-class BaseGETView(DataQueryPermission, APIView):
+class BaseGETView(DataPermissionMixins, APIView):
     serializer_class = None
     pk = None
 
     def get(self, request):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
-        model_obj = self.get_user_data_objects(request=request)
+        self.init_request(request=request)
+        model_obj = self.get_model_objects()
         data = self.serializer_class(
             instance=model_obj,
             many=True
@@ -261,25 +240,28 @@ class BaseGETView(DataQueryPermission, APIView):
         )
 
 
-class ContentFieldValueGETView(DataQueryPermission, APIView):
+class ContentFieldValueGETView(DataPermissionMixins, APIView):
     serializer_class = None
     pk = None
     field = None
 
-    def get_user_data_objects(self, request):
-        self.kwargs = request.GET.copy()
+    def get_model_objects(self):
+        self.kwargs = self.request.GET.copy()
         if 'field' not in self.kwargs:
             raise APIException(detail="输入参数异常!!", code=API_10001_PARAMS_ERROR)
         self.field = self.kwargs.pop('field')
-        return super().get_user_data_objects(request)
+        return super().get_model_objects()
 
     def get(self, request):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
-        model_obj = self.get_user_data_objects(request=request)
+        self.init_request(request=request)
+        model_obj = self.get_model_objects()
         try:
-            self.check_content_permission(obj=model_obj)
-            data = self.get_content_field_values(field=self.field)
+            self.data_params_quarry.check_content_permission(obj=model_obj)
+            data = self.data_params_quarry.get_content_field_values(
+                field=self.field
+            )
             return DataResponse(
                 data=data,
                 msg="获取信息成功！",
@@ -293,23 +275,33 @@ class ContentFieldValueGETView(DataQueryPermission, APIView):
             )
 
 
-class ContentFieldGETView(DataQueryPermission, APIView):
+class ContentFieldGETView(DataPermissionMixins, APIView):
     serializer_class = None
     pk = None
 
-    def get_user_data_objects(self, request):
-        self.kwargs = getattr(request, "GET")
-        return super().get_user_data_objects(request)
+    def init_request(self, request):
+        """
+        """
+        self.kwargs = self.request.GET.copy()
+        super(ContentFieldGETView, self).init_request(request=request)
 
     def get(self, request):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
-        model_obj = self.get_user_data_objects(request=request)
+        fields_list = list()
+        self.init_request(request=request)
+        model_obj = self.get_model_objects()
         try:
-            self.check_content_permission(obj=model_obj)
-            fields = self.get_content_fields()
+            self.data_params_quarry.check_content_permission(obj=model_obj)
+            fields = self.data_params_quarry.get_content_fields()
+            for key, value in fields.items():
+                field_value = self.data_params_quarry.get_content_field_values(field=key)
+                fields_list.append({
+                    'field': key,
+                    'value': field_value
+                })
             return DataResponse(
-                data=fields,
+                data=fields_list,
                 msg="获取信息成功！",
                 code='00000'
             )
@@ -321,7 +313,7 @@ class ContentFieldGETView(DataQueryPermission, APIView):
             )
 
 
-class UserGETView(DataQueryPermission, APIView):
+class UserGETView(DataPermissionMixins, APIView):
     serializer_class = None
     pk = None
 
@@ -329,9 +321,6 @@ class UserGETView(DataQueryPermission, APIView):
         """
         :return:
         """
-        # 判断传入参数类型
-        if not isinstance(self.user, self.get_user_model):
-            raise TypeError("传入的用户类型错误！")
         # 超级用户直接返回全部权限
         model = django_apps.get_model("Rbac.Menu")
         if self.user.is_superuser:
@@ -343,7 +332,8 @@ class UserGETView(DataQueryPermission, APIView):
             data = self.get_user_menu(menu_list=self.user.roles.menu.all())
         return data
 
-    def get_user_menu(self, menu_list):
+    @staticmethod
+    def get_user_menu(menu_list):
         """
 
         :param menu_list:
@@ -411,7 +401,11 @@ class UserGETView(DataQueryPermission, APIView):
                 if _childs:
                     child_data = self.get_child_menu(childs=_childs)
                     if child_data:
-                        data.setdefault('children', []).extend(child_data)
+                        data.setdefault(
+                            'children', []
+                        ).extend(
+                            child_data
+                        )
                 children.append(data)
         return children
 
@@ -419,9 +413,6 @@ class UserGETView(DataQueryPermission, APIView):
         """
         :return:
         """
-        # 判断传入参数类型
-        if not isinstance(self.user, self.get_user_model):
-            raise TypeError("传入的用户类型错误！")
         # 超级用户直接返回全部权限
         if self.user.is_superuser:
             RecodeLog.info(msg="当前为超级用户，用户：{0}!".format(self.user.username))
@@ -432,7 +423,7 @@ class UserGETView(DataQueryPermission, APIView):
     def get(self, request):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
-        self.user = self.get_user_object(request=request)
+        self.init_request(request=request)
         data = self.serializer_class(
             instance=self.user
         )
@@ -451,8 +442,8 @@ class BaseGetPUTView(BaseGETVIEW, BasePUTVIEW):
     serializer_class = None
     pk = None
 
-    def get_user_data_objects(self, request):
-        self.kwargs = getattr(request, "GET")
+    def get_model_objects(self):
+        self.kwargs = getattr(self.request, "GET")
         if self.pk is None or self.pk not in self.kwargs:
             raise APIException(
                 detail="传入参数错误！",
@@ -464,7 +455,7 @@ class BaseGetPUTView(BaseGETVIEW, BasePUTVIEW):
             self.kwargs.pop(self.page_query_param)
         if self.sort_query_param in self.kwargs:
             self.kwargs.pop(self.sort_query_param)
-        return super().get_user_data_objects(request)
+        return super().get_model_objects()
 
     def put(self, request):
         """
@@ -475,9 +466,8 @@ class BaseGetPUTView(BaseGETVIEW, BasePUTVIEW):
             raise TypeError("serializer_class type error!")
 
         try:
-            if not self.check_user_permissions(request=request):
-                raise APIException(detail="没有权限修改！", code=API_40003_PERMISSION_DENIED)
-            model_objs = self.get_user_data_objects(request=request)
+            self.init_request(request=request)
+            model_objs = self.get_model_objects()
             data = self.serializer_class(
                 instance=model_objs,
                 many=True,
@@ -502,7 +492,8 @@ class BaseGetPUTView(BaseGETVIEW, BasePUTVIEW):
     def get(self, request):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
-        model_obj = self.get_user_data_objects(request=request)
+        self.init_request(request=request)
+        model_obj = self.get_model_objects()
         data = self.serializer_class(
             instance=model_obj,
             many=True
@@ -527,12 +518,8 @@ class BasePUTView(BasePUTVIEW):
             raise TypeError("serializer_class type error!")
 
         try:
-            if not self.check_user_permissions(request=request):
-                raise APIException(
-                    code=API_40003_PERMISSION_DENIED,
-                    detail="没有权限！"
-                )
-            model_objs = self.get_user_data_objects(request=request)
+            self.init_request(request=request)
+            model_objs = self.get_model_objects()
             data = self.serializer_class(
                 instance=model_objs,
                 many=True,
@@ -555,27 +542,25 @@ class BasePUTView(BasePUTVIEW):
             )
 
 
-class BaseFlowGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
+class BaseFlowGETVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination):
     serializer_class = None
 
     def get(self, request):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         try:
-            if not self.check_user_permissions(request=request):
-                raise APIException(
-                    detail="没有相关权限！",
-                    code=API_40003_PERMISSION_DENIED
-                )
-            model_obj = self.get_user_data_objects(request=request)
+            self.init_request(request=request)
+            model_obj = self.get_model_objects()
             page_obj = self.paginate_queryset(queryset=model_obj, request=request, view=self)
             data = self.serializer_class(
                 instance=page_obj,
                 many=True
             )
 
-            format_data = self.format_flow_data(data=data.data)
-            tag = self.check_user_method_permissions(request=request, method=request.method)
+            format_data = self.data_params_quarry.format_flow_data(data=data.data)
+            tag = self.data_params_quarry.check_user_method_permissions(
+                method=self.request.method
+            )
             return self.get_paginated_response(
                 data=format_data,
                 msg="获取数据成功",
@@ -593,13 +578,13 @@ class BaseFlowGETVIEW(DataQueryPermission, APIView, RewritePageNumberPagination)
             )
 
 
-class BaseFlowPUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination):
+class BaseFlowPUTVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination):
     serializer_class = None
     pk = None
     fields = None
 
-    def get_user_data_objects(self, request):
-        self.kwargs = getattr(request, "GET")
+    def get_model_objects(self):
+        self.kwargs = getattr(self.request, "GET")
         if self.pk is None or self.pk not in self.kwargs:
             raise APIException(
                 detail="传入参数错误！",
@@ -611,7 +596,7 @@ class BaseFlowPUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination)
             self.kwargs.pop(self.page_query_param)
         if self.sort_query_param in self.kwargs:
             self.kwargs.pop(self.sort_query_param)
-        return super().get_user_data_objects(request)
+        return super().get_model_objects()
 
     def put(self, request):
         """
@@ -621,12 +606,7 @@ class BaseFlowPUTVIEW(DataQueryPermission, APIView, RewritePageNumberPagination)
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         try:
-            if not self.check_user_permissions(request=request):
-                raise APIException(
-                    detail="没有修改权限！！",
-                    code=API_40003_PERMISSION_DENIED
-                )
-            model_objs = self.get_user_data_objects(request=request)
+            model_objs = self.get_model_objects()
             if not model_objs or len(model_objs) > 1:
                 RecodeLog.error(
                     msg="返回:{0}".format(model_objs)

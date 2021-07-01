@@ -52,18 +52,15 @@ class NacosClass:
                 address = 'https://{}:{}'.format(content.auth_host, content.auth_port)
             else:
                 address = 'http://{}:{}'.format(content.auth_host, content.auth_port)
-            try:
-                self.nacos = nacos.NacosClient(
-                    address,
-                    namespace=namespace,
-                    username=content.auth_user,
-                    password=content.auth_passwd
-                )
-            except Exception as error:
-                RecodeLog.error(msg='初始化失败:{}'.format(error))
-                return True
+            self.nacos = nacos.NacosClient(
+                address,
+                namespace=namespace,
+                username=content.auth_user,
+                password=content.auth_passwd
+            )
+            return True
         except Exception as error:
-            RecodeLog.error(msg="Mongodb登录验证失败,{}".format(error))
+            RecodeLog.error(msg="登录验证失败,{}".format(error))
             return False
 
     def run(self, exec_list):

@@ -12,6 +12,7 @@ from django.db.models.query import QuerySet
 
 class BaseGETVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination):
     serializer_class = None
+    pagination = True
 
     def init_request(self, request):
         """
@@ -32,12 +33,17 @@ class BaseGETVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination):
 
             self.init_request(request=request)
             model_obj = self.get_model_objects()
-            page_obj = self.paginate_queryset(queryset=model_obj, request=request, view=self)
-            data = self.serializer_class(
-                instance=page_obj,
-                many=True
-            )
-
+            if self.pagination:
+                page_obj = self.paginate_queryset(queryset=model_obj, request=request, view=self)
+                data = self.serializer_class(
+                    instance=page_obj,
+                    many=True
+                )
+            else:
+                data = self.serializer_class(
+                    instance=model_obj,
+                    many=True
+                )
             format_data = self.data_params_quarry.format_return_data(data=data.data)
             tag = self.data_params_quarry.check_user_method_permissions(
                 method='POST'
@@ -225,7 +231,7 @@ class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
     serializer_class = None
     pk = None
 
-    def format_request_params(self, request):
+    def init_request(self, request):
         """
         :param request:
         :return:
@@ -238,25 +244,15 @@ class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
                 detail="传入参数错误！",
                 code=API_10001_PARAMS_ERROR
             )
-        if self.page_size_query_param in self.kwargs:
-            self.page_size = self.kwargs.pop(self.page_size_query_param)
-        if self.page_query_param in self.kwargs:
-            self.kwargs.pop(self.page_query_param)
-        if self.sort_query_param in self.kwargs:
-            self.kwargs.pop(self.sort_query_param)
-        if self.page_size in self.kwargs:
-            self.kwargs.pop(self.page_size)
+        super(BaseGETVIEW, self).init_request(request=request)
 
     def get(self, request):
-        self.format_request_params(request=request)
         return super().get(request)
 
     def put(self, request):
-        self.format_request_params(request=request)
         return super().put(request)
 
     def delete(self, request):
-        self.format_request_params(request=request)
         return super().delete(request)
 
 
@@ -495,67 +491,15 @@ class BaseGetPUTView(BaseGETVIEW, BasePUTVIEW):
     serializer_class = None
     pk = None
 
-    def get_model_objects(self):
+    def init_request(self, request):
         self.kwargs = getattr(self.request, "GET")
         if self.pk is None or self.pk not in self.kwargs:
             raise APIException(
                 detail="传入参数错误！",
                 code=API_10001_PARAMS_ERROR
             )
-        if self.page_size_query_param in self.kwargs:
-            self.page_size = self.kwargs.pop(self.page_size_query_param)
-        if self.page_query_param in self.kwargs:
-            self.kwargs.pop(self.page_query_param)
-        if self.sort_query_param in self.kwargs:
-            self.kwargs.pop(self.sort_query_param)
-        return super().get_model_objects()
-
-    def put(self, request):
-        """
-        :param request:
-        :return:
-        """
-        if not self.serializer_class:
-            raise TypeError("serializer_class type error!")
-
-        try:
-            self.init_request(request=request)
-            model_objs = self.get_model_objects()
-            data = self.serializer_class(
-                instance=model_objs,
-                many=True,
-                data=request.data
-            )
-            if not data.is_valid():
-                RecodeLog.error(msg="返回:{0}".format(data.errors))
-                raise APIException(
-                    detail="数据格式错误！",
-                    code=API_10001_PARAMS_ERROR
-                )
-            data.save()
-            return DataResponse(msg="数据保存成功", code="00000")
-        except APIException as error:
-            RecodeLog.error(msg="返回状态码:{1},错误信息:{0}".format(error.default_detail, error.status_code))
-            return DataResponse(
-                data=request.data,
-                msg="数据保存失败:%s" % error.default_detail,
-                code=error.status_code
-            )
-
-    def get(self, request):
-        if not self.serializer_class:
-            raise TypeError("serializer_class type error!")
-        self.init_request(request=request)
-        model_obj = self.get_model_objects()
-        data = self.serializer_class(
-            instance=model_obj,
-            many=True
-        )
-        return DataResponse(
-            data=data.data,
-            msg="获取信息成功",
-            code="00000"
-        )
+        self.pagination = False
+        return super().init_request(request=request)
 
 
 class BaseFlowGETVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination):

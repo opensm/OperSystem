@@ -6,6 +6,7 @@ import os
 from Task.lib.base import cmd
 import glob
 from Task.models import AuthKEY, ExecList, TemplateNacos
+import yaml
 
 
 class NacosClass:
@@ -27,8 +28,12 @@ class NacosClass:
         data = yaml_achieve.split(os.path.sep)
         try:
             with open(yaml_achieve, 'r') as fff:
+                load_dict = yaml.load_all(fff, Loader=yaml.Loader)
                 self.nacos.publish_config(
-                    content=fff.readlines(),
+                    content=yaml.dump_all(
+                        load_dict,
+                        allow_unicode=True
+                    ),
                     config_type=config_type,
                     timeout=30,
                     data_id=data[-1],
@@ -80,20 +85,28 @@ class NacosClass:
                 namespace=template.namespace
         ):
             return False
-        if not os.path.exists(achieve):
-            RecodeLog.error(msg="文件不存在:{}".format(achieve))
-            return False
         name, extension = os.path.splitext(achieve)
         if extension != '.zip':
             RecodeLog.error(msg="文件类型错误:{}".format(achieve))
             return False
         sql_data = name.split("#")
-        self.ftp.download(remote_path=sql_data[2], local_path=self.backup_dir, achieve=achieve)
-        unzip_shell_string = 'unzip {} -d {} '.format(achieve, name)
+        if sql_data[1] != 'nacos':
+            RecodeLog.error(msg="传输文件错误:{}".format(achieve))
+            return False
+        if not self.ftp.download(
+                remote_path=sql_data[2],
+                local_path=self.backup_dir,
+                achieve=achieve
+        ):
+            return False
+        unzip_shell_string = 'unzip -f {} -d {} '.format(
+            os.path.join(self.backup_dir, achieve),
+            os.path.join(self.backup_dir, name)
+        )
         if not cmd(cmd_str=unzip_shell_string):
             RecodeLog.error(msg="解压文件失败：{}".format(unzip_shell_string))
             return False
-        for yml in glob.glob("*/*.yaml"):
+        for yml in glob.glob(os.path.join(self.backup_dir, name, "*", "*.yaml")):
             if not self.upload_config(yaml_achieve=yml, config_type=template.config_type):
                 RecodeLog.error(msg="导入相关配置失败")
                 return False

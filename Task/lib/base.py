@@ -20,8 +20,16 @@ def cmd(cmd_str, replace=''):
         status, output = exec_proc.getstatusoutput(cmd_str)
         if status != 0:
             raise Exception(output)
-        RecodeLog.info("执行:{0},成功!".format(cmd_str).replace(replace, '********'))
+        if not replace:
+            msg = "执行:{0},成功!".format(cmd_str)
+        else:
+            msg = "执行:{0},成功!".format(cmd_str).replace(replace, '********')
+        RecodeLog.info(msg=msg)
         return True
     except Exception as error:
-        RecodeLog.error(msg="执行:{0},失败，原因:{1}".format(cmd_str, error).replace(replace, '********'))
+        if not replace:
+            msg = "执行:{0},失败，原因:{1}".format(cmd_str, error)
+        else:
+            msg = "执行:{0},失败，原因:{1}".format(cmd_str, error).replace(replace, '********')
+        RecodeLog.error(msg=msg)
         return False

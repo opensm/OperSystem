@@ -171,7 +171,7 @@ class CurrentUserView(UserGETView):
     serializer_class = UserInfoSerializer
 
 
-class ContentTypeView(BaseGETView):
+class ContentTypeView(BaseGETNOTPageView):
     model_name = 'ContentType'
     app_label = 'contenttypes'
     serializer_class = ContentTypeSerializer

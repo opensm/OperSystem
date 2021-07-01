@@ -256,37 +256,28 @@ class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
         return super().delete(request)
 
 
-class BaseGETView(DataPermissionMixins, APIView):
+class BaseGETNOTPageView(BaseGETVIEW):
     serializer_class = None
     pk = None
+    pagination = False
+
+    def init_request(self, request):
+        """
+        :param request:
+        :return:
+        """
+        self.kwargs = request.GET.copy()
+        if self.pk is None:
+            raise ValueError("pk 没有定义！")
+        if self.pk not in self.kwargs:
+            raise APIException(
+                detail="传入参数错误！",
+                code=API_10001_PARAMS_ERROR
+            )
+        super(BaseGETNOTPageView, self).init_request(request=request)
 
     def get(self, request):
-        if not self.serializer_class:
-            raise TypeError("serializer_class type error!")
-        self.init_request(request=request)
-        try:
-            model_obj = self.get_model_objects()
-            data = self.serializer_class(
-                instance=model_obj,
-                many=True
-            )
-            return DataResponse(
-                data=data.data,
-                msg="获取信息成功！",
-                code='00000'
-            )
-        except APIException as error:
-            RecodeLog.error(
-                msg="返回状态码:{1},错误信息:{0}".format(
-                    error.default_detail,
-                    error.status_code
-                )
-            )
-            return DataResponse(
-                data=[],
-                msg="获取数据失败，%s" % error.default_detail,
-                code=error.status_code
-            )
+        return super().get(request)
 
 
 class ContentFieldValueGETView(DataPermissionMixins, APIView):
@@ -617,7 +608,7 @@ __all__ = [
     'BaseDetailView',
     'BaseListView',
     'BasePOSTVIEW',
-    'BaseGETView',
+    'BaseGETNOTPageView',
     'BaseGetPUTView',
     'UserGETView',
     'BaseFlowGETVIEW',

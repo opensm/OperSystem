@@ -59,7 +59,7 @@ class BaseGETVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination):
             )
 
 
-class BasePOSTVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination):
+class BasePOSTVIEW(DataPermissionMixins, APIView):
     serializer_class = None
 
     def post(self, request):
@@ -98,7 +98,46 @@ class BasePOSTVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination):
             )
 
 
-class BaseDELETEVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination):
+class BaseResetPasswordVIEW(DataPermissionMixins, APIView):
+    serializer_class = None
+
+    def post(self, request):
+        print(request.data)
+        if not self.serializer_class:
+            raise TypeError("serializer_class type error!")
+        try:
+            self.init_request(request=request)
+            if not self.data_params_quarry.check_user_method_permissions(
+                    method=self.request.method
+            ):
+                raise APIException(
+                    code=API_40003_PERMISSION_DENIED,
+                    detail="没有权限操作"
+                )
+            data = self.serializer_class(
+                data=self.request.data,
+                user=self.user
+            )
+            if not data.is_valid():
+                RecodeLog.error(msg="数据验证错误:{0}".format(data.errors))
+                raise APIException(
+                    detail="序列化数据出现异常，请检查输入参数！",
+                    code=API_10001_PARAMS_ERROR,
+                )
+            return DataResponse(
+                data=[],
+                msg='数据保存成功！',
+                code=API_00000_OK
+            )
+        except APIException as error:
+            RecodeLog.error(msg="返回状态码:{1},错误信息:{0}".format(error.default_detail, error.status_code))
+            return DataResponse(
+                code=error.status_code,
+                msg=error.default_detail
+            )
+
+
+class BaseDELETEVIEW(DataPermissionMixins, APIView):
     serializer_class = None
     pk = None
 
@@ -126,7 +165,7 @@ class BaseDELETEVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination)
             )
 
 
-class BasePUTVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination):
+class BasePUTVIEW(DataPermissionMixins, APIView):
     serializer_class = None
     pk = None
 
@@ -159,7 +198,8 @@ class BasePUTVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination):
                 )
             data.save()
             return DataResponse(
-                msg="数据保存成功：{}".format(request.data),
+                data=data.data,
+                msg="数据保存成功！",
                 code=API_00000_OK
             )
         except APIException as error:
@@ -228,16 +268,29 @@ class BaseGETView(DataPermissionMixins, APIView):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         self.init_request(request=request)
-        model_obj = self.get_model_objects()
-        data = self.serializer_class(
-            instance=model_obj,
-            many=True
-        )
-        return DataResponse(
-            data=data.data,
-            msg="获取信息成功！",
-            code='00000'
-        )
+        try:
+            model_obj = self.get_model_objects()
+            data = self.serializer_class(
+                instance=model_obj,
+                many=True
+            )
+            return DataResponse(
+                data=data.data,
+                msg="获取信息成功！",
+                code='00000'
+            )
+        except APIException as error:
+            RecodeLog.error(
+                msg="返回状态码:{1},错误信息:{0}".format(
+                    error.default_detail,
+                    error.status_code
+                )
+            )
+            return DataResponse(
+                data=[],
+                msg="获取数据失败，%s" % error.default_detail,
+                code=error.status_code
+            )
 
 
 class ContentFieldValueGETView(DataPermissionMixins, APIView):
@@ -505,43 +558,6 @@ class BaseGetPUTView(BaseGETVIEW, BasePUTVIEW):
         )
 
 
-class BasePUTView(BasePUTVIEW):
-    serializer_class = None
-    pk = None
-
-    def put(self, request):
-        """
-        :param request:
-        :return:
-        """
-        if not self.serializer_class:
-            raise TypeError("serializer_class type error!")
-
-        try:
-            self.init_request(request=request)
-            model_objs = self.get_model_objects()
-            data = self.serializer_class(
-                instance=model_objs,
-                many=True,
-                data=request.data
-            )
-            if not data.is_valid():
-                RecodeLog.error(msg="返回:{0}".format(data.errors))
-                raise APIException(
-                    detail="数据输入格式不匹配:{0}".format(data.errors),
-                    code=API_10001_PARAMS_ERROR
-                )
-            data.save()
-            return DataResponse(msg="数据保存成功：{}".format(request.data), code="00000")
-        except APIException as error:
-            RecodeLog.error(msg="返回状态码:{1},错误信息:{0}".format(error.default_detail, error.status_code))
-            return DataResponse(
-                data=request.data,
-                msg="数据保存失败:%s" % error.default_detail,
-                code=error.status_code
-            )
-
-
 class BaseFlowGETVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination):
     serializer_class = None
 
@@ -551,13 +567,19 @@ class BaseFlowGETVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination
         try:
             self.init_request(request=request)
             model_obj = self.get_model_objects()
-            page_obj = self.paginate_queryset(queryset=model_obj, request=request, view=self)
+            page_obj = self.paginate_queryset(
+                queryset=model_obj,
+                request=request,
+                view=self
+            )
             data = self.serializer_class(
                 instance=page_obj,
                 many=True
             )
 
-            format_data = self.data_params_quarry.format_flow_data(data=data.data)
+            format_data = self.data_params_quarry.format_flow_data(
+                data=data.data
+            )
             tag = self.data_params_quarry.check_user_method_permissions(
                 method=self.request.method
             )
@@ -583,8 +605,10 @@ class BaseFlowPUTVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination
     pk = None
     fields = None
 
-    def get_model_objects(self):
-        self.kwargs = getattr(self.request, "GET")
+    def init_request(self, request):
+        """
+        """
+        self.kwargs = self.request.GET.copy()
         if self.pk is None or self.pk not in self.kwargs:
             raise APIException(
                 detail="传入参数错误！",
@@ -596,7 +620,7 @@ class BaseFlowPUTVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination
             self.kwargs.pop(self.page_query_param)
         if self.sort_query_param in self.kwargs:
             self.kwargs.pop(self.sort_query_param)
-        return super().get_model_objects()
+        super(BaseFlowPUTVIEW, self).init_request(request=request)
 
     def put(self, request):
         """
@@ -606,6 +630,7 @@ class BaseFlowPUTVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         try:
+            self.init_request(request=request)
             model_objs = self.get_model_objects()
             if not model_objs or len(model_objs) > 1:
                 RecodeLog.error(
@@ -647,12 +672,13 @@ class BaseFlowPUTVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination
 __all__ = [
     'BaseDetailView',
     'BaseListView',
+    'BasePOSTVIEW',
     'BaseGETView',
     'BaseGetPUTView',
-    'BasePUTView',
     'UserGETView',
     'BaseFlowGETVIEW',
     'BaseFlowPUTVIEW',
     'ContentFieldGETView',
-    'ContentFieldValueGETView'
+    'ContentFieldValueGETView',
+    'BaseResetPasswordVIEW'
 ]

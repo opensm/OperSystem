@@ -19,7 +19,7 @@ class Tasks(models.Model):
         ('timeout', '任务已超时'),
         ('unsubmit', '未提交')
     )
-    id = models.CharField(verbose_name="任务ID", max_length=50, null=False, blank=False, unique=True, primary_key=True)
+    id = models.IntegerField(verbose_name="任务ID", null=False, blank=False, unique=True, primary_key=True)
     name = models.CharField(verbose_name="任务名称", max_length=200, default='', null=False)
     status = models.CharField(
         null=False, blank=False, default='not_start_approve', max_length=20, choices=status_choice
@@ -45,7 +45,7 @@ class SubTask(models.Model):
         ('fail', '任务执行失败'),
         ('unbond', '任务还未绑定')
     )
-    id = models.CharField(verbose_name="子任务ID", max_length=50, null=False, blank=False, unique=True, primary_key=True)
+    id = models.IntegerField(verbose_name="子任务ID", null=False, blank=False, unique=True, primary_key=True)
     status = models.CharField(
         null=False, blank=False, default='unbond', max_length=20, choices=status_choice
     )
@@ -74,16 +74,11 @@ class ExecList(models.Model):
         ('recover_success', '回档执行成功'),
         ('recover_fail', '回档执行失败'),
     )
-    exec_type_choice = (
-        ('recover', '回档'),
-        ('update', '更新')
-    )
     id = models.AutoField(primary_key=True)
     status = models.CharField(
         null=False, blank=False, default='not_start_exec', max_length=30, choices=status_choice
     )
     params = models.CharField(verbose_name='相关参数', max_length=200, null=True, default='')
-    exec_type = models.CharField(verbose_name="操作类型", max_length=20, default='update', choices=exec_type_choice)
     exec_id = models.ForeignKey(
         'self', on_delete=models.CASCADE, verbose_name='执行ID', null=True, related_name='parent_task', blank=True
     )
@@ -94,7 +89,6 @@ class ExecList(models.Model):
         'content_type',
         'object_id'
     )  # content_object为GenericForeignKey类型，主要作用是根据content_type字段和object_id字段来定位某个模型中具体某个实例
-    # create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
     finish_time = models.CharField(verbose_name="完成时间", null=True, blank=True, max_length=50)
 
@@ -106,6 +100,8 @@ class ExecListLog(models.Model):
     id = models.AutoField(primary_key=True)
     exec_flow = models.ForeignKey(ExecList, on_delete=models.CASCADE, null=False)
     log = models.TextField(verbose_name='日志信息')
+    sub_task = models.ForeignKey(SubTask, verbose_name='子任务', on_delete=models.CASCADE, null=False)
+    task = models.ForeignKey(Tasks, verbose_name='主任务', on_delete=models.CASCADE, null=False)
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
     create_time = models.DateTimeField(verbose_name='写入日期', auto_now_add=True)
 
@@ -130,7 +126,7 @@ class AuthKEY(models.Model):
     auth_params = models.TextField(verbose_name="验证参数", max_length=2000, default='', null=True, blank=True)
     auth_type = models.CharField(verbose_name="操作类型", max_length=100, default='Shell', choices=exec_choice)
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
-    create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
+    create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=True, blank=True)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
     class Meta:
@@ -164,7 +160,7 @@ class TemplateKubernetes(models.Model):
     label = models.CharField(verbose_name="标签", max_length=200, default='apps={}')
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
     exec_list = GenericRelation(to='ExecList')
-    create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
+    create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=True, blank=True)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
     class Meta:
@@ -179,7 +175,7 @@ class TemplateDB(models.Model):
     exec_function = models.TextField(verbose_name='调用方法', max_length=2000, default='')
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
     exec_list = GenericRelation(to='ExecList')
-    create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
+    create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=True, blank=True)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
     class Meta:
@@ -194,7 +190,7 @@ class TemplateTencentService(models.Model):
     exec_function = models.TextField(verbose_name='调用方法', max_length=2000, default='')
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
     exec_list = GenericRelation(to='ExecList')
-    create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
+    create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=True, blank=True)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
     class Meta:
@@ -211,7 +207,7 @@ class TemplateNacos(models.Model):
     exec_function = models.TextField(verbose_name='调用方法', max_length=2000, default='')
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
     exec_list = GenericRelation(to='ExecList')
-    create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=False)
+    create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=True, blank=True)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
     class Meta:

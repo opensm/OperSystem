@@ -25,9 +25,18 @@ class ContentTypeSerializer(serializers.ModelSerializer):
 
 
 class DataPermissionSerializer(serializers.ModelSerializer):
+    app_label_set = serializers.CharField(source='content_type.app_label', read_only=True)
+    model_set = serializers.CharField(source='content_type.model', read_only=True)
+
     class Meta:
         model = DataPermissionRule
         fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        self.user = None
+        if 'user' in kwargs:
+            kwargs.pop('user')
+        super(DataPermissionSerializer, self).__init__(*args, **kwargs)
 
 
 class DataPermissionListSerializer(serializers.ModelSerializer):
@@ -35,11 +44,23 @@ class DataPermissionListSerializer(serializers.ModelSerializer):
         model = DataPermissionList
         fields = "__all__"
 
+    def __init__(self, *args, **kwargs):
+        self.user = None
+        if 'user' in kwargs:
+            kwargs.pop('user')
+        super(DataPermissionListSerializer, self).__init__(*args, **kwargs)
+
 
 class SubMenuSerializer(serializers.ModelSerializer):
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Menu  # 指定需要序列化的模型表
         fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        self.user = None
+        if 'user' in kwargs:
+            kwargs.pop('user')
+        super(SubMenuSerializer, self).__init__(*args, **kwargs)
 
 
 class MenuSerializer(serializers.ModelSerializer):
@@ -71,11 +92,23 @@ class MenuSerializer(serializers.ModelSerializer):
         model = Menu  # 指定需要序列化的模型表
         fields = "__all__"
 
+    def __init__(self, *args, **kwargs):
+        self.user = None
+        if 'user' in kwargs:
+            kwargs.pop('user')
+        super(MenuSerializer, self).__init__(*args, **kwargs)
+
 
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:  # 如果不想每个字段都自己写，那么这就是固定写法，在继承serializer中字段必须自己写，这是二者的区别
         model = Role  # 指定需要序列化的模型表
         fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        self.user = None
+        if 'user' in kwargs:
+            kwargs.pop('user')
+        super(RoleSerializer, self).__init__(*args, **kwargs)
 
 
 class UserInfoSerializer(serializers.ModelSerializer):
@@ -94,6 +127,12 @@ class UserInfoSerializer(serializers.ModelSerializer):
         obj.set_password('Abc@1234')
         obj.save()
         return obj
+
+    def __init__(self, *args, **kwargs):
+        self.user = None
+        if 'user' in kwargs:
+            kwargs.pop('user')
+        super(UserInfoSerializer, self).__init__(*args, **kwargs)
 
 
 class SignInSerializer(serializers.Serializer):
@@ -133,8 +172,8 @@ class SignInSerializer(serializers.Serializer):
 
 
 class ResetPasswordSerializer(serializers.Serializer):
-    oldPassword = serializers.CharField(allow_blank=False, allow_null=False)
-    newPassword = serializers.CharField(allow_blank=False, allow_null=False)
+    oldPassword = serializers.CharField(read_only=True)
+    password = serializers.CharField(allow_blank=False, allow_null=False)
 
     def __init__(self, user, *args, **kwargs):
         self.user = user
@@ -143,7 +182,7 @@ class ResetPasswordSerializer(serializers.Serializer):
     def validate_oldPassword(self, attrs):
         status = auth.authenticate(username=self.user.username, password=attrs)
         if not status:
-            raise serializers.ValidationError(detail="密码校验失败！", code="invalid")
+            raise serializers.ValidationError('密码不正确')
 
     def validate_newPassword(self, attrs):
         """
@@ -153,10 +192,24 @@ class ResetPasswordSerializer(serializers.Serializer):
         password_validation.validate_password(password=attrs, user=self.user)
 
     def validate(self, attrs):
-        new_password = attrs['newPassword']
-        self.user.set_password(new_password)
-        self.user.save()
+        print(attrs)
+        password = attrs['password']
+        u = UserInfo.objects.get(username=self.user.username)
+        u.set_password(password)
+        print(u.id)
+        print(u.username)
+        print('d')
+        u.save()
         return attrs
+
+    # def create(self, validated_data):
+    #     new_password = validated_data['password']
+    #     self.user.set_password(new_password)
+    #     print(self.user.id)
+    #     print(self.user.username)
+    #     print(self.)
+    #     self.user.save()
+    #     return None
 
 
 class UserEditRoleSerializer(serializers.ModelSerializer):

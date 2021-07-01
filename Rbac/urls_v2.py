@@ -22,7 +22,7 @@ urlpatterns = [
     # 用户管理
     path('user', UserView.as_view(), name='user'),
     path('users', UsersView.as_view(), name='user'),
-    path('user/reset_passoword', ResetPassWordView.as_view(), name='reset_passoword'),
+    path('user/reset_passwd', ResetPassWordView.as_view(), name='reset_passwd'),
     path('user/state', UserStatusEditView.as_view(), name="user_status"),
     path('user/roles', UserEditRoleView.as_view(), name="user_role"),
     path('current_user', CurrentUserView.as_view(), name='user'),

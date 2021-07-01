@@ -141,7 +141,7 @@ class UserView(BaseDetailView):
     pk = 'id'
 
 
-class ResetPassWordView(BasePUTView):
+class ResetPassWordView(BaseResetPasswordVIEW):
     model_name = 'UserInfo'
     app_label = 'Rbac'
     serializer_class = ResetPasswordSerializer

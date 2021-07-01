@@ -35,7 +35,7 @@ class FlowNodeView(BaseDetailView):
 class FlowTaskView(BaseFlowPUTVIEW):
     serializer_class = FlowTaskSerializers
     model_name = 'FlowTask'
-    app_label = 'Flow'
+    app_label = 'Task'
     pk = 'id'
     fields = ['status']
 

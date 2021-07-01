@@ -29,6 +29,9 @@ class FlowEngineSerializers(serializers.ModelSerializer):
 
 
 class FlowNodeSerializers(serializers.ModelSerializer):
+    flow_st = serializers.CharField(source='flow.name', read_only=True)
+    role_st = serializers.CharField(source='approval_role.name', read_only=True)
+
     class Meta:
         model = FlowNode
         fields = "__all__"
@@ -46,15 +49,15 @@ class FlowTaskSerializers(DynamicFieldsModelSerializer):
         for key, value in validated_data.items():
             setattr(instance, key, value)
         instance.save()
-        Tasks.objects.filter(id=instance.task).update(status='approveing')
+        Tasks.objects.filter(id=instance.task.id).update(status='approveing')
         if validated_data['status'] == 'refuse':
-            Tasks.objects.filter(id=instance.task).update(status='fail_approve')
+            Tasks.objects.filter(id=instance.task.id).update(status='fail_approve')
         else:
             if not FlowTask.objects.filter(
                     task=instance.task,
                     status__in=['refuse', 'unprocessed']
             ):
-                Tasks.objects.filter(id=instance.task).update(status='ok_approved')
+                Tasks.objects.filter(id=instance.task.id).update(status='ok_approved')
         return instance
 
 

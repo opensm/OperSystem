@@ -10,7 +10,7 @@ from KubernetesManagerWeb.settings import SECRET_KEY
 from lib.exceptions import *
 from Rbac.models import UserInfo, DataPermissionRule, DataPermissionList
 # from Flow.models import FlowTask
-from Task.models import Tasks,FlowTask
+from Task.models import Tasks, FlowTask
 from django.contrib.contenttypes.models import ContentType
 from lib.Log import RecodeLog
 
@@ -133,7 +133,12 @@ class DataQueryPermission(ObjectUserInfo):
             else:
                 obj, methods = self.get_permission_rule_q(data=data)
                 q_query.append(obj)
-        return q_query
+        if len(q_query) == 0:
+            return False
+        elif len(q_query) == 1:
+            return q_query[0]
+        else:
+            return reduce(operator.or_, q_query)
 
     def check_permission(self, method, data):
         """
@@ -441,17 +446,10 @@ class DataQueryPermission(ObjectUserInfo):
                     operator_params = 'all'
             else:
                 if current_obj:
-                    if len(permissions) > 1:
-                        operator_params = reduce(
-                            operator.and_, [
-                                current_obj,
-                                reduce(operator.or_, permissions)
-                            ])
-                    else:
-                        operator_params = reduce(
-                            operator.and_,
-                            [current_obj, permissions]
-                        )
+                    operator_params = reduce(
+                        operator.and_,
+                        [current_obj, permissions]
+                    )
                     select_obj = self.__model.objects.filter(current_obj)
                     request_obj = self.__model.objects.filter(operator_params)
                     if select_obj and not request_obj:
@@ -460,10 +458,7 @@ class DataQueryPermission(ObjectUserInfo):
                             detail="没有权限！"
                         )
                 else:
-                    operator_params = reduce(
-                        operator.or_,
-                        permissions
-                    )
+                    operator_params = permissions
             if operator_params == 'all':
                 return self.__model.objects.all()
             else:
@@ -522,4 +517,14 @@ class DataPermissionMixins:
                 code=API_50001_SERVER_ERROR,
                 detail="初始化参数失败！"
             )
+        return self.data_params_quarry.get_user_data_objects()
+
+    def get_user_model_object(self, app_label, model_name, kwargs):
+        self.data_params_quarry = DataQueryPermission(
+            request=self.request,
+            app_label=app_label,
+            model_name=model_name,
+            kwargs=kwargs
+        )
+        self.user = self.data_params_quarry.user
         return self.data_params_quarry.get_user_data_objects()

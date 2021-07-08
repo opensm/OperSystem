@@ -22,6 +22,13 @@ def format_error(data):
     return error_message
 
 
+# class CheckUserPassword(APIView):
+#     def get(self, request):
+#         token = request.META.get('HTTP_AUTHORIZATION')
+#         token_obj = UserToken.objects.get(token=token)
+#         token_obj.username
+
+
 class AuthView(APIView):
     def post(self, request):
         """

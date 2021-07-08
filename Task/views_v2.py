@@ -1,5 +1,6 @@
 from Task.serializers import *
 from lib.views_v2 import *
+from Rbac.serializers import ContentTypeSerializer
 
 
 class TasksView(BaseListView):
@@ -152,6 +153,12 @@ class TemplateNacosView(BaseDetailView):
     pk = 'id'
 
 
+class TemplateListView(ContentTemplateValueGETView):
+    serializer_class = ContentTypeSerializer
+    model_name = 'ContentType'
+    app_label = 'contenttypes'
+
+
 __all__ = [
     'TaskView',
     'TasksView',
@@ -172,5 +179,6 @@ __all__ = [
     'TemplateTencentServiceView',
     'TemplateTencentServicesView',
     'TemplateNacosView',
-    'TemplateNacosesView'
+    'TemplateNacosesView',
+    'TemplateListView'
 ]

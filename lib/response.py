@@ -14,6 +14,10 @@ class DataResponse(JsonResponse):
             raise ValueError(
                 "必须包含code状态码!"
             )
+        if 'post' in kwargs:
+            post = kwargs.pop('post')
+        else:
+            post = 'false'
         code = kwargs.pop('code')
         if not isinstance(code, str):
             raise TypeError(
@@ -27,29 +31,10 @@ class DataResponse(JsonResponse):
             'data': data,
             'meta': {
                 'msg': msg,
-                'code': code
+                'code': code,
+                'post': post
             }
         }
-        # if code not in SYSTEM_CODE_DICT:
-        #     params = {
-        #         'data': data,
-        #         'meta': {
-        #             'msg': SYSTEM_CODE_DICT['50001'],
-        #             'code': 50001
-        #         }
-        #     }
-        # else:
-        #     if 'msg' in kwargs:
-        #         msg = kwargs.pop('msg')
-        #     else:
-        #         msg = SYSTEM_CODE_DICT[code]
-        #     params = {
-        #         'data': data,
-        #         'meta': {
-        #             'msg': msg,
-        #             'code': code
-        #         }
-        #     }
         if 'token' in kwargs:
             params['token'] = kwargs.pop('token')
         super().__init__(data=params, **kwargs)

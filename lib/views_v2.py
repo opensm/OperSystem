@@ -3,7 +3,11 @@ from lib.mixins_v2 import DataPermissionMixins
 from lib.response import DataResponse
 from lib.page import RewritePageNumberPagination
 from Rbac.serializers import MenuSerializer, SubMenuSerializer
-from Rbac.models import Menu
+from Task.serializers import TemplateDBSerializers, \
+    TemplateNacosSerializers, \
+    TemplateKubernetesSerializers, \
+    TemplateTencentServiceSerializers
+from Rbac.models import Menu, UserInfo
 from lib.exceptions import *
 from lib.Log import RecodeLog
 from django.apps import apps as django_apps
@@ -39,21 +43,31 @@ class BaseGETVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination):
                     instance=page_obj,
                     many=True
                 )
+                format_data = self.data_params_quarry.format_return_data(data=data.data)
+                tag = self.data_params_quarry.check_user_method_permissions(
+                    method='POST'
+                )
+                return self.get_paginated_response(
+                    data=format_data,
+                    msg="获取数据成功!",
+                    post=tag,
+                    code=API_00000_OK
+                )
             else:
                 data = self.serializer_class(
                     instance=model_obj,
                     many=True
                 )
-            format_data = self.data_params_quarry.format_return_data(data=data.data)
-            tag = self.data_params_quarry.check_user_method_permissions(
-                method='POST'
-            )
-            return self.get_paginated_response(
-                data=format_data,
-                msg="获取数据成功",
-                post=tag,
-                code=API_00000_OK
-            )
+                format_data = self.data_params_quarry.format_return_data(data=data.data)
+                tag = self.data_params_quarry.check_user_method_permissions(
+                    method='POST'
+                )
+                return DataResponse(
+                    data=format_data,
+                    msg='获取数据成功！',
+                    post=tag,
+                    code=API_00000_OK
+                )
         except APIException as error:
             RecodeLog.error(msg="返回状态码:{1},错误信息:{0}".format(
                 error.default_detail,
@@ -108,7 +122,6 @@ class BaseResetPasswordVIEW(DataPermissionMixins, APIView):
     serializer_class = None
 
     def post(self, request):
-        print(request.data)
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         try:
@@ -130,6 +143,8 @@ class BaseResetPasswordVIEW(DataPermissionMixins, APIView):
                     detail="序列化数据出现异常，请检查输入参数！",
                     code=API_10001_PARAMS_ERROR,
                 )
+            self.user.set_password(data.data['password'])
+            self.user.save()
             return DataResponse(
                 data=[],
                 msg='数据保存成功！',
@@ -246,14 +261,14 @@ class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
             )
         super(BaseGETVIEW, self).init_request(request=request)
 
-    def get(self, request):
-        return super().get(request)
-
-    def put(self, request):
-        return super().put(request)
-
-    def delete(self, request):
-        return super().delete(request)
+    # def get(self, request):
+    #     return super().get(request)
+    #
+    # def put(self, request):
+    #     return super().put(request)
+    #
+    # def delete(self, request):
+    #     return super().delete(request)
 
 
 class BaseGETNOTPageView(BaseGETVIEW):
@@ -261,57 +276,85 @@ class BaseGETNOTPageView(BaseGETVIEW):
     pk = None
     pagination = False
 
-    def init_request(self, request):
-        """
-        :param request:
-        :return:
-        """
-        self.kwargs = request.GET.copy()
-        if self.pk is None:
-            raise ValueError("pk 没有定义！")
-        if self.pk not in self.kwargs:
-            raise APIException(
-                detail="传入参数错误！",
-                code=API_10001_PARAMS_ERROR
-            )
-        super(BaseGETNOTPageView, self).init_request(request=request)
 
-    def get(self, request):
-        return super().get(request)
-
-
-class ContentFieldValueGETView(DataPermissionMixins, APIView):
+class ContentFieldValueGETView(BaseGETVIEW):
     serializer_class = None
     pk = None
     field = None
+    pagination = False
 
-    def get_model_objects(self):
+    def init_request(self, request):
         self.kwargs = self.request.GET.copy()
         if 'field' not in self.kwargs:
             raise APIException(detail="输入参数异常!!", code=API_10001_PARAMS_ERROR)
         self.field = self.kwargs.pop('field')
-        return super().get_model_objects()
+        return super().init_request(request=request)
+
+
+class ContentTemplateValueGETView(DataPermissionMixins, APIView):
+    serializer_class = None
 
     def get(self, request):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         self.init_request(request=request)
-        model_obj = self.get_model_objects()
         try:
-            self.data_params_quarry.check_content_permission(obj=model_obj)
-            data = self.data_params_quarry.get_content_field_values(
-                field=self.field
+            objs = self.get_model_objects().filter(
+                app_label='Task',
+                model__in=['templatekubernetes', 'templatenacos', 'templatetencentservice', 'templatedb']
             )
+            if not objs:
+                raise APIException(
+                    code=API_40003_PERMISSION_DENIED,
+                    detail='没有权限！'
+                )
+            result = []
+            for obj in objs:
+                template_obj = self.get_user_model_object(
+                    app_label=obj.app_label,
+                    model_name=obj.model,
+                    kwargs=self.kwargs
+                )
+                if obj.model == 'templatekubernetes':
+                    data = TemplateKubernetesSerializers(instance=template_obj, many=True)
+                    result.append({
+                        'label': 'Kubernetes模板',
+                        'value': obj.id,
+                        'template': data.data
+                    })
+                elif obj.model == 'templatenacos':
+                    data = TemplateNacosSerializers(instance=template_obj, many=True)
+                    result.append({
+                        'label': 'Nacos模板',
+                        'value': obj.id,
+                        'template': data.data
+                    })
+                elif obj.model == 'templatetencentservice':
+                    data = TemplateTencentServiceSerializers(instance=template_obj, many=True)
+                    result.append({
+                        'label': '腾讯云服务模板',
+                        'value': obj.id,
+                        'template': data.data
+                    })
+                elif obj.model == 'templatedb':
+                    data = TemplateDBSerializers(instance=template_obj, many=True)
+                    result.append({
+                        'label': '数据库模板',
+                        'value': obj.id,
+                        'template': data.data
+                    })
+                else:
+                    raise APIException(code=API_50001_SERVER_ERROR, detail='未处理的模板类型')
             return DataResponse(
-                data=data,
+                data=result,
                 msg="获取信息成功！",
                 code='00000'
             )
         except APIException as error:
             return DataResponse(
                 data=[],
-                msg="数据获取失败，%s" % error.default_detail,
-                code=error.status_code
+                msg="获取信息失败,{}".format(error),
+                code='00001'
             )
 
 
@@ -615,5 +658,6 @@ __all__ = [
     'BaseFlowPUTVIEW',
     'ContentFieldGETView',
     'ContentFieldValueGETView',
-    'BaseResetPasswordVIEW'
+    'BaseResetPasswordVIEW',
+    'ContentTemplateValueGETView'
 ]

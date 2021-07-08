@@ -40,6 +40,14 @@ class DataPermissionSerializer(serializers.ModelSerializer):
 
 
 class DataPermissionListSerializer(serializers.ModelSerializer):
+    permission_rule_set = serializers.CharField(source='permission_rule.name', read_only=True)
+    permission_rule_request_set = serializers.SlugRelatedField(
+        source='permission_rule.request_type.all',
+        many=True,
+        read_only=True,
+        slug_field='name'
+    )
+
     class Meta:
         model = DataPermissionList
         fields = "__all__"
@@ -172,7 +180,7 @@ class SignInSerializer(serializers.Serializer):
 
 
 class ResetPasswordSerializer(serializers.Serializer):
-    oldPassword = serializers.CharField(read_only=True)
+    oldPassword = serializers.CharField()
     password = serializers.CharField(allow_blank=False, allow_null=False)
 
     def __init__(self, user, *args, **kwargs):
@@ -180,27 +188,26 @@ class ResetPasswordSerializer(serializers.Serializer):
         super().__init__(*args, **kwargs)
 
     def validate_oldPassword(self, attrs):
-        status = auth.authenticate(username=self.user.username, password=attrs)
-        if not status:
+        if not self.user.check_password(attrs):
             raise serializers.ValidationError('密码不正确')
+        return attrs
 
-    def validate_newPassword(self, attrs):
+    def validate_password(self, attrs):
         """
         :param attrs:
         :return:
         """
         password_validation.validate_password(password=attrs, user=self.user)
-
-    def validate(self, attrs):
-        print(attrs)
-        password = attrs['password']
-        u = UserInfo.objects.get(username=self.user.username)
-        u.set_password(password)
-        print(u.id)
-        print(u.username)
-        print('d')
-        u.save()
         return attrs
+    # def validate(self, attrs):
+    #     password = attrs['password']
+    #     self.user.set_password(password)
+    #     u = UserInfo.objects.filter(username=self.user.username).update(password=self.user.password)
+    #     # print(u.password)
+    #     # print(u.set_password(password))
+    #     # print(u.password)
+    #     # u.save()
+    #     return attrs
 
     # def create(self, validated_data):
     #     new_password = validated_data['password']

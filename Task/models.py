@@ -149,7 +149,7 @@ class TemplateKubernetes(models.Model):
         ('delete', '删除'),
     )
     id = models.AutoField(primary_key=True)
-    name = models.CharField(verbose_name='模板名称', max_length=200, default='', null=False)
+    name = models.CharField(verbose_name='模板名称', max_length=200, default='', null=False, unique=True)
     cluster = models.ForeignKey(AuthKEY, on_delete=models.CASCADE, verbose_name='关联集群', null=False)
     namespace = models.CharField(verbose_name='命名空间', null=False, default='system', max_length=100)
     app_name = models.CharField(verbose_name="应用名称", max_length=200, default='', null=False)
@@ -169,7 +169,7 @@ class TemplateKubernetes(models.Model):
 
 class TemplateDB(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(verbose_name='模板名称', max_length=200, default='', null=False)
+    name = models.CharField(verbose_name='模板名称', max_length=200, default='', null=False, unique=True)
     instance = models.ForeignKey(AuthKEY, on_delete=models.CASCADE, verbose_name='实例', null=False)
     exec_class = models.TextField(verbose_name='调用类', max_length=200, default='')
     exec_function = models.TextField(verbose_name='调用方法', max_length=2000, default='')
@@ -184,7 +184,7 @@ class TemplateDB(models.Model):
 
 class TemplateTencentService(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(verbose_name='模板名称', max_length=200, default='', null=False)
+    name = models.CharField(verbose_name='模板名称', max_length=200, default='', null=False, unique=True)
     tencent_key = models.ForeignKey(AuthKEY, on_delete=models.CASCADE, verbose_name='验证信息', null=False)
     exec_class = models.TextField(verbose_name='调用类', max_length=2000, default='')
     exec_function = models.TextField(verbose_name='调用方法', max_length=2000, default='')
@@ -199,7 +199,7 @@ class TemplateTencentService(models.Model):
 
 class TemplateNacos(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(verbose_name='模板名称', max_length=200, default='', null=False)
+    name = models.CharField(verbose_name='模板名称', max_length=200, default='', null=False, unique=True)
     auth_key = models.ForeignKey(AuthKEY, on_delete=models.CASCADE, verbose_name='实例', null=False)
     namespace = models.CharField(verbose_name="命名空间", max_length=200, default='public', null=False, blank=False)
     config_type = models.CharField(verbose_name="配置类型", max_length=200, default='yaml', null=False, blank=False)

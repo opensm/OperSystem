@@ -21,6 +21,7 @@ urlpatterns = [
     path('templatedbs', TemplateDBsView.as_view(), name='templatedbs'),
     path('tencentservice', TemplateTencentServiceView.as_view(), name='tencentservice'),
     path('tencentservices', TemplateTencentServicesView.as_view(), name='Tencentservices'),
-    path('templatenacos', TemplateNacosView.as_view(), name='tencentservice'),
-    path('templatenacoses', TemplateNacosesView.as_view(), name='Tencentservices')
+    path('templatenacos', TemplateNacosView.as_view(), name='tencent_service'),
+    path('templatenacoses', TemplateNacosesView.as_view(), name='template_nacoses'),
+    path('template_list', TemplateListView.as_view(), name='template_list'),
 ]

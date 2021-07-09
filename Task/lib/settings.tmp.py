@@ -12,6 +12,12 @@ FTP_CONFIG = {
         "port": 2121,
         "user": "",
         "password": ""
+    },
+    "nacos": {
+        "host": "",
+        "port": 2121,
+        "user": "",
+        "password": ""
     }
 }
 # 企业微信
@@ -33,4 +39,3 @@ __all__ = [
     FTP_CONFIG,
     DB_BACKUP_DIR
 ]
-

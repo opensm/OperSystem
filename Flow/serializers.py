@@ -27,6 +27,12 @@ class FlowEngineSerializers(serializers.ModelSerializer):
         model = FlowEngine
         fields = "__all__"
 
+    def __init__(self, *args, **kwargs):
+        self.user = None
+        if 'user' in kwargs:
+            kwargs.pop('user')
+        super(FlowEngineSerializers, self).__init__(*args, **kwargs)
+
 
 class FlowNodeSerializers(serializers.ModelSerializer):
     flow_st = serializers.CharField(source='flow.name', read_only=True)
@@ -35,6 +41,12 @@ class FlowNodeSerializers(serializers.ModelSerializer):
     class Meta:
         model = FlowNode
         fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        self.user = None
+        if 'user' in kwargs:
+            kwargs.pop('user')
+        super(FlowNodeSerializers, self).__init__(*args, **kwargs)
 
 
 class FlowTaskSerializers(DynamicFieldsModelSerializer):

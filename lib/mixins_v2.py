@@ -265,9 +265,9 @@ class DataQueryPermission(ObjectUserInfo):
             ).values('task', 'flow', 'level'):
                 level = y.pop('level')
                 flow_data = FlowTask.objects.filter(
-                    **y,
-                    level__lt=level,
-                    status__in=['unprocessed', 'refuse']
+                    Q(**y),
+                    Q(level__lt=level),
+                    Q(status='') | Q(status='refuse')
                 )
                 flowing_data = FlowTask.objects.filter(
                     **y,
@@ -462,6 +462,7 @@ class DataQueryPermission(ObjectUserInfo):
             if operator_params == 'all':
                 return self.__model.objects.all()
             else:
+                print(operator_params)
                 return self.__model.objects.filter(operator_params)
 
     def check_content_permission(self, obj):

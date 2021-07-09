@@ -433,8 +433,10 @@ class UserGETView(DataPermissionMixins, APIView):
             if not isinstance(x, Menu):
                 raise APIException(
                     code=API_50001_SERVER_ERROR,
-                    detail="输入类型错误！"
+                    detail="菜单类型解构错误！"
                 )
+            menu_data = SubMenuSerializer(instance=x).data
+
             if x.parent:
                 try:
                     data = SubMenuSerializer(instance=x)
@@ -448,9 +450,8 @@ class UserGETView(DataPermissionMixins, APIView):
                     []
                 ).append(data.data)
             elif not x.parent:
-                menu.append(
-                    SubMenuSerializer(instance=x).data
-                )
+                menu.append(menu_data)
+        menu_pk_list = [x['id'] for x in menu]
         for key, value in menu_dict.items():
             obj = Menu.objects.get(id=key)
             try:
@@ -462,35 +463,12 @@ class UserGETView(DataPermissionMixins, APIView):
                 )
             tmp = data.data
             tmp['children'] = value
-            menu.append(tmp)
-        return menu
+            if tmp['id'] in menu_pk_list:
+                menu = [tmp if x['id'] == tmp['id'] else x for x in menu]
+            else:
+                menu.append(tmp)
 
-    # 递归获取所有的子菜单
-    def get_child_menu(self, childs):
-        model = django_apps.get_model("Rbac.Menu")
-        children = []
-        if childs:
-            for child in childs:
-                data = MenuSerializer(instance=child).data
-                if self.user.is_superuser:
-                    _childs = model.objects.filter(
-                        parent=child,
-                    )
-                else:
-                    _childs = Menu.objects.filter(
-                        role__in=self.user.roles.all(),
-                        parent=child
-                    )
-                if _childs:
-                    child_data = self.get_child_menu(childs=_childs)
-                    if child_data:
-                        data.setdefault(
-                            'children', []
-                        ).extend(
-                            child_data
-                        )
-                children.append(data)
-        return children
+        return menu
 
     def get_roles(self):
         """
@@ -630,7 +608,8 @@ class BaseFlowPUTVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination
                 )
             data.save()
             return DataResponse(
-                msg="数据保存成功：{}".format(request.data),
+                msg="数据保存成功!",
+                data=request.data,
                 code=API_00000_OK
             )
         except APIException as error:

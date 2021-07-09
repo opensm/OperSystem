@@ -37,7 +37,7 @@ class FlowTaskView(BaseFlowPUTVIEW):
     model_name = 'FlowTask'
     app_label = 'Task'
     pk = 'id'
-    fields = ['status']
+    fields = ['status', 'approval_note']
 
 
 class FlowTasksView(BaseFlowGETVIEW):

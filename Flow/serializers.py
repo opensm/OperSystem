@@ -55,7 +55,7 @@ class FlowTaskSerializers(DynamicFieldsModelSerializer):
         else:
             if not FlowTask.objects.filter(
                     task=instance.task,
-                    status__in=['refuse', 'unprocessed']
+                    status__in=['refuse', '']
             ):
                 Tasks.objects.filter(id=instance.task.id).update(status='ok_approved')
         return instance

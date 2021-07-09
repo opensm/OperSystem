@@ -231,6 +231,7 @@ class FlowTask(models.Model):
     level = models.IntegerField(verbose_name="操作优先级", default=0, null=True, blank=True)
     status = models.CharField(verbose_name="审批状态", default='pass', choices=approval_choice, max_length=20)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
+    approval_note = models.TextField(verbose_name="审批意见", max_length=2000, default='', null=True, blank=True)
     finish_time = models.CharField(verbose_name="完成时间", max_length=50, default='', null=True, blank=True)
 
     class Meta:

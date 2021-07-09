@@ -353,7 +353,7 @@ class ContentTemplateValueGETView(DataPermissionMixins, APIView):
         except APIException as error:
             return DataResponse(
                 data=[],
-                msg="获取信息失败,{}".format(error),
+                msg="获取信息失败,{}".format(error.default_detail),
                 code='00001'
             )
 

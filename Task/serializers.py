@@ -167,7 +167,7 @@ class SubTaskSerializers(serializers.ModelSerializer):
             setattr(instance, key, value)
         instance.save()
         for many in instance.exec_list.all():
-            instance.exec_list.remove(many.id)
+            many.delete()
         for x in exec_list:
             instance.exec_list.add(x)
 

@@ -6,7 +6,7 @@ from rest_framework.response import Response
 # 自定义分页类
 class RewritePageNumberPagination(PageNumberPagination):
     # 每页显示多少个
-    page_size = 10
+    page_size = 100
     # 默认每页显示3个，可以通过传入pager1/?page=2&size=4,改变默认每页显示的个数
     page_size_query_param = "size"
     # 最大页数不超过10
@@ -54,7 +54,7 @@ class RewritePageNumberPagination(PageNumberPagination):
                 else:
                     params[key] = value
         queryset = queryset.filter(**params)
-        sort_by = request.query_params.get(self.sort_query_param, '+id').strip('+')
+        sort_by = request.query_params.get(self.sort_query_param, '-id').strip('-')
         if not hasattr(queryset, sort_by.strip('-')) and sort_by.strip('-') != 'id':
             raise ValueError(
                 '不包含字段:{0}'.format(sort_by)

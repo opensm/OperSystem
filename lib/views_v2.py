@@ -7,7 +7,8 @@ from Task.serializers import TemplateDBSerializers, \
     TemplateNacosSerializers, \
     TemplateKubernetesSerializers, \
     TemplateTencentServiceSerializers
-from Rbac.models import Menu, UserInfo
+from Rbac.models import Menu
+from Task.models import FlowTask
 from lib.exceptions import *
 from lib.Log import RecodeLog
 from django.apps import apps as django_apps
@@ -216,6 +217,37 @@ class BaseSubTaskDELETEVIEW(DataPermissionMixins, APIView):
             )
 
 
+class BaseTaskDELETEVIEW(DataPermissionMixins, APIView):
+    serializer_class = None
+    pk = None
+
+    def delete(self, request):
+        try:
+            self.init_request(request=request)
+            model_obj = self.get_model_objects()
+            if not model_obj:
+                raise APIException(
+                    detail="获取删除数据失败！",
+                    code=API_12001_DATA_NULL_ERROR
+                )
+            for model in model_obj:
+                model.sub_task.all().update(status='unbond')
+                FlowTask.objects.filter(task=model).delete()
+            model_obj.delete()
+            return DataResponse(
+                code=API_00000_OK,
+                msg="删除信息成功!"
+            )
+        except APIException as error:
+            RecodeLog.error(
+                msg="返回状态码:{1},错误信息:{0}".format(error.default_detail, error.status_code)
+            )
+            return DataResponse(
+                code=error.status_code,
+                msg=error.default_detail
+            )
+
+
 class BasePUTVIEW(DataPermissionMixins, APIView):
     serializer_class = None
     pk = None
@@ -272,7 +304,47 @@ class BaseListView(BaseGETVIEW, BasePOSTVIEW):
     serializer_class = None
 
 
-class BaseDetailView(BaseSubTaskDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
+class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
+    serializer_class = None
+    pk = None
+
+    def init_request(self, request):
+        """
+        :param request:
+        :return:
+        """
+        self.kwargs = request.GET.copy()
+        if self.pk is None:
+            raise ValueError("pk 没有定义！")
+        if self.pk not in self.kwargs:
+            raise APIException(
+                detail="传入参数错误！",
+                code=API_10001_PARAMS_ERROR
+            )
+        super(BaseGETVIEW, self).init_request(request=request)
+
+
+class BaseSubTaskDetailView(BaseSubTaskDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
+    serializer_class = None
+    pk = None
+
+    def init_request(self, request):
+        """
+        :param request:
+        :return:
+        """
+        self.kwargs = request.GET.copy()
+        if self.pk is None:
+            raise ValueError("pk 没有定义！")
+        if self.pk not in self.kwargs:
+            raise APIException(
+                detail="传入参数错误！",
+                code=API_10001_PARAMS_ERROR
+            )
+        super(BaseGETVIEW, self).init_request(request=request)
+
+
+class BaseTaskDetailView(BaseTaskDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
     serializer_class = None
     pk = None
 
@@ -648,6 +720,8 @@ class BaseFlowPUTVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination
 
 
 __all__ = [
+    'BaseTaskDetailView',
+    'BaseSubTaskDetailView',
     'BaseDetailView',
     'BaseListView',
     'BasePOSTVIEW',

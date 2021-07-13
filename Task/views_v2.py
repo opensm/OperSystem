@@ -11,7 +11,7 @@ class TasksView(BaseListView):
     sort_query_param = 'sort'
 
 
-class TaskView(BaseDetailView):
+class TaskView(BaseTaskDetailView):
     model_name = 'Tasks'
     app_label = 'Task'
     serializer_class = TaskSerializers
@@ -26,7 +26,7 @@ class SubTasksView(BaseListView):
     sort_query_param = 'sort'
 
 
-class SubTaskView(BaseDetailView):
+class SubTaskView(BaseSubTaskDetailView):
     serializer_class = SubTaskSerializers
     model_name = 'SubTask'
     app_label = 'Task'

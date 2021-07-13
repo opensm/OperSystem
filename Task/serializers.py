@@ -185,6 +185,7 @@ class SubTaskSerializers(serializers.ModelSerializer):
         else:
             max_id = max_id + 1
         validated_data['id'] = max_id
+        validated_data['status'] = 'unbond'
         exec_list = validated_data.pop('exec_list')
         validated_data['create_user'] = self.user
         obj = SubTask.objects.create(**validated_data)

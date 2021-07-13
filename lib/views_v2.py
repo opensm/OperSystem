@@ -199,8 +199,9 @@ class BaseSubTaskDELETEVIEW(DataPermissionMixins, APIView):
                     detail="获取删除数据失败！",
                     code=API_12001_DATA_NULL_ERROR
                 )
+            for model in model_obj:
+                model.exec_list.all().delete()
             model_obj.delete()
-            model_obj.exec_list.delete()
             return DataResponse(
                 code=API_00000_OK,
                 msg="删除信息成功!"

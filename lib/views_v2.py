@@ -186,6 +186,35 @@ class BaseDELETEVIEW(DataPermissionMixins, APIView):
             )
 
 
+class BaseSubTaskDELETEVIEW(DataPermissionMixins, APIView):
+    serializer_class = None
+    pk = None
+
+    def delete(self, request):
+        try:
+            self.init_request(request=request)
+            model_obj = self.get_model_objects()
+            if not model_obj:
+                raise APIException(
+                    detail="获取删除数据失败！",
+                    code=API_12001_DATA_NULL_ERROR
+                )
+            model_obj.delete()
+            model_obj.exec_list.delete()
+            return DataResponse(
+                code=API_00000_OK,
+                msg="删除信息成功!"
+            )
+        except APIException as error:
+            RecodeLog.error(
+                msg="返回状态码:{1},错误信息:{0}".format(error.default_detail, error.status_code)
+            )
+            return DataResponse(
+                code=error.status_code,
+                msg=error.default_detail
+            )
+
+
 class BasePUTVIEW(DataPermissionMixins, APIView):
     serializer_class = None
     pk = None
@@ -242,7 +271,7 @@ class BaseListView(BaseGETVIEW, BasePOSTVIEW):
     serializer_class = None
 
 
-class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
+class BaseDetailView(BaseSubTaskDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
     serializer_class = None
     pk = None
 
@@ -260,15 +289,6 @@ class BaseDetailView(BaseDELETEVIEW, BasePUTVIEW, BaseGETVIEW):
                 code=API_10001_PARAMS_ERROR
             )
         super(BaseGETVIEW, self).init_request(request=request)
-
-    # def get(self, request):
-    #     return super().get(request)
-    #
-    # def put(self, request):
-    #     return super().put(request)
-    #
-    # def delete(self, request):
-    #     return super().delete(request)
 
 
 class BaseGETNOTPageView(BaseGETVIEW):

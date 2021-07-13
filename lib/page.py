@@ -54,7 +54,7 @@ class RewritePageNumberPagination(PageNumberPagination):
                 else:
                     params[key] = value
         queryset = queryset.filter(**params)
-        sort_by = request.query_params.get(self.sort_query_param, '-id').strip('-')
+        sort_by = request.query_params.get(self.sort_query_param, '+id').strip('+')
         if not hasattr(queryset, sort_by.strip('-')) and sort_by.strip('-') != 'id':
             raise ValueError(
                 '不包含字段:{0}'.format(sort_by)

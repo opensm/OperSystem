@@ -127,13 +127,13 @@ class BaseResetPasswordVIEW(DataPermissionMixins, APIView):
             raise TypeError("serializer_class type error!")
         try:
             self.init_request(request=request)
-            if not self.data_params_quarry.check_user_method_permissions(
-                    method=self.request.method
-            ):
-                raise APIException(
-                    code=API_40003_PERMISSION_DENIED,
-                    detail="没有权限操作"
-                )
+            # if not self.data_params_quarry.check_user_method_permissions(
+            #         method=self.request.method
+            # ):
+            #     raise APIException(
+            #         code=API_40003_PERMISSION_DENIED,
+            #         detail="没有权限操作"
+            #     )
             data = self.serializer_class(
                 data=self.request.data,
                 user=self.user

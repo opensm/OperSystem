@@ -123,19 +123,15 @@ class KubernetesClass:
                 continue
         return True
 
-    def run(self, exec_list, record_log):
+    def run(self, exec_list):
         if not isinstance(exec_list, ExecList):
             raise TypeError("输入任务类型错误！")
-        if not isinstance(record_log, RecordExecLogs):
-            raise TypeError("输入日志类类型错误！")
         template = exec_list.content_object
         if not isinstance(template, TemplateKubernetes):
             RecodeLog.error(msg="传入模板类型错误!")
-            record_log.record(message="传入模板类型错误")
             return False
         if not self.connect(obj=template.cluster):
             RecodeLog.error(msg="链接K8S集群失败!")
-            record_log.record(message="链接K8S集群失败!")
             return False
         deployment = self.get_deployment(
             deployment_name=template.app_name,
@@ -151,7 +147,6 @@ class KubernetesClass:
                 exec_list=exec_list
         ):
             RecodeLog.error(msg="镜像发布失败：{}".format(exec_list.params))
-            record_log.record(message="链接K8S集群失败!")
             return False
         else:
             time.sleep(8)

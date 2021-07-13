@@ -148,23 +148,23 @@ class KubernetesClass:
         ):
             RecodeLog.error(msg="镜像发布失败：{}".format(exec_list.params))
             return False
-        else:
-            time.sleep(8)
-            pods = self.check_pods_status(
-                namespace=template.namespace,
-                name=template.app_name,
-                label=template.label,
-                count=20
-            )
-            if not pods:
-                RecodeLog.error(msg="获取到deployment：{},pod为空，请检查！".format(template.app_name))
-                return False
-            for x in pods:
-                if not self.check_pod_logs(pod=x, namespace=template.namespace):
-                    RecodeLog.error(msg="镜像:{}发布完成，但是Pod:{},存在报错！".format(exec_list.params, x))
-                    return False
-                else:
-                    RecodeLog.info(msg="镜像:{}发布完成，Pod:{},不存在报错！".format(exec_list.params, x))
-                    continue
-            RecodeLog.info(msg="镜像发布成功！")
-            return True
+        # else:
+        #     time.sleep(8)
+        #     pods = self.check_pods_status(
+        #         namespace=template.namespace,
+        #         name=template.app_name,
+        #         label=template.label,
+        #         count=20
+        #     )
+        #     if not pods:
+        #         RecodeLog.error(msg="获取到deployment：{},pod为空，请检查！".format(template.app_name))
+        #         return False
+        #     for x in pods:
+        #         if not self.check_pod_logs(pod=x, namespace=template.namespace):
+        #             RecodeLog.error(msg="镜像:{}发布完成，但是Pod:{},存在报错！".format(exec_list.params, x))
+        #             return False
+        #         else:
+        #             RecodeLog.info(msg="镜像:{}发布完成，Pod:{},不存在报错！".format(exec_list.params, x))
+        #             continue
+        RecodeLog.info(msg="镜像发布成功！")
+        return True

@@ -3,11 +3,14 @@ from Task.models import Tasks, ExecList, SubTask
 import time
 import datetime
 from lib.Log import RecodeLog
+from Task.lib.Log import RecordExecLogs
 from Task.lib import ClassImport
 from Task.lib.settings import AGENTID, CORPID, SECRET, PARTY
 
 
 class Command(BaseCommand):
+    record_log = RecordExecLogs()
+
     def handle(self, *args, **options):
         while True:
             for data in Tasks.objects.filter(
@@ -16,6 +19,7 @@ class Command(BaseCommand):
                 if not self.checkTaskStatus(task=data):
                     continue
                 RecodeLog.info(msg='即将开始任务:{}:{}'.format(data.id, data.name))
+                self.record_log.task = data.id
                 if not self.runTask(task=data):
                     data.status = 'fail'
                     data.save()
@@ -56,6 +60,8 @@ class Command(BaseCommand):
         task.status = 'progressing'
         task.save()
         for sub in task.sub_task.all():
+            self.record_log.sub_task = sub.id
+            self.record_log.project = sub.project
             if not self.runSubTask(subtask=sub):
                 task.status = 'fail'
                 task.finish_time = datetime.datetime.now()
@@ -76,6 +82,7 @@ class Command(BaseCommand):
         subtask.status = 'progressing'
         subtask.save()
         for line in subtask.exec_list.all():
+            self.record_log.exec_list = line.id
             if not self.execLine(data=line):
                 subtask.status = 'fail'
                 subtask.finish_time = datetime.datetime.now()
@@ -102,7 +109,7 @@ class Command(BaseCommand):
         run_class = getattr(ClassImport, data.content_object.exec_class)
         a = run_class()
         run_function = getattr(a, data.content_object.exec_function)
-        if not run_function(exec_list=data):
+        if not run_function(exec_list=data, logs=self.record_log):
             data.status = 'fail'
             data.finish_time = datetime.datetime.now()
             data.save()

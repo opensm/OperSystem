@@ -3,6 +3,7 @@ import kubernetes.client
 from kubernetes.client.rest import ApiException
 from Task.models import AuthKEY, TemplateKubernetes, ExecList
 from lib.Log import RecodeLog
+from Task.lib.Log import RecordExecLogs
 import time
 from Task.lib.settings import POD_CHECK_KEYS
 from Task.lib.Log import RecordExecLogs
@@ -13,6 +14,7 @@ class KubernetesClass:
         self.configuration = kubernetes.client.Configuration()
         self.api_apps = None
         self.api_core = None
+        self.log = None
 
     def connect(self, obj):
         if not isinstance(obj, AuthKEY):
@@ -25,10 +27,12 @@ class KubernetesClass:
             api_client = kubernetes.client.ApiClient(self.configuration)
             self.api_apps = kubernetes.client.AppsV1Api(api_client)
             self.api_core = kubernetes.client.CoreV1Api(api_client)
-            RecodeLog.info(msg="认证成功!")
+            # RecodeLog.info(msg="认证成功!")
+            self.log.record(message="认证成功!")
             return True
         except Exception as error:
-            RecodeLog.error(msg="认证异常！{}".format(error))
+            # RecodeLog.error(msg="认证异常！{}".format(error))
+            self.log.record(message="认证异常！{}".format(error))
             return False
 
     def get_deployment(self, deployment_name, namespace):
@@ -47,7 +51,8 @@ class KubernetesClass:
             )
             return api_response
         except ApiException as error:
-            RecodeLog.error(msg="获取delployment失败:{}!".format(error))
+            # RecodeLog.error(msg="获取delployment失败:{}!".format(error))
+            self.log.record(message="获取delployment失败:{}!".format(error), status='error')
             return False
 
     def update_deployment(self, namespace, deployment, name, image, exec_list):
@@ -69,9 +74,11 @@ class KubernetesClass:
                 try:
                     exec_list.output = containers[i].image
                     exec_list.save()
-                    RecodeLog.info(msg="保存老镜像成功:{}".format(containers[i].image))
+                    # RecodeLog.info(msg="保存老镜像成功:{}".format(containers[i].image))
+                    self.log.record(message="保存老镜像成功:{}".format(containers[i].image))
                 except Exception as error:
-                    RecodeLog.error(msg="保存老镜像失败:{}".format(error))
+                    # RecodeLog.error(msg="保存老镜像失败:{}".format(error))
+                    self.log.record(message="保存老镜像失败:{}".format(error), status='error')
                     return False
                 containers[i].image = image
                 deployment.spec.template.spec.containers = containers
@@ -83,7 +90,8 @@ class KubernetesClass:
             )
             return True
         except ApiException as e:
-            RecodeLog.error(msg="更新镜像失败: %s\n" % e)
+            # RecodeLog.error(msg="更新镜像失败: %s\n" % e)
+            self.log.record(message="更新镜像失败: %s\n" % e, status='error')
             return False
 
     def check_pods_status(self, namespace, name, label, count=30):
@@ -117,21 +125,27 @@ class KubernetesClass:
         data = self.api_core.read_namespaced_pod_log(name=pod, namespace=namespace)
         for key in POD_CHECK_KEYS:
             if key in data:
-                RecodeLog.error(msg="关键字:{},存在日志:{}".format(key, data))
+                # RecodeLog.error(msg="关键字:{},存在日志:{}".format(key, data))
+                self.log.record(message="关键字:{},存在日志:{}".format(key, data), status='error')
                 return False
             else:
                 continue
         return True
 
-    def run(self, exec_list):
+    def run(self, exec_list, logs):
         if not isinstance(exec_list, ExecList):
             raise TypeError("输入任务类型错误！")
+        if not isinstance(logs, RecordExecLogs):
+            raise TypeError("输入任务类型错误！")
+        self.log = logs
         template = exec_list.content_object
         if not isinstance(template, TemplateKubernetes):
-            RecodeLog.error(msg="传入模板类型错误!")
+            # RecodeLog.error(msg="传入模板类型错误!")
+            self.log.record(message="传入模板类型错误!", status='error')
             return False
         if not self.connect(obj=template.cluster):
-            RecodeLog.error(msg="链接K8S集群失败!")
+            # RecodeLog.error(msg="链接K8S集群失败!")
+            self.log.record(message="链接K8S集群失败!", status='error')
             return False
         deployment = self.get_deployment(
             deployment_name=template.app_name,
@@ -146,16 +160,18 @@ class KubernetesClass:
                 namespace=template.namespace,
                 exec_list=exec_list
         ):
-            RecodeLog.error(msg="镜像发布失败：{}".format(exec_list.params))
+            # RecodeLog.error(msg="镜像发布失败：{}".format(exec_list.params))
+            self.log.record(message="镜像发布失败：{}".format(exec_list.params))
             return False
-        # else:
-        #     time.sleep(8)
-        #     pods = self.check_pods_status(
-        #         namespace=template.namespace,
-        #         name=template.app_name,
-        #         label=template.label,
-        #         count=20
-        #     )
+        else:
+            time.sleep(8)
+            pods = self.check_pods_status(
+                namespace=template.namespace,
+                name=template.app_name,
+                label=template.label,
+                count=20
+            )
+
         #     if not pods:
         #         RecodeLog.error(msg="获取到deployment：{},pod为空，请检查！".format(template.app_name))
         #         return False
@@ -166,5 +182,6 @@ class KubernetesClass:
         #         else:
         #             RecodeLog.info(msg="镜像:{}发布完成，Pod:{},不存在报错！".format(exec_list.params, x))
         #             continue
-        RecodeLog.info(msg="镜像发布成功！")
+        # RecodeLog.info(msg="镜像发布成功！")
+        self.log.record(message="镜像发布成功：{}！".format(exec_list.params))
         return True

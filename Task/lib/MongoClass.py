@@ -4,7 +4,7 @@ import datetime
 import os
 from Task.lib.settings import DB_BACKUP_DIR
 from lib.Log import RecodeLog
-import sys
+from Task.lib.Log import RecordExecLogs
 from Task.lib.lftp import FTPBackupForDB
 from Task.lib.base import cmd
 from Task.models import ExecList
@@ -18,6 +18,7 @@ class MongoClass:
         self.user = None
         self.password = None
         self.auth_dump_str = None
+        self.log = None
         if not os.path.exists(DB_BACKUP_DIR):
             raise Exception(
                 "{0} 不存在！".format(DB_BACKUP_DIR)
@@ -33,7 +34,8 @@ class MongoClass:
         if db in res:
             return True
         else:
-            RecodeLog.error(msg="数据库：{0},不存在！".format(db))
+            # RecodeLog.error(msg="数据库：{0},不存在！".format(db))
+            self.log.record(message="数据库：{0},不存在！".format(db))
             return False
 
     def backup_all(self):
@@ -88,13 +90,16 @@ class MongoClass:
                 os.path.join(DB_BACKUP_DIR, sql)
             )
         else:
-            RecodeLog.error(msg="不能识别的文件类型:{}".format(sql))
+            # RecodeLog.error(msg="不能识别的文件类型:{}".format(sql))
+            self.log.record(message="不能识别的文件类型:{}".format(sql), status='error')
             return False
         if not cmd(cmd_str=cmd_str, replace=self.password):
-            RecodeLog.error(msg="导入数据失败:{}".format(cmd_str).replace(self.password, '********'))
+            # RecodeLog.error(msg="导入数据失败:{}".format(cmd_str).replace(self.password, '********'))
+            self.log.record(message="导入数据失败:{}".format(cmd_str).replace(self.password, '********'), status='error')
             return False
         else:
-            RecodeLog.info(msg="导入数据成功:{}".format(cmd_str).replace(self.password, '********'))
+            # RecodeLog.info(msg="导入数据成功:{}".format(cmd_str).replace(self.password, '********'))
+            self.log.record(message="导入数据成功:{}".format(cmd_str).replace(self.password, '********'))
             return True
 
     def connect(self, content):
@@ -103,7 +108,8 @@ class MongoClass:
         :return:
         """
         if not isinstance(content, AuthKEY):
-            RecodeLog.error(msg="选择模板错误：{}！".format(content))
+            # RecodeLog.error(msg="选择模板错误：{}！".format(content))
+            self.log.record(message="选择模板错误：{}！".format(content), status='error')
             return False
         try:
             self.host = content.auth_host
@@ -117,22 +123,28 @@ class MongoClass:
                 password=self.password
             )
         except Exception as error:
-            RecodeLog.error(msg="Mongodb登录验证失败,{}".format(error))
+            # RecodeLog.error(msg="Mongodb登录验证失败,{}".format(error))
+            self.log.record(message="Mongodb登录验证失败,{}".format(error), status='error')
             return False
         self.auth_dump_str = "--host {} --port {} -u {} -p {}  --authenticationDatabase admin ".format(
             self.host, self.port, self.user, self.password
         )
 
-    def run(self, exec_list):
+    def run(self, exec_list, logs):
         """
         :param exec_list:
+        :param logs
         :return:
         """
         if not isinstance(exec_list, ExecList):
             raise TypeError("输入任务类型错误！")
+        if not isinstance(logs, RecordExecLogs):
+            raise TypeError("输入任务类型错误！")
+        self.log = logs
         sql = exec_list.params
         if not sql.endswith('.js'):
-            RecodeLog.error(msg="输入的文件名错误:{}!".format(sql))
+            # RecodeLog.error(msg="输入的文件名错误:{}!".format(sql))
+            self.log.record(message="输入的文件名错误:{}!".format(sql), status='error')
         template = exec_list.content_object
         if not isinstance(template, TemplateDB):
             return False
@@ -143,10 +155,12 @@ class MongoClass:
         self.ftp.download(remote_path=sql_data[2], local_path=DB_BACKUP_DIR, achieve=sql)
         sql_data = filename.split("#")
         if sql_data[1] != 'mongodb':
-            RecodeLog.error(msg="请检查即将导入的文件的相关信息，{}".format(sql))
+            # RecodeLog.error(msg="请检查即将导入的文件的相关信息，{}".format(sql))
+            self.log.record(message="请检查即将导入的文件的相关信息，{}".format(sql), status='error')
             return False
         if len(sql_data) != 4:
-            RecodeLog.error(msg="文件格式错误，请按照：20210426111742#mongodb#pre#member.js")
+            # RecodeLog.error(msg="文件格式错误，请按照：20210426111742#mongodb#pre#member.js")
+            self.log.record(message="文件格式错误，请按照：20210426111742#mongodb#pre#member.js", status='error')
             return False
         if not self.backup_one(
                 db=sql_data[3],
@@ -158,10 +172,12 @@ class MongoClass:
         try:
             exec_list.output = "{}.gz".format(filename)
             exec_list.save()
-            RecodeLog.info(msg="保存备份数据情况成功:{}!".format("{}.gz".format(filename)))
+            # RecodeLog.info(msg="保存备份数据情况成功:{}!".format("{}.gz".format(filename)))
+            self.log.record(message="保存备份数据情况成功:{}!".format("{}.gz".format(filename)), status='error')
             return True
         except Exception as error:
-            RecodeLog.error(msg="保存备份数据情况失败:{}!".format(error))
+            # RecodeLog.error(msg="保存备份数据情况失败:{}!".format(error))
+            self.log.record(message="保存备份数据情况失败:{}!".format(error), status='error')
             return False
 
 

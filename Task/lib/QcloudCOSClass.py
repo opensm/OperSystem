@@ -6,6 +6,7 @@ from qcloud_cos import CosS3Client
 import sys
 import os
 from lib.Log import RecodeLog
+from Task.lib.Log import RecordExecLogs
 from KubernetesManagerWeb.settings import LOG_DIR
 import hashlib
 from tencentcloud.common import credential

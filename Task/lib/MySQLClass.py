@@ -4,7 +4,7 @@ import os
 import datetime
 from lib.Log import RecodeLog
 from Task.lib.settings import DB_BACKUP_DIR
-import sys
+from Task.lib.Log import RecordExecLogs
 from Task.lib.lftp import FTPBackupForDB
 from Task.lib.base import cmd
 from Task.models import AuthKEY, TemplateDB, ExecList
@@ -16,6 +16,7 @@ class MySQLClass:
         self.port = None
         self.user = None
         self.password = None
+        self.log = None
         self.backup_dir = DB_BACKUP_DIR
         self.auth_str = None
         self.cursor = None
@@ -43,7 +44,8 @@ class MySQLClass:
         if len(res):
             return True
         else:
-            RecodeLog.error(msg="数据库：{0},不存在！")
+            # RecodeLog.error(msg="数据库：{0},不存在！")
+            self.log.record(message="数据库：{0},不存在！", status='error')
             return False
 
     def backup_all(self):
@@ -99,10 +101,12 @@ class MySQLClass:
             )
 
         if not cmd(cmd_str=cmd_str, replace=self.password):
-            RecodeLog.error(msg="导入数据失败:{}".format(cmd_str).replace(self.password, '********'))
+            # RecodeLog.error(msg="导入数据失败:{}".format(cmd_str).replace(self.password, '********'))
+            self.log.record(message="导入数据失败:{}".format(cmd_str).replace(self.password, '********'), status='error')
             return False
         else:
-            RecodeLog.info(msg="导入数据成功:{}".format(cmd_str).replace(self.password, '********'))
+            # RecodeLog.info(msg="导入数据成功:{}".format(cmd_str).replace(self.password, '********'))
+            self.log.record(message="导入数据成功:{}".format(cmd_str).replace(self.password, '********'))
             return True
 
     def connect_mysql(self, content):
@@ -111,7 +115,8 @@ class MySQLClass:
         :return:
         """
         if not isinstance(content, AuthKEY):
-            RecodeLog.error(msg="选择模板错误：{}！".format(content))
+            # RecodeLog.error(msg="选择模板错误：{}！".format(content))
+            self.log.record(message="选择模板错误：{}！".format(content), status='error')
             return False
         try:
             self.host = content.auth_host
@@ -128,23 +133,29 @@ class MySQLClass:
             )
             self.cursor = conn.cursor()
         except Exception as error:
-            RecodeLog.error(msg="Mongodb登录验证失败,{}".format(error))
+            # RecodeLog.error(msg="Mongodb登录验证失败,{}".format(error))
+            self.log.record(message="Mongodb登录验证失败,{}".format(error), status='error')
             return False
         self.auth_str = "-h{0} -P{1} -u{2} -p{3} --default-character-set=utf8 ".format(
             self.host, self.port, self.user, self.password
         )
         return True
 
-    def run(self, exec_list):
+    def run(self, exec_list, logs):
         """
         :param exec_list:
+        :param logs
         :return:
         """
         if not isinstance(exec_list, ExecList):
             raise TypeError("输入任务类型错误！")
+        if not isinstance(logs, RecordExecLogs):
+            raise TypeError("输入任务类型错误！")
+        self.log = logs
         sql = exec_list.params
         if not sql.endswith('.sql'):
-            RecodeLog.error(msg="输入的文件名错误:{}!".format(sql))
+            # RecodeLog.error(msg="输入的文件名错误:{}!".format(sql))
+            self.log.record(message="输入的文件名错误:{}!".format(sql), status='error')
             return False
         template = exec_list.content_object
         if not isinstance(template, TemplateDB):
@@ -156,10 +167,12 @@ class MySQLClass:
         if not self.ftp.download(remote_path=sql_data[2], local_path=self.backup_dir, achieve=sql):
             return False
         if sql_data[1] != 'mysql':
-            RecodeLog.error(msg="请检查即将导入的文件的相关信息，{}".format(sql))
+            # RecodeLog.error(msg="请检查即将导入的文件的相关信息，{}".format(sql))
+            self.log.record(message="请检查即将导入的文件的相关信息，{}".format(sql), status='error')
             return False
         if len(sql_data) != 4:
-            RecodeLog.error(msg="文件格式错误，请按照：20210426111742#mongodb#pre#member.sql")
+            # RecodeLog.error(msg="文件格式错误，请按照：20210426111742#mongodb#pre#member.sql")
+            self.log.record(message="文件格式错误，请按照：20210426111742#mongodb#pre#member.sql".format(sql), status='error')
             return False
         if not self.backup_one(
                 db=sql_data[3],
@@ -171,10 +184,12 @@ class MySQLClass:
         try:
             exec_list.output = "{}.gz".format(filename)
             exec_list.save()
-            RecodeLog.info(msg="保存备份数据情况成功:{}!".format("{}.gz".format(filename)))
+            self.log.record(message="保存备份数据情况成功:{}!".format("{}.gz".format(filename)))
+            # RecodeLog.info(msg="保存备份数据情况成功:{}!".format("{}.gz".format(filename)))
             return True
         except Exception as error:
-            RecodeLog.error(msg="保存备份数据情况失败:{}!".format(error))
+            # RecodeLog.error(msg="保存备份数据情况失败:{}!".format(error))
+            self.log.record(message="保存备份数据情况失败:{}!".format(error), status='error')
             return False
 
 

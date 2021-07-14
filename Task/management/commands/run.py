@@ -19,7 +19,7 @@ class Command(BaseCommand):
                 if not self.checkTaskStatus(task=data):
                     continue
                 RecodeLog.info(msg='即将开始任务:{}:{}'.format(data.id, data.name))
-                self.record_log.task = data.id
+                self.record_log.task = data
                 if not self.runTask(task=data):
                     data.status = 'fail'
                     data.save()
@@ -60,7 +60,7 @@ class Command(BaseCommand):
         task.status = 'progressing'
         task.save()
         for sub in task.sub_task.all():
-            self.record_log.sub_task = sub.id
+            self.record_log.sub_task = sub
             self.record_log.project = sub.project
             if not self.runSubTask(subtask=sub):
                 task.status = 'fail'
@@ -82,7 +82,7 @@ class Command(BaseCommand):
         subtask.status = 'progressing'
         subtask.save()
         for line in subtask.exec_list.all():
-            self.record_log.exec_list = line.id
+            self.record_log.exec_list = line
             if not self.execLine(data=line):
                 subtask.status = 'fail'
                 subtask.finish_time = datetime.datetime.now()
@@ -103,6 +103,7 @@ class Command(BaseCommand):
         data.status = 'progressing'
         data.save()
         if not hasattr(ClassImport, data.content_object.exec_class):
+            self.record_log.record(message="未检查到该类:{}".format(data.content_object.exec_class), status='error')
             data.status = 'fail'
             data.save()
             return False

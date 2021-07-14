@@ -152,6 +152,7 @@ class KubernetesClass:
             namespace=template.namespace
         )
         if not deployment:
+            self.log.record(message="获取deployment失败!", status='error')
             return False
         if not self.update_deployment(
                 deployment=deployment,
@@ -164,7 +165,7 @@ class KubernetesClass:
             self.log.record(message="镜像发布失败：{}".format(exec_list.params))
             return False
         else:
-            time.sleep(8)
+            time.sleep(20)
             pods = self.check_pods_status(
                 namespace=template.namespace,
                 name=template.app_name,
@@ -185,3 +186,43 @@ class KubernetesClass:
         # RecodeLog.info(msg="镜像发布成功！")
         self.log.record(message="镜像发布成功：{}！".format(exec_list.params))
         return True
+
+    def restart(self, exec_list, logs):
+        if not isinstance(exec_list, ExecList):
+            raise TypeError("输入任务类型错误！")
+        if not isinstance(logs, RecordExecLogs):
+            raise TypeError("输入任务类型错误！")
+        self.log = logs
+        template = exec_list.content_object
+        if not isinstance(template, TemplateKubernetes):
+            # RecodeLog.error(msg="传入模板类型错误!")
+            self.log.record(message="传入模板类型错误!", status='error')
+            return False
+        if not self.connect(obj=template.cluster):
+            # RecodeLog.error(msg="链接K8S集群失败!")
+            self.log.record(message="链接K8S集群失败!", status='error')
+            return False
+        deployment = self.get_deployment(
+            deployment_name=template.app_name,
+            namespace=template.namespace
+        )
+        if not deployment:
+            self.log.record(message="获取deployment失败!", status='error')
+            return False
+        try:
+            self.api_apps.patch_namespaced_deployment(
+                namespace=template.namespace,
+                name=template.app_name,
+                body=deployment
+            )
+            time.sleep(20)
+            pods = self.check_pods_status(
+                namespace=template.namespace,
+                name=template.app_name,
+                label=template.label,
+                count=20
+            )
+            return True
+        except ApiException as e:
+            self.log.record(message="重启deployment失败，原因: %s\n" % e, status='error')
+            return False

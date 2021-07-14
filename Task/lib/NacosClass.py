@@ -7,6 +7,7 @@ from Task.lib.base import cmd
 import glob
 from Task.models import AuthKEY, ExecList, TemplateNacos
 import yaml
+import shutil
 
 
 class NacosClass:
@@ -99,7 +100,9 @@ class NacosClass:
                 achieve=achieve
         ):
             return False
-        unzip_shell_string = 'unzip -f {} -d {} '.format(
+        if os.path.exists(os.path.join(self.backup_dir, name)):
+            shutil.rmtree(path=os.path.join(self.backup_dir, name))
+        unzip_shell_string = 'unzip {} -d {} '.format(
             os.path.join(self.backup_dir, achieve),
             os.path.join(self.backup_dir, name)
         )

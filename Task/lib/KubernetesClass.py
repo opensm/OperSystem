@@ -109,8 +109,8 @@ class KubernetesClass:
                 label_selector=label.format(name)
             )
             for x in data.items:
+                count -= 1
                 if x.status.phase != 'Running':
-                    count -= 1
                     time.sleep(2)
                     continue
                 pods.append(x.metadata.name)

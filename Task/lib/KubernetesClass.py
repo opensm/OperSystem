@@ -102,8 +102,9 @@ class KubernetesClass:
         :param count:
         :return:
         """
+        status = True
         while count > 0:
-            pods = list()
+            # pods = list()
             data = self.api_core.list_namespaced_pod(
                 namespace=namespace,
                 label_selector=label.format(name)
@@ -112,9 +113,10 @@ class KubernetesClass:
                 count -= 1
                 if x.status.phase != 'Running':
                     time.sleep(2)
+                    status = False
                     continue
-                pods.append(x.metadata.name)
-            return pods
+                # pods.append(x.metadata.name)
+            return status
 
     def check_pod_logs(self, pod, namespace):
         """
@@ -166,12 +168,15 @@ class KubernetesClass:
             return False
         else:
             time.sleep(20)
-            pods = self.check_pods_status(
+            if not self.check_pods_status(
                 namespace=template.namespace,
                 name=template.app_name,
                 label=template.label,
                 count=20
-            )
+            ):
+                self.log.record(message="镜像发布失败，容器状态不正确：{}！".format(exec_list.params))
+                return False
+
 
         #     if not pods:
         #         RecodeLog.error(msg="获取到deployment：{},pod为空，请检查！".format(template.app_name))

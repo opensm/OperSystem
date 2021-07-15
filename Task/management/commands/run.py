@@ -49,6 +49,7 @@ class Command(BaseCommand):
         elif (local_time - task_unixtime) > 60 * 20:
             task.status = 'timeout'
             task.save()
+            return False
         elif task_unixtime < local_time and task.status != 'ok_approved':
             return False
         elif task_unixtime < local_time and task.status == 'ok_approved':

@@ -59,6 +59,7 @@ class BaseGETVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination):
                     instance=model_obj,
                     many=True
                 )
+                print(data.data)
                 format_data = self.data_params_quarry.format_return_data(data=data.data)
                 tag = self.data_params_quarry.check_user_method_permissions(
                     method='POST'

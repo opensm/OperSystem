@@ -48,7 +48,7 @@ class ExecListView(BaseDetailView):
     pk = 'id'
 
 
-class ExecListLogsView(BaseListView):
+class ExecListLogsView(BaseGETNOTPageView):
     serializer_class = ExecListLogSerializers
     model_name = 'ExecListLog'
     app_label = 'Task'

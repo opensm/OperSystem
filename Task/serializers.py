@@ -285,7 +285,7 @@ class TaskSerializers(serializers.ModelSerializer):
 
 class ExecListLogSerializers(serializers.ModelSerializer):
     class Meta:
-        model = ExecList
+        model = ExecListLog
         fields = "__all__"
 
 

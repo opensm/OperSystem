@@ -80,6 +80,8 @@ class Command(BaseCommand):
         """
         if not isinstance(subtask, SubTask):
             raise TypeError('任务类型错误！')
+        if subtask.status == 'success':
+            return True
         subtask.status = 'progressing'
         subtask.save()
         for line in subtask.exec_list.all():

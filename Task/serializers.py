@@ -165,6 +165,8 @@ class SubTaskSerializers(serializers.ModelSerializer):
         exec_list = validated_data.pop("exec_list")
         for key, value in validated_data.items():
             setattr(instance, key, value)
+        if instance.status != 'unbond':
+            instance.status = 'not_start_exec'
         instance.save()
         for many in instance.exec_list.all():
             many.delete()

@@ -73,6 +73,9 @@ class KubernetesClass:
             else:
                 try:
                     exec_list.output = containers[i].image
+                    if exec_list.output == image:
+                        self.log.record(message="镜像地址一致，不需更新！:{}".format(containers[i].image))
+                        return True
                     exec_list.save()
                     # RecodeLog.info(msg="保存老镜像成功:{}".format(containers[i].image))
                     self.log.record(message="保存老镜像成功:{}".format(containers[i].image))

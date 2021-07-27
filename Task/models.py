@@ -82,7 +82,7 @@ class ExecList(models.Model):
     exec_id = models.ForeignKey(
         'self', on_delete=models.CASCADE, verbose_name='执行ID', null=True, related_name='parent_task', blank=True
     )
-    output = models.TextField(verbose_name="执行结果", null=True, max_length=2000)
+    output = models.TextField(verbose_name="执行结果", null=True, blank=True, max_length=2000)
     content_type = models.ForeignKey(to=ContentType, on_delete=models.CASCADE)  # 指向ContentType这个模型
     object_id = models.PositiveIntegerField()  # object_id为一个整数，存储了实例id
     content_object = GenericForeignKey(

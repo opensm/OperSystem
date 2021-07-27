@@ -80,7 +80,7 @@ class Command(BaseCommand):
             return True
         subtask.status = 'progressing'
         subtask.save()
-        for line in subtask.exec_list.all().order_by(id):
+        for line in subtask.exec_list.all().order_by('id'):
             self.record_log.exec_list = line
             if not self.execLine(data=line):
                 subtask.status = 'fail'

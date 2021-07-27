@@ -251,6 +251,7 @@ class TaskSerializers(serializers.ModelSerializer):
             max_id = max_id + 1
         validated_data['id'] = max_id
         sub_task = validated_data.pop('sub_task')
+        validated_data['status'] = 'not_start_approve'
         approval_flow = validated_data['approval_flow']
         validated_data['create_user'] = self.user
         obj = Tasks.objects.create(**validated_data)

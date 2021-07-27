@@ -21,13 +21,9 @@ class Command(BaseCommand):
                 RecodeLog.info(msg='即将开始任务:{}:{}'.format(data.id, data.name))
                 self.record_log.task = data
                 if not self.runTask(task=data):
-                    data.status = 'fail'
-                    data.save()
                     massage = '任务失败,任务ID:{},任务名称:{}'.format(data.id, data.name)
                     RecodeLog.error(msg=massage)
                 else:
-                    data.status = 'success'
-                    data.save()
                     massage = '任务完成,任务ID:{},任务名称:{}'.format(data.id, data.name)
                     RecodeLog.info(msg=massage)
                 self.alert(message=massage)
@@ -56,6 +52,7 @@ class Command(BaseCommand):
             return True
 
     def runTask(self, task):
+        status = True
         if not isinstance(task, Tasks):
             raise TypeError('任务类型错误！')
         task.status = 'progressing'
@@ -67,11 +64,12 @@ class Command(BaseCommand):
                 task.status = 'fail'
                 task.finish_time = datetime.datetime.now()
                 task.save()
-                return False
+                status = False
+                continue
         task.status = 'success'
         task.finish_time = datetime.datetime.now()
         task.save()
-        return True
+        return status
 
     def runSubTask(self, subtask):
         """
@@ -84,7 +82,7 @@ class Command(BaseCommand):
             return True
         subtask.status = 'progressing'
         subtask.save()
-        for line in subtask.exec_list.all():
+        for line in subtask.exec_list.all().order_by(id):
             self.record_log.exec_list = line
             if not self.execLine(data=line):
                 subtask.status = 'fail'

@@ -52,7 +52,6 @@ class Command(BaseCommand):
             return True
 
     def runTask(self, task):
-        status = True
         if not isinstance(task, Tasks):
             raise TypeError('任务类型错误！')
         task.status = 'progressing'
@@ -64,12 +63,11 @@ class Command(BaseCommand):
                 task.status = 'fail'
                 task.finish_time = datetime.datetime.now()
                 task.save()
-                status = False
-                continue
+                return False
         task.status = 'success'
         task.finish_time = datetime.datetime.now()
         task.save()
-        return status
+        return True
 
     def runSubTask(self, subtask):
         """

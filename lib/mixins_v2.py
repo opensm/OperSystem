@@ -9,7 +9,6 @@ from functools import reduce
 from KubernetesManagerWeb.settings import SECRET_KEY
 from lib.exceptions import *
 from Rbac.models import UserInfo, DataPermissionRule, DataPermissionList
-# from Flow.models import FlowTask
 from Task.models import Tasks, FlowTask
 from django.contrib.contenttypes.models import ContentType
 from lib.Log import RecodeLog
@@ -138,7 +137,10 @@ class DataQueryPermission(ObjectUserInfo):
         elif len(q_query) == 1:
             return q_query[0]
         else:
-            return reduce(operator.or_, q_query)
+            if 'all' in q_query:
+                return ['all']
+            else:
+                return reduce(operator.or_, q_query)
 
     def check_permission(self, method, data):
         """
@@ -462,7 +464,6 @@ class DataQueryPermission(ObjectUserInfo):
             if operator_params == 'all':
                 return self.__model.objects.all()
             else:
-                print(operator_params)
                 return self.__model.objects.filter(operator_params)
 
     def check_content_permission(self, obj):

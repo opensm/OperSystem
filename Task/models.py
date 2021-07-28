@@ -25,7 +25,7 @@ class Tasks(models.Model):
         null=False, blank=False, default='not_start_approve', max_length=20, choices=status_choice
     )
     approval_flow = models.ForeignKey(FlowEngine, on_delete=models.CASCADE, null=False, blank=False)
-    create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=False, blank=True)
+    create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=True, blank=True)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
     task_time = models.CharField(verbose_name="任务时间", max_length=50, default='', null=True)
     finish_time = models.CharField(verbose_name="完成时间", max_length=50, default='', null=True, blank=True)

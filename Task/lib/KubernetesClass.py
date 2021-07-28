@@ -115,6 +115,9 @@ class KubernetesClass:
         )
         created_pods = list(set(after).difference(set(before)))
         count = count - 1
+        if after == before:
+            self.log.record(message="镜像不需要更新，总：{}，现：{}".format(before, after))
+            return True
         if len(created_pods) < len(before) and count > 0:
             self.log.record(message="启动pod数不够，总：{}，现：{}".format(before, after))
             time.sleep(10)

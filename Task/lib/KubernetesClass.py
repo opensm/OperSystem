@@ -2,8 +2,8 @@ from __future__ import print_function
 import kubernetes.client
 from kubernetes.client.rest import ApiException
 from Task.models import AuthKEY, TemplateKubernetes, ExecList
-from lib.Log import RecodeLog
-from Task.lib.Log import RecordExecLogs
+from datetime import timedelta, timezone
+
 import time
 # from Task.lib.settings import POD_CHECK_KEYS
 from Task.lib.Log import RecordExecLogs
@@ -15,6 +15,7 @@ class KubernetesClass:
         self.api_apps = None
         self.api_core = None
         self.log = None
+        self.limit_time = int(time.time()) - 10
 
     def connect(self, obj):
         if not isinstance(obj, AuthKEY):
@@ -27,11 +28,9 @@ class KubernetesClass:
             api_client = kubernetes.client.ApiClient(self.configuration)
             self.api_apps = kubernetes.client.AppsV1Api(api_client)
             self.api_core = kubernetes.client.CoreV1Api(api_client)
-            # RecodeLog.info(msg="认证成功!")
             self.log.record(message="认证成功!")
             return True
         except Exception as error:
-            # RecodeLog.error(msg="认证异常！{}".format(error))
             self.log.record(message="认证异常！{}".format(error))
             return False
 
@@ -51,16 +50,35 @@ class KubernetesClass:
             )
             return api_response
         except ApiException as error:
-            # RecodeLog.error(msg="获取delployment失败:{}!".format(error))
             self.log.record(message="获取delployment失败:{}!".format(error), status='error')
             return False
 
-    def update_deployment(self, namespace, deployment, name, image, exec_list):
+    def check_deploy_image(self, deployment, name, exec_list):
+        """
+        :param deployment:
+        :param name:
+        :param exec_list:
+        :return:
+        """
+        if not isinstance(exec_list, ExecList):
+            raise TypeError("输入任务类型错误！")
+        containers = deployment.spec.template.spec.containers
+        for i in range(len(containers)):
+            if containers[i].name != name:
+                continue
+            else:
+                if containers[i].image != exec_list.params:
+                    return False
+                else:
+                    self.log.record(message="更新镜像与在线镜像一致，跳过更新!".format(containers[i].image))
+                    return True
+        return False
+
+    def update_deployment(self, namespace, deployment, name, exec_list):
         """
         :param namespace:
         :param deployment:
         :param name:
-        :param image:
         :param exec_list:
         :return:
         """
@@ -73,17 +91,12 @@ class KubernetesClass:
             else:
                 try:
                     exec_list.output = containers[i].image
-                    if exec_list.output == image:
-                        self.log.record(message="镜像地址一致，不需更新！:{}".format(containers[i].image))
-                        return True
                     exec_list.save()
-                    # RecodeLog.info(msg="保存老镜像成功:{}".format(containers[i].image))
                     self.log.record(message="保存老镜像成功:{}".format(containers[i].image))
                 except Exception as error:
-                    # RecodeLog.error(msg="保存老镜像失败:{}".format(error))
                     self.log.record(message="保存老镜像失败:{}".format(error), status='error')
                     return False
-                containers[i].image = image
+                containers[i].image = exec_list.params
                 deployment.spec.template.spec.containers = containers
         try:
             self.api_apps.patch_namespaced_deployment(
@@ -93,17 +106,16 @@ class KubernetesClass:
             )
             return True
         except ApiException as e:
-            # RecodeLog.error(msg="更新镜像失败: %s\n" % e)
             self.log.record(message="更新镜像失败: %s\n" % e, status='error')
             return False
 
-    def check_pods_status(self, namespace, name, label, before, count=30):
+    def check_pods_status(self, namespace, name, label, count=30, replicas=0):
         """
         :param namespace:
         :param name:
         :param label:
         :param count:
-        :param before
+        :param replicas
         :return:
         """
         result = True
@@ -111,28 +123,26 @@ class KubernetesClass:
         after = self.get_deployment_pods(
             namespace=namespace,
             name=name,
-            label=label
+            label=label,
+            limit_time=self.limit_time
         )
-        created_pods = list(set(after).difference(set(before)))
+        self.log.record("获取POD个数:{}".format(after))
         count = count - 1
-        if after == before:
-            self.log.record(message="镜像不需要更新，总：{}，现：{}".format(before, after))
-            return True
-        if len(created_pods) < len(before) and count > 0:
-            self.log.record(message="启动pod数不够，总：{}，现：{}".format(before, after))
+        if len(after) < replicas and count > 0:
+            self.log.record(message="启动pod数不够，现：{}".format(after))
             time.sleep(10)
             return self.check_pods_status(
                 namespace=namespace,
                 name=name,
                 label=label,
-                before=before,
-                count=count
+                count=count,
+                replicas=replicas
             )
-        elif len(created_pods) < len(before) and count == 0:
+        elif len(after) < replicas and count == 0:
             self.log.record(message="检测超时:{}".format(name), status='error')
             return False
         else:
-            for x in created_pods:
+            for x in after:
                 status = self.api_core.read_namespaced_pod_status(namespace=namespace, name=x)
                 for a in status.status.container_statuses:
                     if not a.ready:
@@ -144,8 +154,8 @@ class KubernetesClass:
                         namespace=namespace,
                         name=name,
                         label=label,
-                        before=before,
-                        count=count
+                        count=count,
+                        replicas=replicas
                     )
                 elif not result and count == 0:
                     self.log.record(message="启动pod状态不正确，检测超时，任务失败!", status='error')
@@ -153,18 +163,27 @@ class KubernetesClass:
                 else:
                     return True
 
-    def get_deployment_pods(self, namespace, name, label):
+    def get_deployment_pods(self, namespace, name, label, limit_time=None):
         """
         :param namespace:
         :param name:
         :param label:
+        :param limit_time:
         :return:
         """
         data = self.api_core.list_namespaced_pod(
             namespace=namespace,
             label_selector=label.format(name)
         )
-        return [x.metadata.name for x in data.items]
+        if not limit_time:
+            return [x.metadata.name for x in data.items]
+        else:
+            return [
+                x.metadata.name for x in data.items
+                if int(time.mktime(
+                    x.metadata.creation_timestamp.astimezone(timezone(timedelta(hours=8))).timetuple()
+                )) >= limit_time
+            ]
 
     # def check_pod_logs(self, pod, namespace):
     #     """
@@ -187,21 +206,17 @@ class KubernetesClass:
             raise TypeError("输入任务类型错误！")
         if not isinstance(logs, RecordExecLogs):
             raise TypeError("输入任务类型错误！")
+
         self.log = logs
         template = exec_list.content_object
+
         if not isinstance(template, TemplateKubernetes):
-            # RecodeLog.error(msg="传入模板类型错误!")
             self.log.record(message="传入模板类型错误!", status='error')
             return False
         if not self.connect(obj=template.cluster):
-            # RecodeLog.error(msg="链接K8S集群失败!")
             self.log.record(message="链接K8S集群失败!", status='error')
             return False
-        before_pods = self.get_deployment_pods(
-            namespace=template.namespace,
-            name=template.app_name,
-            label=template.label,
-        )
+
         deployment = self.get_deployment(
             deployment_name=template.app_name,
             namespace=template.namespace
@@ -209,14 +224,20 @@ class KubernetesClass:
         if not deployment:
             self.log.record(message="获取deployment失败!", status='error')
             return False
+
+        if self.check_deploy_image(
+                deployment=deployment,
+                name=template.app_name,
+                exec_list=exec_list
+        ):
+            return True
+
         if not self.update_deployment(
                 deployment=deployment,
                 name=template.app_name,
-                image=exec_list.params,
                 namespace=template.namespace,
                 exec_list=exec_list
         ):
-            # RecodeLog.error(msg="镜像发布失败：{}".format(exec_list.params))
             self.log.record(message="镜像发布失败：{}".format(exec_list.params))
             return False
         else:
@@ -226,7 +247,7 @@ class KubernetesClass:
                     name=template.app_name,
                     label=template.label,
                     count=20,
-                    before=before_pods
+                    replicas=deployment.spec.replicas
             ):
                 self.log.record(message="镜像发布失败，容器状态不正确：{}！".format(exec_list.params))
                 return False
@@ -253,18 +274,11 @@ class KubernetesClass:
         self.log = logs
         template = exec_list.content_object
         if not isinstance(template, TemplateKubernetes):
-            # RecodeLog.error(msg="传入模板类型错误!")
             self.log.record(message="传入模板类型错误!", status='error')
             return False
         if not self.connect(obj=template.cluster):
-            # RecodeLog.error(msg="链接K8S集群失败!")
             self.log.record(message="链接K8S集群失败!", status='error')
             return False
-        before_pods = self.get_deployment_pods(
-            namespace=template.namespace,
-            name=template.app_name,
-            label=template.label,
-        )
         deployment = self.get_deployment(
             deployment_name=template.app_name,
             namespace=template.namespace
@@ -279,13 +293,15 @@ class KubernetesClass:
                 body=deployment
             )
             time.sleep(20)
-            pods = self.check_pods_status(
-                namespace=template.namespace,
-                name=template.app_name,
-                label=template.label,
-                count=20,
-                before=before_pods
-            )
+            if not self.check_pods_status(
+                    namespace=template.namespace,
+                    name=template.app_name,
+                    label=template.label,
+                    count=20,
+                    replicas=deployment.spec.replicas
+            ):
+                self.log.record(message="镜像发布失败，容器状态不正确：{}！".format(exec_list.params))
+                return False
             return True
         except ApiException as e:
             self.log.record(message="重启deployment失败，原因: %s\n" % e, status='error')

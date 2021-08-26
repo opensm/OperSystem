@@ -2,6 +2,7 @@ from rest_framework import serializers
 from Task.models import *
 from Flow.models import FlowNode
 from django.db.models import Max
+from Flow.serializers import FlowTaskSerializers
 
 
 class AuthKEYSerializers(serializers.ModelSerializer):
@@ -204,6 +205,7 @@ class SubTaskListFields(serializers.RelatedField):
 
 class TaskSerializers(serializers.ModelSerializer):
     approval_flow_st = serializers.CharField(source='approval_flow.name', read_only=True)
+    # approval_flow_st = FlowTaskSerializers(read_only=True, source='approval_flow')
     project_st = serializers.CharField(source='project.name', read_only=True)
     create_user_st = serializers.CharField(source='create_user.name', read_only=True)
     sub_task_st = SubTaskSerializers(read_only=True, source='sub_task', many=True)

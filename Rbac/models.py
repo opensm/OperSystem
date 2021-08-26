@@ -35,6 +35,10 @@ class Menu(models.Model):
         (2, "三级菜单"),
         (999, "按钮功能")
     )
+    component_type_choice = (
+        ('M', '菜单'),
+        ('B', '按钮')
+    )
     id = models.AutoField(primary_key=True)
     name = models.CharField(verbose_name="菜单名称", max_length=50, null=False, blank=False, unique=True)
     path = models.CharField(verbose_name="URL", max_length=200, null=False, blank=False, unique=True)
@@ -42,6 +46,8 @@ class Menu(models.Model):
         'self', verbose_name='父级菜单', null=True, blank=True,
         related_name='children', on_delete=models.DO_NOTHING
     )
+    hidden = models.BooleanField(default=False, verbose_name='是否隐藏')
+    component_type = models.CharField(verbose_name='组件类型', default='M', null=False, blank=False, max_length=5)
     icon = models.CharField(verbose_name="图标", max_length=50, null=True, blank=True, default="")
     index = models.IntegerField(verbose_name='菜单序列', null=False, blank=False, default=0)
     level = models.IntegerField(verbose_name="菜单级别", default=0, choices=menu_choice)

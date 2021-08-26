@@ -101,6 +101,9 @@ class Command(BaseCommand):
             raise TypeError('任务类型错误！')
         data.status = 'progressing'
         data.save()
+        if not data.content_object.exec_class:
+            self.record_log.record(message="调用类信息错误！", status='error')
+            return False
         if not hasattr(ClassImport, data.content_object.exec_class):
             self.record_log.record(message="未检查到该类:{}".format(data.content_object.exec_class), status='error')
             data.status = 'fail'

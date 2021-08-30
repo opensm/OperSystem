@@ -1,13 +1,16 @@
-from lib.Log import RecodeLog
+from Task.lib.Log import RecordExecLogs
 import platform
 
 
-def cmd(cmd_str, replace=''):
+def cmd(cmd_str, logs, replace=''):
     """
     :param cmd_str:
     :param replace:
+    :param logs
     :return:
     """
+    if not isinstance(logs, RecordExecLogs):
+        raise TypeError('日志类型初始化失败！')
     if int(platform.python_version().strip(".")[0]) < 3:
         import commands
 
@@ -24,12 +27,12 @@ def cmd(cmd_str, replace=''):
             msg = "执行:{0},成功!".format(cmd_str)
         else:
             msg = "执行:{0},成功!".format(cmd_str).replace(replace, '********')
-        RecodeLog.info(msg=msg)
+        logs.record(message=msg)
         return True
     except Exception as error:
         if not replace:
             msg = "执行:{0},失败，原因:{1}".format(cmd_str, error)
         else:
             msg = "执行:{0},失败，原因:{1}".format(cmd_str, error).replace(replace, '********')
-        RecodeLog.error(msg=msg)
+        logs.record(message=msg, status='error')
         return False

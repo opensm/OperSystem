@@ -1,5 +1,4 @@
 import nacos
-from lib.Log import RecodeLog
 from Task.lib.Log import RecordExecLogs
 from Task.lib.lftp import FTPBackupForDB
 from Task.lib.settings import DB_BACKUP_DIR
@@ -26,7 +25,6 @@ class NacosClass:
         :return:
         """
         if not os.path.exists(yaml_achieve):
-            # RecodeLog.error(msg="文件不存在:{}".format(yaml_achieve))
             self.log.record(message="文件不存在:{}".format(yaml_achieve), status='error')
             return False
         data = yaml_achieve.split(os.path.sep)
@@ -44,7 +42,6 @@ class NacosClass:
                     group=data[-2]
                 )
         except Exception as error:
-            # RecodeLog.error(msg="上传配置失败:{}".format(error))
             self.log.record(message="上传配置失败:{}".format(error), status='error')
             return False
 
@@ -98,12 +95,10 @@ class NacosClass:
             return False
         name, extension = os.path.splitext(achieve)
         if extension != '.zip':
-            # RecodeLog.error(msg="文件类型错误:{}".format(achieve))
             self.log.record(message="文件类型错误:{}".format(achieve), status='error')
             return False
         sql_data = name.split("#")
         if sql_data[1] != 'nacos':
-            # RecodeLog.error(msg="传输文件错误:{}".format(achieve))
             self.log.record(message="传输文件错误:{}".format(achieve), status='error')
             return False
         if not self.ftp.download(
@@ -118,18 +113,15 @@ class NacosClass:
             os.path.join(self.backup_dir, achieve),
             os.path.join(self.backup_dir, name)
         )
-        if not cmd(cmd_str=unzip_shell_string):
-            # RecodeLog.error(msg="解压文件失败：{}".format(unzip_shell_string))
+        if not cmd(cmd_str=unzip_shell_string, logs=self.log):
             self.log.record(message="解压文件失败：{}".format(unzip_shell_string), status='error')
             return False
         yaml_list = glob.glob(os.path.join(self.backup_dir, name, "*", "*.yaml"))
         if not yaml_list:
-            # RecodeLog.warn(msg="导入配置文件为空,请检查！")
             self.log.record(message="导入配置文件为空,请检查！", status='warn')
             return True
         for yml in yaml_list:
             if not self.upload_config(yaml_achieve=yml, config_type=template.config_type):
-                # RecodeLog.error(msg="导入相关配置失败:{}".format(yml))
                 self.log.record(message="导入相关配置失败:{}".format(yml), status='error')
                 return False
         return True

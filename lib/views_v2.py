@@ -401,7 +401,8 @@ class ContentTemplateValueGETView(DataPermissionMixins, APIView):
                     code=API_40003_PERMISSION_DENIED,
                     detail='没有权限！'
                 )
-            result = []
+            template_list = list()
+            object_dict = dict()
             for obj in objs:
                 template_obj = self.get_user_model_object(
                     app_label=obj.app_label,
@@ -410,36 +411,57 @@ class ContentTemplateValueGETView(DataPermissionMixins, APIView):
                 )
                 if obj.model == 'templatekubernetes':
                     data = TemplateKubernetesSerializers(instance=template_obj, many=True)
-                    result.append({
+                    if not data.data:
+                        continue
+                    res = dict()
+                    for ins in data.data:
+                        res[ins['id']] = "{}--{}".format(ins['instance_st'], ins['name'])
+                    template_list.append({
                         'label': 'Kubernetes模板',
                         'value': obj.id,
-                        'template': data.data
                     })
+                    object_dict[obj.id] = res
+
                 elif obj.model == 'templatenacos':
                     data = TemplateNacosSerializers(instance=template_obj, many=True)
-                    result.append({
+                    if not data.data:
+                        continue
+                    res = dict()
+                    for ins in data.data:
+                        res[ins['id']] = "{}--{}".format(ins['instance_st'], ins['name'])
+                    template_list.append({
                         'label': 'Nacos模板',
                         'value': obj.id,
-                        'template': data.data
                     })
+                    object_dict[obj.id] = res
                 elif obj.model == 'templatetencentservice':
                     data = TemplateTencentServiceSerializers(instance=template_obj, many=True)
-                    result.append({
+                    if not data.data:
+                        continue
+                    res = dict()
+                    for ins in data.data:
+                        res[ins['id']] = "{}--{}".format(ins['instance_st'], ins['name'])
+                    template_list.append({
                         'label': '腾讯云服务模板',
                         'value': obj.id,
-                        'template': data.data
                     })
+                    object_dict[obj.id] = res
                 elif obj.model == 'templatedb':
                     data = TemplateDBSerializers(instance=template_obj, many=True)
-                    result.append({
+                    if not data.data:
+                        continue
+                    res = dict()
+                    for ins in data.data:
+                        res[ins['id']] = "{}--{}".format(ins['instance_st'], ins['name'])
+                    template_list.append({
                         'label': '数据库模板',
                         'value': obj.id,
-                        'template': data.data
                     })
+                    object_dict[obj.id] = res
                 else:
                     raise APIException(code=API_50001_SERVER_ERROR, detail='未处理的模板类型')
             return DataResponse(
-                data=result,
+                data={'tempateList': template_list, 'objectDict': object_dict},
                 msg="获取信息成功！",
                 code='00000'
             )

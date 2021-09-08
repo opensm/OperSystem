@@ -13,6 +13,7 @@ from lib.exceptions import *
 from lib.Log import RecodeLog
 from django.apps import apps as django_apps
 from django.db.models.query import QuerySet
+from django.contrib.contenttypes.models import ContentType
 
 
 class BaseGETVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination):
@@ -22,7 +23,6 @@ class BaseGETVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination):
     def init_request(self, request):
         """
         """
-        self.kwargs = self.request.GET.copy()
         if self.page_size_query_param in self.kwargs:
             self.page_size = self.kwargs.pop(self.page_size_query_param)
         if self.page_query_param in self.kwargs:
@@ -387,12 +387,24 @@ class ContentFieldValueGETView(BaseGETVIEW):
 class ContentTemplateValueGETView(DataPermissionMixins, APIView):
     serializer_class = None
 
+    # def init_request(self, request):
+    #     """
+    #     """
+    #     if self.page_size_query_param in self.kwargs:
+    #         self.page_size = self.kwargs.pop(self.page_size_query_param)
+    #     if self.page_query_param in self.kwargs:
+    #         self.kwargs.pop(self.page_query_param)
+    #     if self.sort_query_param in self.kwargs:
+    #         self.kwargs.pop(self.sort_query_param)
+    #     super(BaseGETVIEW, self).init_request(request=request)
+
     def get(self, request):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
+        self.kwargs = self.request.GET.copy()
         self.init_request(request=request)
         try:
-            objs = self.get_model_objects().filter(
+            objs = ContentType.objects.filter(
                 app_label='Task',
                 model__in=['templatekubernetes', 'templatenacos', 'templatetencentservice', 'templatedb']
             )

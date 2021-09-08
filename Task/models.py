@@ -5,6 +5,12 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from Flow.models import FlowEngine, FlowNode
 from Rbac.models import Role
 
+env_choice = (
+    ('dev', '开发'),
+    ('pre', '预生产'),
+    ('prod', '生产')
+)
+
 
 class Tasks(models.Model):
     status_choice = (
@@ -24,6 +30,7 @@ class Tasks(models.Model):
     status = models.CharField(
         null=False, blank=False, default='not_start_approve', max_length=20, choices=status_choice
     )
+    env = models.CharField(max_length=7, default='pre', null=False, blank=False, choices=env_choice)
     approval_flow = models.ForeignKey(FlowEngine, on_delete=models.CASCADE, null=False, blank=False)
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=True, blank=True)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
@@ -55,6 +62,7 @@ class SubTask(models.Model):
     create_user = models.ForeignKey(
         UserInfo, on_delete=models.CASCADE, default='', null=True, related_name='create_user', blank=True
     )
+    env = models.CharField(max_length=7, default='pre', null=False, blank=False, choices=env_choice)
     note = models.TextField(verbose_name="说明", max_length=20000)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
     finish_time = models.CharField(verbose_name="完成时间", null=True, blank=True, max_length=50)
@@ -125,6 +133,7 @@ class AuthKEY(models.Model):
     auth_passwd = models.TextField(verbose_name="验证密码", max_length=2000, default='', null=True, blank=True)
     auth_params = models.TextField(verbose_name="验证参数", max_length=2000, default='', null=True, blank=True)
     auth_type = models.CharField(verbose_name="操作类型", max_length=100, default='Shell', choices=exec_choice)
+    env = models.CharField(max_length=7, default='pre', null=False, blank=False, choices=env_choice)
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=True, blank=True)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
@@ -159,6 +168,7 @@ class TemplateKubernetes(models.Model):
     exec_function = models.TextField(verbose_name='调用方法', max_length=2000, default='')
     label = models.CharField(verbose_name="标签", max_length=200, default='apps={}')
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
+    env = models.CharField(max_length=7, default='pre', null=False, blank=False, choices=env_choice)
     exec_list = GenericRelation(to='ExecList')
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=True, blank=True)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
@@ -175,6 +185,7 @@ class TemplateDB(models.Model):
     exec_function = models.TextField(verbose_name='调用方法', max_length=2000, default='')
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
     exec_list = GenericRelation(to='ExecList')
+    env = models.CharField(max_length=7, default='pre', null=False, blank=False, choices=env_choice)
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=True, blank=True)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
@@ -190,6 +201,7 @@ class TemplateTencentService(models.Model):
     exec_function = models.TextField(verbose_name='调用方法', max_length=2000, default='')
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
     exec_list = GenericRelation(to='ExecList')
+    env = models.CharField(max_length=7, default='pre', null=False, blank=False, choices=env_choice)
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=True, blank=True)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 
@@ -207,6 +219,7 @@ class TemplateNacos(models.Model):
     exec_function = models.TextField(verbose_name='调用方法', max_length=2000, default='')
     project = models.ForeignKey('Project', verbose_name='项目', on_delete=models.CASCADE, null=False)
     exec_list = GenericRelation(to='ExecList')
+    env = models.CharField(max_length=7, default='pre', null=False, blank=False, choices=env_choice)
     create_user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, default='', null=True, blank=True)
     create_time = models.DateTimeField(verbose_name='创建日期', auto_now_add=True)
 

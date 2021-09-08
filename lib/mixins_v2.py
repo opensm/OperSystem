@@ -505,6 +505,7 @@ class DataPermissionMixins:
 
     def init_request(self, request):
         self.request = request
+        # self.kwargs = self.request.GET.copy()
         self.data_params_quarry = DataQueryPermission(
             request=request,
             app_label=self.app_label,

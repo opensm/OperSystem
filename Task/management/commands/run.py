@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from Task.models import Tasks, ExecList, SubTask
+from Task.models import Tasks, ExecList, SubTask, ExecListLog
 import time
 import datetime
 from lib.Log import RecodeLog
@@ -21,12 +21,25 @@ class Command(BaseCommand):
                 RecodeLog.info(msg='即将开始任务:{}:{}'.format(data.id, data.name))
                 self.record_log.task = data
                 if not self.runTask(task=data):
-                    massage = '任务失败,任务ID:{},任务名称:{}'.format(data.id, data.name)
+                    massage = '任务失败：'.format(ExecListLog.objects.filter(task=data).order_by('-id')[0])
                     RecodeLog.error(msg=massage)
+                    self.alert(
+                        status='失败',
+                        title="{}-{}".format(data.id, data.name),
+                        message=massage,
+                        task_time=data.task_time,
+                        finish_time=data.finish_time
+                    )
                 else:
-                    massage = '任务完成,任务ID:{},任务名称:{}'.format(data.id, data.name)
+                    massage = '任务完成!'.format(data.id, data.name)
                     RecodeLog.info(msg=massage)
-                self.alert(message=massage)
+                    self.alert(
+                        status='成功',
+                        title="{}-{}".format(data.id, data.name),
+                        message=massage,
+                        task_time=data.task_time,
+                        finish_time=data.finish_time
+                    )
 
     def checkTaskStatus(self, task):
         """
@@ -123,8 +136,13 @@ class Command(BaseCommand):
             data.save()
             return True
 
-    def alert(self, message):
+    @staticmethod
+    def alert(status, title, task_time, finish_time, message):
         """
+        :param status:
+        :param title:
+        :param task_time:
+        :param finish_time:
         :param message:
         :return:
         """
@@ -142,7 +160,9 @@ class Command(BaseCommand):
             "msgtype": "text",
             "agentid": AGENTID,  # 应用的 id 号
             "text": {
-                "content": message
+                "content": "标题：{}-{} \n ** 事项详情 ** \n 任务时间：{} \n 完成时间：{} \n 消息：{}！".format(
+                    title, status, task_time, finish_time, message
+                )
             }
         }
         try:

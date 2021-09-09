@@ -15,7 +15,7 @@ class KubernetesClass:
         self.api_apps = None
         self.api_core = None
         self.log = None
-        self.limit_time = int(time.time()) - 300
+        self.limit_time = int(time.time()) - 20
 
     def connect(self, obj):
         if not isinstance(obj, AuthKEY):

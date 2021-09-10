@@ -158,11 +158,9 @@ class TemplateKubernetes(models.Model):
         ('delete', '删除'),
     )
     id = models.AutoField(primary_key=True)
-    name = models.CharField(verbose_name='模板名称', max_length=200, default='', null=False, unique=True)
     cluster = models.ForeignKey(AuthKEY, on_delete=models.CASCADE, verbose_name='关联集群', null=False)
     namespace = models.CharField(verbose_name='命名空间', null=False, default='system', max_length=100)
     app_name = models.CharField(verbose_name="应用名称", max_length=200, default='', null=False)
-    control_type = models.CharField(verbose_name='操作方式', choices=control_choice, max_length=50, default='create')
     yaml = models.TextField(verbose_name='yaml模板', max_length=2000, default='')
     exec_class = models.TextField(verbose_name='调用类', max_length=2000, default='')
     exec_function = models.TextField(verbose_name='调用方法', max_length=2000, default='')

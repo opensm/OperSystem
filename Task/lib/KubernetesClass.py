@@ -204,7 +204,7 @@ class KubernetesClass:
                 error_str = "{}\n{}".format(error_str, line)
         return error_str
 
-    def run(self, exec_list, logs):
+    def update(self, exec_list, logs):
         if not isinstance(exec_list, ExecList):
             raise TypeError("输入任务类型错误！")
         if not isinstance(logs, RecordExecLogs):
@@ -290,10 +290,24 @@ class KubernetesClass:
             self.log.record(message="获取deployment失败!", status='error')
             return False
         try:
+            now = datetime.utcnow()
+            now = str(now.isoformat("T") + "Z")
+            body = {
+                'spec': {
+                    'template': {
+                        'metadata': {
+                            'annotations': {
+                                'kubectl.kubernetes.io/restartedAt': now
+                            }
+                        }
+                    }
+                }
+            }
             self.api_apps.patch_namespaced_deployment(
                 namespace=template.namespace,
                 name=template.app_name,
-                body=deployment
+                body=body,
+                pretty='true'
             )
             time.sleep(20)
             if not self.check_pods_status(
@@ -305,6 +319,18 @@ class KubernetesClass:
             ):
                 self.log.record(message="镜像发布失败，容器状态不正确：{}！".format(exec_list.params))
                 return False
+            pods = self.get_deployment_pods(
+                namespace=template.namespace,
+                name=template.app_name,
+                label=template.label,
+                limit_time=self.limit_time
+            )
+            for x in pods:
+                msg = self.check_pod_logs(pod=x, namespace=template.namespace)
+                if msg:
+                    message = "pod: {} \n{}".format(x, msg)
+                    self.alert(message=message, pod=x, start_time=self.limit_time)
+            self.log.record(message="镜像发布成功：{}！".format(exec_list.params))
             return True
         except ApiException as e:
             self.log.record(message="重启deployment失败，原因: %s\n" % e, status='error')

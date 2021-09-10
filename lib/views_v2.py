@@ -415,6 +415,12 @@ class ContentTemplateValueGETView(DataPermissionMixins, APIView):
                 )
             template_list = list()
             object_dict = dict()
+            env_dict = {
+                'dev': '开发',
+                'pre': '预生产',
+                'prod': '生产',
+            }
+            function_dict = {'create': '创建', 'update': '更新', 'delete': '删除', 'restart': '重启'}
             for obj in objs:
                 template_obj = self.get_user_model_object(
                     app_label=obj.app_label,
@@ -427,7 +433,11 @@ class ContentTemplateValueGETView(DataPermissionMixins, APIView):
                         continue
                     res = dict()
                     for ins in data.data:
-                        res[ins['id']] = "{}--{}".format(ins['instance_st'], ins['name'])
+                        res[ins['id']] = "命名空间：{}，服务名称：{}，操作方式：{}".format(
+                            ins['namespace'],
+                            ins['app_name'],
+                            function_dict[ins['exec_function']]
+                        )
                     template_list.append({
                         'label': 'Kubernetes模板',
                         'value': obj.id,
@@ -440,7 +450,7 @@ class ContentTemplateValueGETView(DataPermissionMixins, APIView):
                         continue
                     res = dict()
                     for ins in data.data:
-                        res[ins['id']] = "{}--{}".format(ins['instance_st'], ins['name'])
+                        res[ins['id']] = "{}--{}".format(ins['project_st'], ins['name'])
                     template_list.append({
                         'label': 'Nacos模板',
                         'value': obj.id,
@@ -452,7 +462,7 @@ class ContentTemplateValueGETView(DataPermissionMixins, APIView):
                         continue
                     res = dict()
                     for ins in data.data:
-                        res[ins['id']] = "{}--{}".format(ins['instance_st'], ins['name'])
+                        res[ins['id']] = "{}--{}".format(ins['project_st'], ins['name'])
                     template_list.append({
                         'label': '腾讯云服务模板',
                         'value': obj.id,
@@ -464,7 +474,7 @@ class ContentTemplateValueGETView(DataPermissionMixins, APIView):
                         continue
                     res = dict()
                     for ins in data.data:
-                        res[ins['id']] = "{}--{}".format(ins['instance_st'], ins['name'])
+                        res[ins['id']] = "{}--{}".format(ins['project_st'], ins['name'])
                     template_list.append({
                         'label': '数据库模板',
                         'value': obj.id,

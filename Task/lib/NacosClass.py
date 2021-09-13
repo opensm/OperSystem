@@ -8,6 +8,8 @@ import glob
 from Task.models import AuthKEY, ExecList, TemplateNacos
 import yaml
 import shutil
+from KubernetesManagerWeb.settings import SALT_KEY
+from lib.secret import aes_decode
 
 
 class NacosClass:
@@ -55,6 +57,10 @@ class NacosClass:
             # RecodeLog.error(msg="选择模板错误：{}！".format(content))
             self.log.record(message="选择模板错误：{}！".format(content), status='error')
             return False
+        password = aes_decode(secret=SALT_KEY, content=content.auth_passwd)
+        if not password:
+            self.log.record(message='解密文件失败，请检查！', status='error')
+            return False
         try:
             if content.auth_port == 443:
                 address = 'https://{}:{}'.format(content.auth_host, content.auth_port)
@@ -64,7 +70,7 @@ class NacosClass:
                 address,
                 namespace=namespace,
                 username=content.auth_user,
-                password=content.auth_passwd
+                password=password
             )
             return True
         except Exception as error:

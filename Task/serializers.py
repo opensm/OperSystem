@@ -2,7 +2,7 @@ from rest_framework import serializers
 from Task.models import *
 from Flow.models import FlowNode
 from django.db.models import Max
-from Flow.serializers import FlowTaskSerializers
+from KubernetesManagerWeb.settings import SALT_KEY
 
 
 class AuthKEYSerializers(serializers.ModelSerializer):
@@ -18,11 +18,6 @@ class AuthKEYSerializers(serializers.ModelSerializer):
         if 'user' in kwargs:
             self.user = kwargs.pop('user')
         super(AuthKEYSerializers, self).__init__(*args, **kwargs)
-
-    def create(self, validated_data):
-        validated_data['create_user'] = self.user
-        obj = AuthKEY.objects.create(**validated_data)
-        return obj
 
 
 class TemplateDBSerializers(serializers.ModelSerializer):

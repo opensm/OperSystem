@@ -7,6 +7,8 @@ from Task.lib.Log import RecordExecLogs
 from Task.lib.lftp import FTPBackupForDB
 from Task.lib.base import cmd
 from Task.models import AuthKEY, TemplateDB, ExecList
+from KubernetesManagerWeb.settings import SALT_KEY
+from lib.secret import aes_decode
 
 
 class MySQLClass:
@@ -29,13 +31,6 @@ class MySQLClass:
 
         self.ftp = FTPBackupForDB(db='mysql')
         self.ftp.connect()
-
-    def connect(self, params):
-        """
-        :param params:
-        :return:
-        """
-        self.password = params[1]
 
     def check_db(self, db):
         self.cursor.execute("show databases like '{0}';".format(db))
@@ -132,11 +127,14 @@ class MySQLClass:
         if not isinstance(content, AuthKEY):
             self.log.record(message="选择模板错误：{}！".format(content), status='error')
             return False
+        self.password = aes_decode(secret=SALT_KEY, content=content.auth_passwd)
+        if not self.password:
+            self.log.record(message='解密文件失败，请检查！', status='error')
+            return False
         try:
             self.host = content.auth_host
             self.port = content.auth_port
             self.user = content.auth_user
-            self.password = content.auth_passwd
             conn = pymysql.connect(
                 user=self.user,
                 password=self.password,

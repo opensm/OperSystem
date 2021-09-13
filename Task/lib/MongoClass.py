@@ -8,6 +8,8 @@ from Task.lib.lftp import FTPBackupForDB
 from Task.lib.base import cmd
 from Task.models import ExecList
 from Task.models import AuthKEY, TemplateDB
+from KubernetesManagerWeb.settings import SALT_KEY
+from lib.secret import aes_decode
 
 
 class MongoClass:
@@ -119,11 +121,14 @@ class MongoClass:
         if not isinstance(content, AuthKEY):
             self.log.record(message="选择模板错误：{}！".format(content), status='error')
             return False
+        self.password = aes_decode(secret=SALT_KEY, content=content.auth_passwd)
+        if not self.password:
+            self.log.record(message='解密文件失败，请检查！', status='error')
+            return False
         try:
             self.host = content.auth_host
             self.port = content.auth_port
             self.user = content.auth_user
-            self.password = content.auth_passwd
             self.conn = pymongo.MongoClient(
                 host=self.host,
                 port=self.port,

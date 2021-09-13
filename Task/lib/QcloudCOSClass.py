@@ -10,6 +10,8 @@ from Task.lib.Log import RecordExecLogs
 from KubernetesManagerWeb.settings import LOG_DIR
 import hashlib
 from tencentcloud.common import credential
+from KubernetesManagerWeb.settings import SALT_KEY
+from lib.secret import aes_decode
 
 
 class QcloudCOSClass:

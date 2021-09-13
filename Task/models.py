@@ -4,6 +4,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from Flow.models import FlowEngine, FlowNode
 from Rbac.models import Role
+from KubernetesManagerWeb.settings import SALT_KEY
+from lib.secret import aes_decode
 
 env_choice = (
     ('dev', '开发'),

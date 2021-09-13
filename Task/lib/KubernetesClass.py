@@ -7,6 +7,8 @@ from Task.lib.settings import AGENTID, CORPID, SECRET, PARTY
 import time
 from Task.lib.settings import POD_CHECK_KEYS
 from Task.lib.Log import RecordExecLogs
+from KubernetesManagerWeb.settings import SALT_KEY
+from lib.secret import aes_decode
 
 
 class KubernetesClass:
@@ -21,7 +23,11 @@ class KubernetesClass:
         if not isinstance(obj, AuthKEY):
             return False
         try:
-            self.configuration.api_key = {"authorization": "Bearer " + obj.auth_passwd}
+            auth_key = aes_decode(secret=SALT_KEY, content=obj.auth_passwd)
+            if not auth_key:
+                self.log.record(message='解密文件失败，请检查！', status='error')
+                return False
+            self.configuration.api_key = {"authorization": "Bearer {}".format(auth_key)}
             self.configuration.host = "https://{}:{}".format(obj.auth_host, obj.auth_port)
             self.configuration.verify_ssl = False
             self.configuration.debug = False

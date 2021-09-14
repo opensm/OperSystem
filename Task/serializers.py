@@ -32,7 +32,7 @@ class TemplateDBSerializers(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         self.user = None
         if 'user' in kwargs:
-            kwargs.pop('user')
+            self.user = kwargs.pop('user')
         super(TemplateDBSerializers, self).__init__(*args, **kwargs)
 
     def create(self, validated_data):

@@ -8,7 +8,7 @@ from Task.lib.lftp import FTPBackupForDB
 from Task.lib.base import cmd
 from Task.models import AuthKEY, TemplateDB, ExecList
 from KubernetesManagerWeb.settings import SALT_KEY
-from lib.secret import aes_decode
+from lib.secret import AesCrypt
 
 
 class MySQLClass:
@@ -127,9 +127,10 @@ class MySQLClass:
         if not isinstance(content, AuthKEY):
             self.log.record(message="选择模板错误：{}！".format(content), status='error')
             return False
-        self.password = aes_decode(secret=SALT_KEY, content=content.auth_passwd)
+        crypt = AesCrypt(model='ECB', iv='', encode_='utf-8', key=SALT_KEY)
+        self.password = crypt.aesdecrypt(content.auth_passwd)
         if not self.password:
-            self.log.record(message='解密文件失败，请检查！', status='error')
+            self.log.record(message='解密密码失败，请检查！', status='error')
             return False
         try:
             self.host = content.auth_host

@@ -7,6 +7,8 @@ import datetime
 from lib.mixins import make_token
 from Rbac.serializers import *
 from lib.views_v2 import *
+from KubernetesManagerWeb.settings import SALT_KEY
+from lib.secret import AesCrypt
 
 
 def format_error(data):
@@ -20,13 +22,6 @@ def format_error(data):
         else:
             error_message = "{0}{1}：{2}".format(error_message, key, ",".join(value))
     return error_message
-
-
-# class CheckUserPassword(APIView):
-#     def get(self, request):
-#         token = request.META.get('HTTP_AUTHORIZATION')
-#         token_obj = UserToken.objects.get(token=token)
-#         token_obj.username
 
 
 class AuthView(APIView):
@@ -47,7 +42,6 @@ class AuthView(APIView):
                 code='00001',
                 msg="登录失败，原因:{0}".format(format_error(data=data.errors))
             )
-
         # 保存(存在就更新不存在就创建，并设置过期时间为60分钟)
         expiration_time = timezone.now() + timezone.timedelta(minutes=+60)
         token = make_token(username=data.data['username'])

@@ -9,7 +9,7 @@ from Task.models import AuthKEY, ExecList, TemplateNacos
 import yaml
 import shutil
 from KubernetesManagerWeb.settings import SALT_KEY
-from lib.secret import aes_decode
+from lib.secret import AesCrypt
 
 
 class NacosClass:
@@ -57,9 +57,10 @@ class NacosClass:
             # RecodeLog.error(msg="选择模板错误：{}！".format(content))
             self.log.record(message="选择模板错误：{}！".format(content), status='error')
             return False
-        password = aes_decode(secret=SALT_KEY, content=content.auth_passwd)
+        crypt = AesCrypt(model='ECB', iv='', encode_='utf-8', key=SALT_KEY)
+        password = crypt.aesdecrypt(content.auth_passwd)
         if not password:
-            self.log.record(message='解密文件失败，请检查！', status='error')
+            self.log.record(message='解密密码失败，请检查！', status='error')
             return False
         try:
             if content.auth_port == 443:

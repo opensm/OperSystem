@@ -4,6 +4,8 @@ from django.contrib.auth import password_validation
 from django.contrib.contenttypes.models import ContentType
 from Rbac.models import Role, UserInfo, DataPermissionRule, Menu, RequestType, DataPermissionList
 from rest_framework import serializers
+from KubernetesManagerWeb.settings import SALT_KEY
+from lib.secret import AesCrypt
 
 
 class RecursiveField(serializers.Serializer):
@@ -159,19 +161,25 @@ class SignInSerializer(serializers.Serializer):
             "min_length": "密码太短，至少8个字符."
         }
     )
+    crypt = AesCrypt(model='ECB', iv='', encode_='utf-8', key=SALT_KEY)
 
     def validate(self, attrs):
         """
         :param attrs:
         :return:
         """
+        attrs['password'] = self.crypt.aesdecrypt(attrs['password'])
+        if not attrs['password']:
+            raise serializers.ValidationError('解码密码异常，请检查！')
         user_obj = auth.authenticate(**attrs)
         if not user_obj:
-            raise serializers.ValidationError(detail="登录失败，用户名或者密码错误！", code="auth")
+            raise serializers.ValidationError(detail="登录失败，用户名或者密码错误！{}".format(attrs), code="auth")
         UserInfo.objects.filter(**attrs).update(last_login=datetime.datetime.now())
         return attrs
 
     def validated_username(self, attrs):
+        for key, value in attrs.items():
+            attrs[key] = self.crypt.decrypt_text(value)
         if not UserInfo.objects.filter(
                 username=attrs
         ).exists():

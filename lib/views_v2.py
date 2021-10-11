@@ -23,6 +23,7 @@ class BaseGETVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination):
     def init_request(self, request):
         """
         """
+        self.kwargs = request.GET.copy()
         if self.page_size_query_param in self.kwargs:
             self.page_size = self.kwargs.pop(self.page_size_query_param)
         if self.page_query_param in self.kwargs:
@@ -35,8 +36,8 @@ class BaseGETVIEW(DataPermissionMixins, APIView, RewritePageNumberPagination):
         if not self.serializer_class:
             raise TypeError("serializer_class type error!")
         try:
-
             self.init_request(request=request)
+            print(self.kwargs)
             model_obj = self.get_model_objects()
             if self.pagination:
                 page_obj = self.paginate_queryset(queryset=model_obj, request=request, view=self)
@@ -127,13 +128,6 @@ class BaseResetPasswordVIEW(DataPermissionMixins, APIView):
             raise TypeError("serializer_class type error!")
         try:
             self.init_request(request=request)
-            # if not self.data_params_quarry.check_user_method_permissions(
-            #         method=self.request.method
-            # ):
-            #     raise APIException(
-            #         code=API_40003_PERMISSION_DENIED,
-            #         detail="没有权限操作"
-            #     )
             data = self.serializer_class(
                 data=self.request.data,
                 user=self.user

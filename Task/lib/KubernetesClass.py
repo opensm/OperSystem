@@ -17,7 +17,7 @@ class KubernetesClass:
         self.api_apps = None
         self.api_core = None
         self.log = None
-        self.limit_time = int(time.time()) - 20
+        self.limit_time = int(time.time()) - 300
 
     def connect(self, obj):
         if not isinstance(obj, AuthKEY):
@@ -41,24 +41,49 @@ class KubernetesClass:
             self.log.record(message="认证异常！{}".format(error))
             return False
 
+    def retry_run_function(self, function, kwargs, times=5):
+        if times <= 0:
+            self.log.record(
+                status='error',
+                message="函数:{},调用异常:{},尝试次数用完退出！".format(
+                    function, times
+                )
+            )
+            return None
+        try:
+            return function(**kwargs)
+        except Exception as error:
+            times = times - 1
+            self.log.record(
+                status='error',
+                message="函数:{},调用异常:{},还剩{}次尝试！".format(
+                    function, error, times
+                )
+            )
+            return self.retry_run_function(
+                function=function,
+                kwargs=kwargs,
+                times=times
+            )
+
     def get_deployment(self, deployment_name, namespace):
         """
         :param deployment_name:
         :param namespace:
         :return:
         """
-        try:
-            api_response = self.api_apps.read_namespaced_deployment(
-                name=deployment_name,
-                namespace=namespace,
-                pretty='true',
-                exact=True,
-                export=True
-            )
-            return api_response
-        except ApiException as error:
-            self.log.record(message="获取delployment失败:{}!".format(error), status='error')
-            return False
+        kwargs = {
+            "name": deployment_name,
+            "namespace": namespace,
+            "pretty": "true",
+            "exact": True,
+            "export": True
+        }
+        function = getattr(self.api_apps, 'read_namespaced_deployment')
+        result = self.retry_run_function(function=function, kwargs=kwargs)
+        if not result:
+            self.log.record(message="获取delployment失败!", status='error')
+        return result
 
     def check_deploy_image(self, deployment, name, exec_list):
         """
@@ -105,16 +130,27 @@ class KubernetesClass:
                     return False
                 containers[i].image = exec_list.params
                 deployment.spec.template.spec.containers = containers
-        try:
-            self.api_apps.patch_namespaced_deployment(
-                namespace=namespace,
-                name=name,
-                body=deployment
-            )
-            return True
-        except ApiException as e:
-            self.log.record(message="更新镜像失败: %s\n" % e, status='error')
-            return False
+
+        kwargs = {
+            "namespace": namespace,
+            "name": name,
+            "body": deployment
+        }
+        function = getattr(self.api_apps, 'patch_namespaced_deployment')
+        result = self.retry_run_function(function=function, kwargs=kwargs)
+        if not result:
+            self.log.record(message="更新镜像失败!", status='error')
+        return result
+        # try:
+        #     self.api_apps.patch_namespaced_deployment(
+        #         namespace=namespace,
+        #         name=name,
+        #         body=deployment
+        #     )
+        #     return True
+        # except ApiException as e:
+        #     self.log.record(message="更新镜像失败: %s\n" % e, status='error')
+        #     return False
 
     def check_pods_status(self, namespace, name, label, count=30, replicas=0):
         """
@@ -150,7 +186,16 @@ class KubernetesClass:
             return False
         else:
             for x in after:
-                status = self.api_core.read_namespaced_pod_status(namespace=namespace, name=x)
+                kwargs = {
+                    "namespace": namespace,
+                    "name": x
+                }
+                function = getattr(self.api_core, 'read_namespaced_pod_status')
+                status = self.retry_run_function(function=function, kwargs=kwargs)
+                if not status:
+                    self.log.record(message="更新镜像失败!", status='error')
+                    continue
+                # status = self.api_core.read_namespaced_pod_status(namespace=namespace, name=x)
                 for a in status.status.container_statuses:
                     if not a.ready:
                         result = False
@@ -178,10 +223,19 @@ class KubernetesClass:
         :param limit_time:
         :return:
         """
-        data = self.api_core.list_namespaced_pod(
-            namespace=namespace,
-            label_selector=label.format(name)
-        )
+        kwargs = {
+            "namespace": namespace,
+            "label_selector": label.format(name)
+        }
+        function = getattr(self.api_core, 'list_namespaced_pod')
+        data = self.retry_run_function(function=function, kwargs=kwargs)
+        # data = self.api_core.list_namespaced_pod(
+        #     namespace=namespace,
+        #     label_selector=label.format(name)
+        # )
+        if not data:
+            self.log.record(message="更新镜像失败!", status='error')
+            return False
         if not limit_time:
             return [x.metadata.name for x in data.items]
         else:
@@ -200,7 +254,16 @@ class KubernetesClass:
         """
         compare = False
         error_str = ""
-        data = self.api_core.read_namespaced_pod_log(name=pod, namespace=namespace)
+        kwargs = {
+            "namespace": namespace,
+            "name": pod
+        }
+        function = getattr(self.api_core, 'read_namespaced_pod_log')
+        data = self.retry_run_function(function=function, kwargs=kwargs)
+        if not data:
+            self.log.record(message="更新镜像失败!", status='error')
+            return ''
+        # data = self.api_core.read_namespaced_pod_log(name=pod, namespace=namespace)
         for line in data.split('\n'):
             for key in POD_CHECK_KEYS:
                 if key in line:
@@ -256,7 +319,7 @@ class KubernetesClass:
                     namespace=template.namespace,
                     name=template.app_name,
                     label=template.label,
-                    count=20,
+                    count=30,
                     replicas=deployment.spec.replicas
             ):
                 self.log.record(message="镜像发布失败，容器状态不正确：{}！".format(exec_list.params))
@@ -310,12 +373,24 @@ class KubernetesClass:
                     }
                 }
             }
-            self.api_apps.patch_namespaced_deployment(
-                namespace=template.namespace,
-                name=template.app_name,
-                body=body,
-                pretty='true'
-            )
+
+            kwargs = {
+                "namespace": template.namespace,
+                "name": template.app_name,
+                "body": body,
+                "pretty": 'true'
+            }
+            function = getattr(self.api_apps, 'patch_namespaced_deployment')
+            data = self.retry_run_function(function=function, kwargs=kwargs)
+            if not data:
+                self.log.record(message="更新镜像失败!", status='error')
+                return False
+            # self.api_apps.patch_namespaced_deployment(
+            #     namespace=template.namespace,
+            #     name=template.app_name,
+            #     body=body,
+            #     pretty='true'
+            # )
             time.sleep(20)
             if not self.check_pods_status(
                     namespace=template.namespace,
@@ -337,7 +412,7 @@ class KubernetesClass:
                 if msg:
                     message = "pod: {} \n{}".format(x, msg)
                     self.alert(message=message, pod=x, start_time=self.limit_time)
-            self.log.record(message="镜像发布成功：{}！".format(exec_list.params))
+            self.log.record(message="重启操作成功：{}！".format(exec_list.params))
             return True
         except ApiException as e:
             self.log.record(message="重启deployment失败，原因: %s\n" % e, status='error')

@@ -53,6 +53,7 @@ class KubernetesClass:
         try:
             return function(**kwargs)
         except Exception as error:
+            time.sleep(1)
             times = times - 1
             self.log.record(
                 status='error',

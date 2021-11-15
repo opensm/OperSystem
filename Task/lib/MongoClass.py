@@ -164,7 +164,7 @@ class MongoClass:
             return False
         filename, filetype = os.path.splitext(sql)
         sql_data = filename.split("#")
-        self.ftp.download(remote_path=sql_data[2], local_path=DB_BACKUP_DIR, achieve=sql)
+        # self.ftp.download(remote_path=sql_data[2], local_path=DB_BACKUP_DIR, achieve=sql)
         sql_data = filename.split("#")
         if sql_data[1] != 'mongodb':
             self.log.record(message="请检查即将导入的文件的相关信息，{}".format(sql), status='error')

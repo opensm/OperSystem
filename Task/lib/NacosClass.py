@@ -108,12 +108,12 @@ class NacosClass:
         if sql_data[1] != 'nacos':
             self.log.record(message="传输文件错误:{}".format(achieve), status='error')
             return False
-        if not self.ftp.download(
-                remote_path=sql_data[2],
-                local_path=self.backup_dir,
-                achieve=achieve
-        ):
-            return False
+        # if not self.ftp.download(
+        #         remote_path=sql_data[2],
+        #         local_path=self.backup_dir,
+        #         achieve=achieve
+        # ):
+        #     return False
         if os.path.exists(os.path.join(self.backup_dir, name)):
             shutil.rmtree(path=os.path.join(self.backup_dir, name))
         unzip_shell_string = 'unzip {} -d {} '.format(

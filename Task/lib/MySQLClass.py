@@ -175,8 +175,8 @@ class MySQLClass:
             return False
         filename, filetype = os.path.splitext(sql)
         sql_data = filename.split("#")
-        if not self.ftp.download(remote_path=sql_data[2], local_path=self.backup_dir, achieve=sql):
-            return False
+        # if not self.ftp.download(remote_path=sql_data[2], local_path=self.backup_dir, achieve=sql):
+        #     return False
         if sql_data[1] != 'mysql':
             self.log.record(message="请检查即将导入的文件的相关信息，{}".format(sql), status='error')
             return False

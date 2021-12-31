@@ -1,70 +1,71 @@
 # -*- coding: utf-8 -*-
-import pymongo
-import datetime
+import pymysql
 import os
+import datetime
 from Task.lib.settings import DB_BACKUP_DIR
 from Task.lib.Log import RecordExecLogs
-from Task.lib.lftp import FTPBackupForDB
 from Task.lib.base import cmd
-from Task.models import ExecList
-from Task.models import AuthKEY, TemplateDB
+from Task.models import AuthKEY, TemplateDB, ExecList
 from KubernetesManagerWeb.settings import SALT_KEY
 from lib.secret import AesCrypt
+import re
 
 
-class MongoClass:
+class MySQLClass:
     def __init__(self):
         self.host = None
         self.port = None
         self.user = None
         self.password = None
-        self.auth_str = None
         self.log = None
-        if not os.path.exists(DB_BACKUP_DIR):
+        self.backup_dir = DB_BACKUP_DIR
+        self.auth_str = None
+        self.cursor = None
+        self.auth_dump_str = None
+        if not os.path.exists(self.backup_dir):
             raise Exception(
-                "{0} 不存在！".format(DB_BACKUP_DIR)
+                "{0} 不存在！".format(self.backup_dir)
             )
-        if not os.path.exists("/usr/bin/mongodump") or not os.path.exists("/usr/bin/mongorestore"):
-            raise Exception("mongo或者mongodump, mongorestore没找到可执行程序！")
-        self.conn = None
-        self.ftp = FTPBackupForDB(db='mongo')
-        self.ftp.connect()
+        if not os.path.exists("/usr/bin/mysql") or not os.path.exists("/usr/bin/mysqldump"):
+            raise Exception("mysql或者mysqldump 没找到可执行程序！")
 
     def check_db(self, db):
-        res = self.conn.list_database_names()
-        if db in res:
+        self.cursor.execute("show databases like '{0}';".format(db))
+        res = self.cursor.fetchall()
+        if len(res):
             return True
         else:
-            self.log.record(message="数据库：{0},不存在！".format(db))
+            # RecodeLog.error(msg="数据库：{0},不存在！")
+            self.log.record(message="数据库：{0},不存在！", status='error')
             return False
 
     def backup_all(self):
-        cmd_str = "/usr/bin/mongodump {0} --gzip --archive={1}".format(
+        cmd_str = "/usr/bin/mysqldump {0} --all-databases|gzip >{1}".format(
             self.auth_str,
             os.path.join(
-                DB_BACKUP_DIR,
-                "mongo-{0}-{1}-{2}-all-database.gz".format(
+                self.backup_dir,
+                "{0}-{1}-{2}-all-database.gz".format(
                     self.host, self.port, datetime.datetime.now().strftime("%Y%m%d%H%M%S")
                 )
             )
+
         )
         cmd(cmd_str=cmd_str, replace=self.password, logs=self.log)
 
     def backup_one(self, db, achieve):
         if not self.check_db(db=db):
-            return
-        cmd_str = "/usr/bin/mongodump {0}  --gzip --archive={2}".format(
+            return False
+        cmd_str = "/usr/bin/mysqldump {0} {1}|gzip >{2}".format(
             self.auth_str,
             db,
             os.path.join(
-                DB_BACKUP_DIR,
+                self.backup_dir,
                 "{}.gz".format(achieve)
             )
         )
         if not cmd(cmd_str=cmd_str, replace=self.password, logs=self.log):
             return False
-        else:
-            return True
+        return True
 
     def exec_sql(self, db, sql):
         """
@@ -73,31 +74,33 @@ class MongoClass:
         :return:
         """
         if not os.path.exists(
-                os.path.join(DB_BACKUP_DIR, sql)
+                os.path.join(self.backup_dir, sql)
         ):
-            raise Exception("文件不存在：{0}".format(os.path.join(DB_BACKUP_DIR, sql)))
+            raise Exception("文件不存在：{0}".format(os.path.join(self.backup_dir, sql)))
         filename, filetype = os.path.splitext(sql)
-        if filetype == ".js":
-            cmd_str = "/usr/bin/mongo {0} {1}  {2}".format(
+        if filetype == ".sql":
+            cmd_str = "/usr/bin/mysql {0} {1} < {2}".format(
                 self.auth_str,
                 db,
-                os.path.join(DB_BACKUP_DIR, sql)
+                os.path.join(self.backup_dir, sql)
             )
         elif filetype == ".gz":
-            cmd_str = "zcat {2}|/usr/bin/mongorestore {0} {1} --archive".format(
+            cmd_str = "zcat {2}|/usr/bin/mysql {0} {1}".format(
                 self.auth_str,
                 db,
-                os.path.join(DB_BACKUP_DIR, sql)
+                os.path.join(self.backup_dir, sql)
             )
         else:
             self.log.record(message="不能识别的文件类型:{}".format(sql), status='error')
             return False
+
         if not cmd(cmd_str=cmd_str, replace=self.password, logs=self.log):
-            self.log.record(message="导入数据失败:{}".format(cmd_str).replace(self.password, '********'), status='error')
-            recover_str = "zcat {2}|/usr/bin/mongorestore {0} {1} --archive".format(
+            self.log.record(message="导入数据失败:{}，即将回滚！".format(cmd_str).replace(self.password, '********'),
+                            status='error')
+            recover_str = "zcat {2}.gz|/usr/bin/mysql {0} {1}".format(
                 self.auth_str,
                 db,
-                os.path.join(DB_BACKUP_DIR, filename)
+                os.path.join(self.backup_dir, filename)
             )
             if not cmd(cmd_str=recover_str, replace=self.password, logs=self.log):
                 self.log.record(
@@ -113,7 +116,7 @@ class MongoClass:
             self.log.record(message="导入数据成功:{}".format(cmd_str).replace(self.password, '********'))
             return True
 
-    def connect(self, content):
+    def connect_mysql(self, content):
         """
         :param content:
         :return:
@@ -130,18 +133,22 @@ class MongoClass:
             self.host = content.auth_host
             self.port = content.auth_port
             self.user = content.auth_user
-            self.conn = pymongo.MongoClient(
+            conn = pymysql.connect(
+                user=self.user,
+                password=self.password,
                 host=self.host,
                 port=self.port,
-                username=self.user,
-                password=self.password
+                connect_timeout=10,
+                charset='utf8'
             )
+            self.cursor = conn.cursor()
         except Exception as error:
             self.log.record(message="Mongodb登录验证失败,{}".format(error), status='error')
             return False
-        self.auth_str = "--host {} --port {} -u {} -p {}  --authenticationDatabase admin ".format(
+        self.auth_str = "-h{0} -P{1} -u{2} -p{3} --default-character-set=utf8 ".format(
             self.host, self.port, self.user, self.password
         )
+        return True
 
     def run(self, exec_list, logs):
         """
@@ -155,40 +162,43 @@ class MongoClass:
             raise TypeError("输入任务类型错误！")
         self.log = logs
         sql = exec_list.params
-        if not sql.endswith('.js'):
-            self.log.record(message="输入的文件名错误:{}!".format(sql), status='error')
+        if not sql.endswith('.sql'):
+            self.log.record(message="输入的文件名错误:{}!".format(sql))
+            return False
         template = exec_list.content_object
         if not isinstance(template, TemplateDB):
             return False
-        if not self.connect(template.instance):
+        if not self.connect_mysql(content=template.instance):
             return False
         filename, filetype = os.path.splitext(sql)
-        sql_data = filename.split("#")
-        # self.ftp.download(remote_path=sql_data[2], local_path=DB_BACKUP_DIR, achieve=sql)
-        sql_data = filename.split("#")
-        if sql_data[1] != 'mongodb':
-            self.log.record(message="请检查即将导入的文件的相关信息，{}".format(sql), status='error')
+        # 正则匹配任务文件名 20210426111742#mongodb#pre#member.gz
+        re_result = re.match('\d{14}#([a-zA-Z]+)#([a-zA-Z]+)#([A-Za-z_]+)', filename)
+        if not re_result:
+            self.log.record(message="错误的文件名格式：{},请按照：20210426111742#mongodb#pre#member.sql".format(sql))
             return False
-        if len(sql_data) != 4:
-            self.log.record(message="文件格式错误，请按照：20210426111742#mongodb#pre#member.js", status='error')
+        # 正则匹配出相关信息
+        db_type = re_result.group(1)
+        db_name = re_result.group(3)
+        if db_type != 'mysql':
+            self.log.record(message="请检查即将导入的文件的相关信息，{}".format(sql))
             return False
         if not self.backup_one(
-                db=sql_data[3],
+                db=db_name,
                 achieve=filename
         ):
             return False
-        if not self.exec_sql(sql=sql, db=sql_data[3]):
+        if not self.exec_sql(sql=sql, db=db_name):
             return False
         try:
             exec_list.output = "{}.gz".format(filename)
             exec_list.save()
-            self.log.record(message="保存备份数据情况成功:{}!".format("{}.gz".format(filename)), status='error')
+            self.log.record(message="保存备份数据情况成功:{}!".format("{}.gz".format(filename)))
             return True
         except Exception as error:
-            self.log.record(message="保存备份数据情况失败:{}!".format(error), status='error')
+            self.log.record(message="保存备份数据情况失败:{}!".format(error))
             return False
 
 
 __all__ = [
-    'MongoClass'
+    'MySQLClass'
 ]

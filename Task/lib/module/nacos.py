@@ -1,14 +1,16 @@
-import nacos
-from Task.lib.Log import RecordExecLogs
-from Task.lib.lftp import FTPBackupForDB
-from Task.lib.settings import DB_BACKUP_DIR
-import os
-from Task.lib.base import cmd
 import glob
-from Task.models import AuthKEY, ExecList, TemplateNacos
-import yaml
+import os
+import re
 import shutil
+
+import nacos
+import yaml
 from KubernetesManagerWeb.settings import SALT_KEY
+
+from Task.lib.Log import RecordExecLogs
+from Task.lib.base import cmd
+from Task.lib.settings import DB_BACKUP_DIR
+from Task.models import AuthKEY, ExecList, TemplateNacos
 from lib.secret import AesCrypt
 
 
@@ -16,8 +18,6 @@ class NacosClass:
     def __init__(self):
         self.nacos = None
         self.log = None
-        self.ftp = FTPBackupForDB(db='nacos')
-        self.ftp.connect()
         self.backup_dir = DB_BACKUP_DIR
 
     def upload_config(self, yaml_achieve, config_type):
@@ -54,7 +54,6 @@ class NacosClass:
         :return:
         """
         if not isinstance(content, AuthKEY):
-            # RecodeLog.error(msg="选择模板错误：{}！".format(content))
             self.log.record(message="选择模板错误：{}！".format(content), status='error')
             return False
         crypt = AesCrypt(model='ECB', iv='', encode_='utf-8', key=SALT_KEY)
@@ -102,18 +101,13 @@ class NacosClass:
             return False
         name, extension = os.path.splitext(achieve)
         if extension != '.zip':
-            self.log.record(message="文件类型错误:{}".format(achieve), status='error')
+            self.log.record(message="文件类型错误:{}".format(achieve))
             return False
-        sql_data = name.split("#")
-        if sql_data[1] != 'nacos':
-            self.log.record(message="传输文件错误:{}".format(achieve), status='error')
+        # 正则匹配任务文件名 20210426111742#mongodb#pre#member.gz
+        re_result = re.match('\d{14}#([a-zA-Z]+)#([a-zA-Z]+)#([A-Za-z_]+)', name)
+        if not re_result:
+            self.log.record(message="错误的文件名格式：{},请按照：20210730113319#nacos#prod#public.zip".format(achieve))
             return False
-        # if not self.ftp.download(
-        #         remote_path=sql_data[2],
-        #         local_path=self.backup_dir,
-        #         achieve=achieve
-        # ):
-        #     return False
         if os.path.exists(os.path.join(self.backup_dir, name)):
             shutil.rmtree(path=os.path.join(self.backup_dir, name))
         unzip_shell_string = 'unzip {} -d {} '.format(
@@ -121,14 +115,14 @@ class NacosClass:
             os.path.join(self.backup_dir, name)
         )
         if not cmd(cmd_str=unzip_shell_string, logs=self.log):
-            self.log.record(message="解压文件失败：{}".format(unzip_shell_string), status='error')
+            self.log.record(message="解压文件失败：{}".format(unzip_shell_string))
             return False
         yaml_list = glob.glob(os.path.join(self.backup_dir, name, "*", "*.yaml"))
         if not yaml_list:
-            self.log.record(message="导入配置文件为空,请检查！", status='warn')
+            self.log.record(message="导入配置文件为空,请检查！")
             return True
         for yml in yaml_list:
             if not self.upload_config(yaml_achieve=yml, config_type=template.config_type):
-                self.log.record(message="导入相关配置失败:{}".format(yml), status='error')
+                self.log.record(message="导入相关配置失败:{}".format(yml))
                 return False
         return True

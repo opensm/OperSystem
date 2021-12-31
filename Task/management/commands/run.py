@@ -6,21 +6,23 @@ from lib.Log import RecodeLog
 from Task.lib.Log import RecordExecLogs
 from Task.lib import ClassImport
 from Task.lib.settings import AGENTID, CORPID, SECRET, PARTY
+from Task.lib.multi_task import MultiSubTask
 
 
 class Command(BaseCommand):
     record_log = RecordExecLogs()
+    t_subtask = MultiSubTask()
 
     def handle(self, *args, **options):
         while True:
             for data in Tasks.objects.filter(
                     status__in=['approveing', 'not_start_approve', 'ok_approved']
             ):
-                if not self.checkTaskStatus(task=data):
+                if not self.check_task_status(task=data):
                     continue
                 RecodeLog.info(msg='即将开始任务:{}:{}'.format(data.id, data.name))
                 self.record_log.task = data
-                if not self.runTask(task=data):
+                if not self.run_task(task=data):
                     massage = '任务失败：'.format(ExecListLog.objects.filter(task=data).order_by('-id')[0])
                     RecodeLog.error(msg=massage)
                     self.alert(
@@ -41,7 +43,8 @@ class Command(BaseCommand):
                         finish_time=data.finish_time
                     )
 
-    def checkTaskStatus(self, task):
+    @staticmethod
+    def check_task_status(task):
         """
         :param task:
         :return:
@@ -64,25 +67,28 @@ class Command(BaseCommand):
         elif task_unixtime < local_time and task.status == 'ok_approved':
             return True
 
-    def runTask(self, task):
+    def run_task(self, task):
         if not isinstance(task, Tasks):
             raise TypeError('任务类型错误！')
         task.status = 'progressing'
         task.save()
-        for sub in task.sub_task.all():
-            self.record_log.sub_task = sub
-            self.record_log.project = sub.project
-            if not self.runSubTask(subtask=sub):
-                task.status = 'fail'
-                task.finish_time = datetime.datetime.now()
-                task.save()
-                return False
-        task.status = 'success'
-        task.finish_time = datetime.datetime.now()
-        task.save()
-        return True
+        # 启动多线程方式并发执行
+        if not self.t_subtask.run_bonded_threads(
+                sub_tasks=task.sub_task.all(),
+                max_threads=5,
+                run_function=self.run_subtask
+        ):
+            task.status = 'fail'
+            task.finish_time = datetime.datetime.now()
+            task.save()
+            return False
+        else:
+            task.status = 'success'
+            task.finish_time = datetime.datetime.now()
+            task.save()
+            return True
 
-    def runSubTask(self, subtask):
+    def run_subtask(self, subtask):
         """
         :param subtask:
         :return:
@@ -95,7 +101,7 @@ class Command(BaseCommand):
         subtask.save()
         for line in subtask.exec_list.all().order_by('id'):
             self.record_log.exec_list = line
-            if not self.execLine(data=line):
+            if not self.exec_line(data=line):
                 subtask.status = 'fail'
                 subtask.finish_time = datetime.datetime.now()
                 subtask.save()
@@ -105,7 +111,7 @@ class Command(BaseCommand):
         subtask.save()
         return True
 
-    def execLine(self, data):
+    def exec_line(self, data):
         """
         :param data:
         :return:
@@ -135,45 +141,3 @@ class Command(BaseCommand):
             data.finish_time = datetime.datetime.now()
             data.save()
             return True
-
-    @staticmethod
-    def alert(status, title, task_time, finish_time, message):
-        """
-        :param status:
-        :param title:
-        :param task_time:
-        :param finish_time:
-        :param message:
-        :return:
-        """
-        import requests
-        import json
-        url = 'https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={}&corpsecret={}'
-        try:
-            getr = requests.get(url=url.format(CORPID, SECRET))
-            access_token = getr.json().get('access_token')
-        except Exception as error:
-            RecodeLog.error(msg="获取token失败，{}".format(error))
-            return False
-        data = {
-            "toparty": PARTY,  # 向这些部门发送
-            "msgtype": "text",
-            "agentid": AGENTID,  # 应用的 id 号
-            "text": {
-                "content": "标题：{}-{} \n ** 事项详情 ** \n 任务时间：{} \n 完成时间：{} \n 消息：{}！".format(
-                    title, status, task_time, finish_time, message
-                )
-            }
-        }
-        try:
-            r = requests.post(
-                url="https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token={}".format(access_token),
-                data=json.dumps(data)
-            )
-            if r.json()['errcode'] != 0:
-                raise Exception(r.json()['errmsg'])
-            RecodeLog.info(msg="发送消息成功:{}".format(r.json()['errmsg']))
-            return True
-        except Exception as error:
-            RecodeLog.info(msg="发送消息失败,{}".format(error))
-            return False

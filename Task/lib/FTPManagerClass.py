@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from Task.lib.settings import DB_BACKUP_DIR, FTP_CONFIG
 from ftplib import FTP
-from lib.Log import RecodeLog
+from Task.lib.Log import RecordExecLogs
+from Task.models import ExecList
 import sys
 import os
 
@@ -67,12 +68,26 @@ class FTPBackupForDB:
             RecodeLog.error(msg="上传文件失败，{}，原因：{}".format(local_file, error))
             return False
 
-    def run(self, remote, achieve):
+    def run(self, exec_list, logs):
         """
-        :param remote:
-        :param achieve:
+        :param exec_list:
+        :param logs:
         :return:
         """
+        if not isinstance(exec_list, ExecList):
+            raise TypeError("输入任务类型错误！")
+        if not isinstance(logs, RecordExecLogs):
+            raise TypeError("输入任务类型错误！")
+
+        self.log = logs
+        template = exec_list.content_object
+
+        if not isinstance(template, TemplateKubernetes):
+            self.log.record(message="传入模板类型错误!", status='error')
+            return False
+        if not self.connect(obj=template.cluster):
+            self.log.record(message="链接K8S集群失败!", status='error')
+            return False
         self.connect()
         if not self.download(local_path=DB_BACKUP_DIR, remote_path=remote, achieve=achieve):
             sys.exit(1)

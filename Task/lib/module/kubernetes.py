@@ -3,12 +3,13 @@ import kubernetes.client
 from kubernetes.client.rest import ApiException
 from Task.models import AuthKEY, TemplateKubernetes, ExecList
 from datetime import timedelta, timezone, datetime
-from Task.lib.settings import AGENTID, CORPID, SECRET, PARTY
+from Task.lib.settings import NOTICE_SETTINGS
 import time
 from Task.lib.settings import POD_CHECK_KEYS
-from Task.lib.Log import RecordExecLogs
+from Task.lib.Log import *
 from KubernetesManagerWeb.settings import SALT_KEY
 from lib.secret import AesCrypt
+from Task.lib.notification import NoticeSender
 
 
 class KubernetesClass:
@@ -16,17 +17,35 @@ class KubernetesClass:
         self.configuration = kubernetes.client.Configuration()
         self.api_apps = None
         self.api_core = None
-        self.log = None
+        self._log = None
         self.limit_time = int(time.time()) - 300
+        self._notification = NoticeSender()
 
-    def connect(self, obj):
-        if not isinstance(obj, AuthKEY):
-            return False
+    def connect_core(self, obj: AuthKEY):
         try:
             crypt = AesCrypt(model='ECB', iv='', encode_='utf-8', key=SALT_KEY)
             auth_key = crypt.aesdecrypt(obj.auth_passwd)
             if not auth_key:
-                self.log.record(message='解密密码失败，请检查！', status='error')
+                self._log.record(message='解密密码失败，请检查！')
+                return False
+            self.configuration.api_key = {"authorization": "Bearer {}".format(auth_key)}
+            self.configuration.host = "https://{}:{}".format(obj.auth_host, obj.auth_port)
+            self.configuration.verify_ssl = False
+            self.configuration.debug = False
+            api_client = kubernetes.client.ApiClient(self.configuration)
+            self.api_core = kubernetes.client.CoreV1Api(api_client)
+            self._log.record(message="认证成功!")
+            return True
+        except Exception as error:
+            self._log.record(message="认证异常！{}".format(error))
+            return False
+
+    def connect_apps(self, obj: AuthKEY):
+        try:
+            crypt = AesCrypt(model='ECB', iv='', encode_='utf-8', key=SALT_KEY)
+            auth_key = crypt.aesdecrypt(obj.auth_passwd)
+            if not auth_key:
+                self._log.record(message='解密密码失败，请检查！')
                 return False
             self.configuration.api_key = {"authorization": "Bearer {}".format(auth_key)}
             self.configuration.host = "https://{}:{}".format(obj.auth_host, obj.auth_port)
@@ -34,16 +53,15 @@ class KubernetesClass:
             self.configuration.debug = False
             api_client = kubernetes.client.ApiClient(self.configuration)
             self.api_apps = kubernetes.client.AppsV1Api(api_client)
-            self.api_core = kubernetes.client.CoreV1Api(api_client)
-            self.log.record(message="认证成功!")
+            self._log.record(message="认证成功!")
             return True
         except Exception as error:
-            self.log.record(message="认证异常！{}".format(error))
+            self._log.record(message="认证异常！{}".format(error))
             return False
 
     def retry_run_function(self, function, kwargs, times=5):
         if times <= 0:
-            self.log.record(
+            self._log.record(
                 status='error',
                 message="函数:{},调用异常:{},尝试次数用完退出！".format(
                     function, times
@@ -55,7 +73,7 @@ class KubernetesClass:
         except Exception as error:
             time.sleep(1)
             times = times - 1
-            self.log.record(
+            self._log.record(
                 status='error',
                 message="函数:{},调用异常:{},还剩{}次尝试！".format(
                     function, error, times
@@ -83,7 +101,7 @@ class KubernetesClass:
         function = getattr(self.api_apps, 'read_namespaced_deployment')
         result = self.retry_run_function(function=function, kwargs=kwargs)
         if not result:
-            self.log.record(message="获取delployment失败!", status='error')
+            self._log.record(message="获取delployment失败!")
         return result
 
     def check_deploy_image(self, deployment, name, exec_list):
@@ -103,7 +121,7 @@ class KubernetesClass:
                 if containers[i].image != exec_list.params:
                     return False
                 else:
-                    self.log.record(message="更新镜像与在线镜像一致，跳过更新!".format(containers[i].image))
+                    self._log.record(message="更新镜像与在线镜像一致，跳过更新!".format(containers[i].image))
                     return True
         return False
 
@@ -125,9 +143,9 @@ class KubernetesClass:
                 try:
                     exec_list.output = containers[i].image
                     exec_list.save()
-                    self.log.record(message="保存老镜像成功:{}".format(containers[i].image))
+                    self._log.record(message="保存老镜像成功:{}".format(containers[i].image))
                 except Exception as error:
-                    self.log.record(message="保存老镜像失败:{}".format(error), status='error')
+                    self._log.record(message="保存老镜像失败:{}".format(error))
                     return False
                 containers[i].image = exec_list.params
                 deployment.spec.template.spec.containers = containers
@@ -140,7 +158,7 @@ class KubernetesClass:
         function = getattr(self.api_apps, 'patch_namespaced_deployment')
         result = self.retry_run_function(function=function, kwargs=kwargs)
         if not result:
-            self.log.record(message="更新镜像失败!", status='error')
+            self._log.record(message="更新镜像失败!")
         return result
         # try:
         #     self.api_apps.patch_namespaced_deployment(
@@ -150,7 +168,7 @@ class KubernetesClass:
         #     )
         #     return True
         # except ApiException as e:
-        #     self.log.record(message="更新镜像失败: %s\n" % e, status='error')
+        #     self.log.record(message="更新镜像失败: %s\n" % e)
         #     return False
 
     def check_pods_status(self, namespace, name, label, count=30, replicas=0):
@@ -163,17 +181,17 @@ class KubernetesClass:
         :return:
         """
         result = True
-        self.log.record(message="还剩：{}次尝试次数!".format(count))
+        self._log.record(message="还剩：{}次尝试次数!".format(count))
         after = self.get_deployment_pods(
             namespace=namespace,
             name=name,
             label=label,
             limit_time=self.limit_time
         )
-        self.log.record("获取POD个数:{}".format(after))
+        self._log.record("获取POD个数:{}".format(after))
         count = count - 1
         if len(after) < replicas and count > 0:
-            self.log.record(message="启动pod数不够，现：{}".format(after))
+            self._log.record(message="启动pod数不够，现：{}".format(after))
             time.sleep(10)
             return self.check_pods_status(
                 namespace=namespace,
@@ -183,7 +201,7 @@ class KubernetesClass:
                 replicas=replicas
             )
         elif len(after) < replicas and count == 0:
-            self.log.record(message="检测超时:{}".format(name), status='error')
+            self._log.record(message="检测超时:{}".format(name))
             return False
         else:
             for x in after:
@@ -194,14 +212,14 @@ class KubernetesClass:
                 function = getattr(self.api_core, 'read_namespaced_pod_status')
                 status = self.retry_run_function(function=function, kwargs=kwargs)
                 if not status:
-                    self.log.record(message="更新镜像失败!", status='error')
+                    self._log.record(message="更新镜像失败!")
                     continue
                 # status = self.api_core.read_namespaced_pod_status(namespace=namespace, name=x)
                 for a in status.status.container_statuses:
                     if not a.ready:
                         result = False
                 if not result and count > 0:
-                    self.log.record(message="启动pod:{},状态不正确，等待10s，即将下次检测!".format(x))
+                    self._log.record(message="启动pod:{},状态不正确，等待10s，即将下次检测!".format(x))
                     time.sleep(10)
                     return self.check_pods_status(
                         namespace=namespace,
@@ -211,7 +229,7 @@ class KubernetesClass:
                         replicas=replicas
                     )
                 elif not result and count == 0:
-                    self.log.record(message="启动pod状态不正确，检测超时，任务失败!", status='error')
+                    self._log.record(message="启动pod状态不正确，检测超时，任务失败!")
                     return False
                 else:
                     return True
@@ -235,7 +253,7 @@ class KubernetesClass:
         #     label_selector=label.format(name)
         # )
         if not data:
-            self.log.record(message="更新镜像失败!", status='error')
+            self._log.record(message="更新镜像失败!")
             return False
         if not limit_time:
             return [x.metadata.name for x in data.items]
@@ -262,7 +280,7 @@ class KubernetesClass:
         function = getattr(self.api_core, 'read_namespaced_pod_log')
         data = self.retry_run_function(function=function, kwargs=kwargs)
         if not data:
-            self.log.record(message="更新镜像失败!", status='error')
+            self._log.record(message="更新镜像失败!")
             return ''
         # data = self.api_core.read_namespaced_pod_log(name=pod, namespace=namespace)
         for line in data.split('\n'):
@@ -281,14 +299,14 @@ class KubernetesClass:
         if not isinstance(logs, RecordExecLogs):
             raise TypeError("输入任务类型错误！")
 
-        self.log = logs
+        self._log = logs
         template = exec_list.content_object
 
         if not isinstance(template, TemplateKubernetes):
-            self.log.record(message="传入模板类型错误!", status='error')
+            self._log.record(message="传入模板类型错误!")
             return False
-        if not self.connect(obj=template.cluster):
-            self.log.record(message="链接K8S集群失败!", status='error')
+        if not self.connect_apps(obj=template.cluster):
+            self._log.record(message="链接K8S集群失败!")
             return False
 
         deployment = self.get_deployment(
@@ -296,7 +314,7 @@ class KubernetesClass:
             namespace=template.namespace
         )
         if not deployment:
-            self.log.record(message="获取deployment失败!", status='error')
+            self._log.record(message="获取deployment失败!")
             return False
 
         if self.check_deploy_image(
@@ -312,7 +330,7 @@ class KubernetesClass:
                 namespace=template.namespace,
                 exec_list=exec_list
         ):
-            self.log.record(message="镜像发布失败：{}".format(exec_list.params))
+            self._log.record(message="镜像发布失败：{}".format(exec_list.params))
             return False
         else:
             time.sleep(20)
@@ -323,7 +341,7 @@ class KubernetesClass:
                     count=30,
                     replicas=deployment.spec.replicas
             ):
-                self.log.record(message="镜像发布失败，容器状态不正确：{}！".format(exec_list.params))
+                self._log.record(message="镜像发布失败，容器状态不正确：{}！".format(exec_list.params))
                 return False
 
             pods = self.get_deployment_pods(
@@ -335,9 +353,16 @@ class KubernetesClass:
             for x in pods:
                 msg = self.check_pod_logs(pod=x, namespace=template.namespace)
                 if msg:
-                    message = "pod: {} \n{}".format(x, msg)
-                    self.alert(message=message, pod=x, start_time=self.limit_time)
-        self.log.record(message="镜像发布成功：{}！".format(exec_list.params))
+                    message = "### >报错容器: {} \n### >报错信息:{}\n".format(x, msg)
+                    title = "发版信息：{} {}".format(self._log.project.name, self._log.task.name)
+                    user_list = [
+                        self._log.task.create_user.mobile,
+                        self._log.sub_task.create_user.mobile
+                    ]
+                    self._notification.sender_file(
+                        title=title, msg=message, mentioned=user_list, is_all=False
+                    )
+        self._log.record(message="镜像发布成功：{}！".format(exec_list.params))
         return True
 
     def restart(self, exec_list, logs):
@@ -345,20 +370,20 @@ class KubernetesClass:
             raise TypeError("输入任务类型错误！")
         if not isinstance(logs, RecordExecLogs):
             raise TypeError("输入任务类型错误！")
-        self.log = logs
+        self._log = logs
         template = exec_list.content_object
         if not isinstance(template, TemplateKubernetes):
-            self.log.record(message="传入模板类型错误!", status='error')
+            self._log.record(message="传入模板类型错误!")
             return False
-        if not self.connect(obj=template.cluster):
-            self.log.record(message="链接K8S集群失败!", status='error')
+        if not self.connect_apps(obj=template.cluster):
+            self._log.record(message="链接K8S集群失败!")
             return False
         deployment = self.get_deployment(
             deployment_name=template.app_name,
             namespace=template.namespace
         )
         if not deployment:
-            self.log.record(message="获取deployment失败!", status='error')
+            self._log.record(message="获取deployment失败!")
             return False
         try:
             now = datetime.utcnow()
@@ -384,7 +409,7 @@ class KubernetesClass:
             function = getattr(self.api_apps, 'patch_namespaced_deployment')
             data = self.retry_run_function(function=function, kwargs=kwargs)
             if not data:
-                self.log.record(message="更新镜像失败!", status='error')
+                self._log.record(message="更新镜像失败!")
                 return False
             # self.api_apps.patch_namespaced_deployment(
             #     namespace=template.namespace,
@@ -400,7 +425,7 @@ class KubernetesClass:
                     count=20,
                     replicas=deployment.spec.replicas
             ):
-                self.log.record(message="镜像发布失败，容器状态不正确：{}！".format(exec_list.params))
+                self._log.record(message="镜像发布失败，容器状态不正确：{}！".format(exec_list.params))
                 return False
             pods = self.get_deployment_pods(
                 namespace=template.namespace,
@@ -411,85 +436,17 @@ class KubernetesClass:
             for x in pods:
                 msg = self.check_pod_logs(pod=x, namespace=template.namespace)
                 if msg:
-                    message = "pod: {} \n{}".format(x, msg)
-                    self.alert(message=message, pod=x, start_time=self.limit_time)
-            self.log.record(message="重启操作成功：{}！".format(exec_list.params))
+                    message = "### >报错容器: {} \n### >报错信息:{}\n".format(x, msg)
+                    title = "发版信息：{} {}".format(self._log.project.name, self._log.task.name)
+                    user_list = [
+                        self._log.task.create_user.mobile,
+                        self._log.sub_task.create_user.mobile
+                    ]
+                    self._notification.sender_file(
+                        title=title, msg=message, mentioned=user_list, is_all=False
+                    )
+            self._log.record(message="重启操作成功：{}！".format(exec_list.params))
             return True
         except ApiException as e:
-            self.log.record(message="重启deployment失败，原因: %s\n" % e, status='error')
+            self._log.record(message="重启deployment失败，原因: %s\n" % e)
             return False
-
-    def alert(self, pod, start_time, message):
-        """
-        :param message:
-        :param pod:
-        :param start_time:
-        :return:
-        """
-        import requests
-        import json
-        try:
-            with open('/tmp/{}.log'.format(pod), 'w') as fff:
-                fff.writelines(message)
-                fff.close()
-        except Exception as error:
-            self.log.record(message="写入错误日志异常，请检查,{}".format(error), status='error')
-            return True
-
-        url = 'https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={}&corpsecret={}'
-        try:
-            getr = requests.get(url=url.format(CORPID, SECRET))
-            access_token = getr.json().get('access_token')
-        except Exception as error:
-            self.log.record(message="获取token失败，{}".format(error), status='error')
-            return False
-
-        data = {
-            "toparty": PARTY,  # 向这些部门发送
-            "msgtype": "text",
-            "agentid": AGENTID,  # 应用的 id 号
-            "text": {
-                "content": "本次发版中存在日志异常 \n ** 事项详情 ** \n 容器名称：{}\n 启动时间：{} \n 下方即为本次日志异常详细内容，请下载查看！".format(
-                    pod, start_time
-                )
-            }
-        }
-        try:
-            r = requests.post(
-                url="https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token={}".format(access_token),
-                data=json.dumps(data)
-            )
-            if r.json()['errcode'] != 0:
-                raise Exception(r.json()['errmsg'])
-            self.log.record(message="发送消息成功:{}".format(r.json()['errmsg']))
-        except Exception as error:
-            self.log.record(message="发送消息失败,{}".format(error), status='error')
-            return True
-
-        try:
-            w = requests.post(
-                url="https://qyapi.weixin.qq.com/cgi-bin/media/upload?access_token={}&type=file".format(access_token),
-                files={'file': open('/tmp/{}.log'.format(pod), 'rb')}
-            )
-            if w.json()['errcode'] != 0:
-                raise Exception(r.json()['errmsg'])
-            media_id = w.json()['media_id']
-            file_params = {
-                "toparty": PARTY,  # 向这些部门发送
-                "msgtype": "file",
-                "agentid": AGENTID,  # 应用的 id 号
-                "file": {
-                    "media_id": media_id
-                }
-            }
-            s = requests.post(
-                url="https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token={}".format(access_token),
-                data=json.dumps(file_params)
-            )
-            if s.json()['errcode'] != 0:
-                raise Exception(s.json()['errmsg'])
-
-            self.log.record(message="发送消息成功:{}".format(r.json()['errmsg']))
-        except Exception as error:
-            self.log.record(message="发送消息失败,{}".format(error), status='error')
-            return True

@@ -376,6 +376,8 @@ class DataQueryPermission(ObjectUserInfo):
             field_name[x.name] = x.verbose_name
         return field_name
 
+    """ 这部分要考虑到外键和多对多的关系处理 例如项目与使用到项目关联的表的数据处理"""
+
     def get_content_field_values(self, field):
         """
         :param field:
